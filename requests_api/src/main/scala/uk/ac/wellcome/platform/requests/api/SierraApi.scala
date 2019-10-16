@@ -3,6 +3,7 @@ package uk.ac.wellcome.platform.requests.api
 import io.circe.Decoder
 import scalaj.http.Http
 import uk.ac.wellcome.json.JsonUtil._
+import uk.ac.wellcome.platform.requests.api.config.models.SierraApiConfig
 
 case class SierraToken(accessToken: String, tokenType: String, expiresIn: Int)
 object SierraToken {
@@ -32,15 +33,14 @@ case class SierraPatronHoldRequest(recordType: String,
                                    pickupLocation: String,
                                    note: String)
 
-trait SierrApi {
-  val authUser: String
-  val authPass: String
+trait SierraApi {
+  val config: SierraApiConfig
   val rootUrl: String
 }
 
 // TODO: Use eithers not options
-class SierraHttpApi(val authUser: String, val authPass: String)
-    extends SierrApi {
+class HttpSierraApi(val config: SierraApiConfig)
+    extends SierraApi {
 
   val rootUrl = "https://libsys.wellcomelibrary.org/iii/sierra-api/v3"
 
@@ -48,7 +48,7 @@ class SierraHttpApi(val authUser: String, val authPass: String)
     val resp =
       Http(s"$rootUrl/token")
         .postData("grant_type=client_credentials")
-        .auth(authUser, authPass)
+        .auth(config.user, config.pass)
         .asString
 
     fromJson[SierraToken](resp.body).toOption
@@ -70,11 +70,11 @@ class SierraHttpApi(val authUser: String, val authPass: String)
     get[SierraItem](s"/items/$id")
   }
 
-  def getPatron(id: Int) = {
+  def getPatron(id: Int = 1097124) = {
     get[SierraPatron](s"/patrons/$id?fields=names,emails")
   }
 
-  def getPatronHolds(id: Int) = {
+  def getPatronHolds(id: Int = 1097124) = {
     get[SierraPatronHolds](s"/patrons/$id/holds")
   }
 
@@ -86,7 +86,7 @@ class SierraHttpApi(val authUser: String, val authPass: String)
     }
   }
 
-  def postPatronPlaceHold(patronId: Int, itemId: Int) = {
+  def postPatronPlaceHold(itemId: Int, patronId: Int = 1097124) = {
     val holdRequest = SierraPatronHoldRequest(
       "i",
       recordNumber = itemId,

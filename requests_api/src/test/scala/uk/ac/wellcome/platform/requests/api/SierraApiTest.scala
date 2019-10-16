@@ -2,26 +2,23 @@ package uk.ac.wellcome.platform.requests.api
 
 import org.scalatest.{FunSpec, Matchers}
 import uk.ac.wellcome.json.utils.JsonAssertions
+import uk.ac.wellcome.platform.requests.api.config.models.SierraApiConfig
 
 class SierraApiTest extends FunSpec with Matchers with JsonAssertions {
 
-//  describe("Sierra") {
-//    api =
-//    it("patrons") {
-//      println(SierraHttpApi.getPatron(1097124))
-//    }
-//
-//    it("patron holds") {
-//      println(SierraHttpApi.getPatronHolds(1097124))
-//    }
-//
-//    it("patron request hold") {
-//      SierraHttpApi.postPatronPlaceHold(1097124, 1424851)
-//    }
-//
-//    it("deletes hold") {
-//      val holdId = 143884
-//      println(SierraHttpApi.deletePatronHold(holdId))
-//    }
-//  }
+
+    val api = new HttpSierraApi(SierraApiConfig(
+      "hello",
+      "123"
+    ))
+
+    it("patron holds") {
+      println(api.getPatronHolds(1097124))
+    }
+
+    it("delete patron holds") {
+      println(api.deletePatronHold(1097124))
+      println(api.deletePatronHold(1424851))
+      println(api.deletePatronHold(143970))
+    }
 }

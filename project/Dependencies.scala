@@ -69,7 +69,7 @@ object ExternalDependencies {
     val commonsCompress = "1.5"
     val commonsIO = "2.6"
     val aws = "1.11.504"
-    val circe = "0.9.0"
+    val circe = "0.11.0"
     val scalatest = "3.0.1"
     val wiremock = "2.18.0"
     val logback = "1.2.3"
@@ -94,7 +94,7 @@ object ExternalDependencies {
   )
 
   val circeOpticsDependencies = Seq[ModuleID](
-    "io.circe" %% "circe-optics" % versions.circe % "test"
+    "io.circe" %% "circe-optics" % versions.circe
   )
 
   val scalatestDependencies = Seq[ModuleID](
@@ -128,6 +128,7 @@ object RequestsDependencies {
       ExternalDependencies.scalatestDependencies ++
       ExternalDependencies.logbackDependencies ++
       ExternalDependencies.scalajHttp ++
+      ExternalDependencies.circeOpticsDependencies ++
       WellcomeDependencies.jsonLibrary ++
       WellcomeDependencies.messagingLibrary ++
       WellcomeDependencies.monitoringLibrary ++
