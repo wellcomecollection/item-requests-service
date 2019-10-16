@@ -1,7 +1,7 @@
 ROOT = $(shell git rev-parse --show-toplevel)
 
 ifneq ($(TRAVIS),true)
-DEV_ROLE_ARN := arn:aws:iam::975596993436:role/storage-developer
+DEV_ROLE_ARN := arn:aws:iam::760097843905:role/platform-developer
 endif
 
 
