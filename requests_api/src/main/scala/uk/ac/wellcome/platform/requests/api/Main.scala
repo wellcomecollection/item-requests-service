@@ -39,7 +39,8 @@ object Main extends WellcomeTypesafeApp {
         metrics = MetricsBuilder.buildMetricsSender(config)
       ),
       httpServerConfig = HTTPServerBuilder.buildHTTPServerConfig(config),
-      contextURL = new URL("https://examples.com"),
+      contextURL = new URL(
+        "https://api.wellcomecollection.org/item-requests/v1/context.json"),
       appName = appName
     )
   }
