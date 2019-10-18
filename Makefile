@@ -8,7 +8,8 @@ PROJECT_ID = requests
 STACK_ROOT 	= .
 
 SBT_APPS =
-SBT_NO_DOCKER_APPS = requests_api
+SBT_NO_DOCKER_APPS = requests_api \
+                     status_api
 
 SBT_DOCKER_LIBRARIES    =
 SBT_NO_DOCKER_LIBRARIES =
