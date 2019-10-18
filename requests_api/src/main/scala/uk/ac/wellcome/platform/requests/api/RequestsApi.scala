@@ -1,6 +1,5 @@
 package uk.ac.wellcome.platform.requests.api
 
-import akka.http.scaladsl.model.RequestEntity
 import akka.http.scaladsl.server.Route
 import grizzled.slf4j.Logging
 
@@ -17,13 +16,28 @@ trait RequestsApi extends Logging {
   implicit val sierraApi: HttpSierraApi
 
   val routes: Route = concat(
-    path("works" / Segment / "items" / Segment) {
 
+    path("members" / Segment) { memberId =>
+      val holds = sierraApi.getPatronHolds(memberId)
+      complete(holds)
+    },
+    path("members" / Segment) { memberId =>
+      delete {
+        sierraApi.deletePatronHolds(memberId)
+        complete("""{ "status": "success" }""")
+      }
+    },
+    path("works" / Segment / "items" / Segment) {
       case (_, itemId) =>
+        get {
+          val sierraItemNumber = HttpCatalogueApi.getItemINumber(itemId)
+          val item = sierraApi.getItem(sierraItemNumber.get)
+          complete(item)
+        }
         post {
           entity(as[SierraPatron]) { patron =>
             val sierraItemNumber = HttpCatalogueApi.getItemINumber(itemId)
-            val holdRequest = sierraApi.postPatronPlaceHold(sierraItemNumber.get.toInt, patron.id)
+            val holdRequest = sierraApi.postPatronPlaceHold(patron.id, sierraItemNumber.get)
             complete(holdRequest)
           }
         }

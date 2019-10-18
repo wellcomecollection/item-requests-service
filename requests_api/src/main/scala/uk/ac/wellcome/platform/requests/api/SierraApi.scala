@@ -18,7 +18,7 @@ case class SierraItem(id: String,
                       callNumber: String)
 case class SierraLocation(code: String, name: String)
 case class SierraStatus(code: String, display: String)
-case class SierraPatron(id: Int,
+case class SierraPatron(id: String,
                         names: List[String] = Nil,
                         emails: List[String] = Nil)
 case class SierraPatronHolds(total: Int, entries: List[SierraPatronHoldEntry])
@@ -29,9 +29,10 @@ case class SierraPatronHoldEntry(id: String,
                                  pickupLocation: SierraLocation,
                                  status: SierraHoldStatus)
 case class SierraPatronHoldRequest(recordType: String,
-                                   recordNumber: Int,
+                                   recordNumber: String,
                                    pickupLocation: String,
                                    note: String)
+case object DeleteSuccess
 
 trait SierraApi {
   val config: SierraApiConfig
@@ -42,7 +43,7 @@ trait SierraApi {
 class HttpSierraApi(val config: SierraApiConfig)
     extends SierraApi {
 
-  val rootUrl = "https://libsys.wellcomelibrary.org/iii/sierra-api/v3"
+  val rootUrl = "https://libsys.wellcomelibrary.org/iii/sierra-api/v5"
 
   private def getToken(): Option[SierraToken] = {
     val resp =
@@ -70,23 +71,35 @@ class HttpSierraApi(val config: SierraApiConfig)
     get[SierraItem](s"/items/$id")
   }
 
-  def getPatron(id: Int = 1097124) = {
+  def validatePatron(patronId: String, pass: String) = {
+    authed(s"/patrons/validate") map { req =>
+      val resp = req
+        .header("content-type", "application/json")
+        .postData(s"""{ "barcode": "$patronId", "pin": "$pass" }""")
+        .asString
+
+      println(resp.body)
+    }
+
+  }
+
+  def getPatron(id: String) = {
     get[SierraPatron](s"/patrons/$id?fields=names,emails")
   }
 
-  def getPatronHolds(id: Int = 1097124) = {
-    get[SierraPatronHolds](s"/patrons/$id/holds")
+
+  def getPatronHolds(patronId: String) = {
+    get[SierraPatronHolds](s"/patrons/$patronId/holds")
   }
 
-  // TODO: Return type
-  def deletePatronHold(holdId: Int) = {
-    authed(s"/patrons/holds/$holdId") flatMap { req =>
+  def deletePatronHolds(patronId: String) = {
+    authed(s"/patrons/$patronId/holds") map { req =>
       req.method("DELETE").asString
-      None
+      DeleteSuccess
     }
   }
 
-  def postPatronPlaceHold(itemId: Int, patronId: Int = 1097124) = {
+  def postPatronPlaceHold(patronId: String, itemId: String) = {
     val holdRequest = SierraPatronHoldRequest(
       "i",
       recordNumber = itemId,
