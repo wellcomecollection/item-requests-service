@@ -3,7 +3,7 @@ module "requests_api" {
 
   namespace = "requests-api"
 
-  container_image = "760097843905.dkr.ecr.eu-west-1.amazonaws.com/uk.ac.wellcome/requests_api:67dffaf892b4464a01dd70df249369c34558a92b"
+  container_image = "760097843905.dkr.ecr.eu-west-1.amazonaws.com/uk.ac.wellcome/requests_api:563ae510cc66bf62e24133187a9bf61de07534ed"
   container_port  = "9001"
 
   namespace_id = "${aws_service_discovery_private_dns_namespace.namespace.id}"

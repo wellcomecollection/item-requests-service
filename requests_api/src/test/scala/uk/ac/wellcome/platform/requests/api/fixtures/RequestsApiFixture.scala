@@ -6,11 +6,8 @@ import org.scalatest.concurrent.ScalaFutures
 import uk.ac.wellcome.fixtures.TestWith
 import uk.ac.wellcome.monitoring.fixtures.MetricsSenderFixture
 import uk.ac.wellcome.monitoring.memory.MemoryMetrics
-import uk.ac.wellcome.platform.requests.api.{
-  HttpMetrics,
-  RequestsApi,
-  WellcomeHttpApp
-}
+import uk.ac.wellcome.platform.requests.api.config.models.SierraApiConfig
+import uk.ac.wellcome.platform.requests.api.{HttpMetrics, HttpSierraApi, RequestsApi, WellcomeHttpApp}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -38,6 +35,10 @@ trait RequestsApiFixture
 
         val router: RequestsApi = new RequestsApi {
           override implicit val ec: ExecutionContext = global
+          override implicit val sierraApi: HttpSierraApi = new HttpSierraApi(SierraApiConfig(
+            "hello",
+            "123"
+          ))
         }
 
         val app = new WellcomeHttpApp(

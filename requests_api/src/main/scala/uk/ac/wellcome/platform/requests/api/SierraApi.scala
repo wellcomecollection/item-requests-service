@@ -3,6 +3,7 @@ package uk.ac.wellcome.platform.requests.api
 import io.circe.Decoder
 import scalaj.http.Http
 import uk.ac.wellcome.json.JsonUtil._
+import uk.ac.wellcome.platform.requests.api.config.models.SierraApiConfig
 
 case class SierraToken(accessToken: String, tokenType: String, expiresIn: Int)
 object SierraToken {
@@ -17,7 +18,7 @@ case class SierraItem(id: String,
                       callNumber: String)
 case class SierraLocation(code: String, name: String)
 case class SierraStatus(code: String, display: String)
-case class SierraPatron(id: Int,
+case class SierraPatron(id: String,
                         names: List[String] = Nil,
                         emails: List[String] = Nil)
 case class SierraPatronHolds(total: Int, entries: List[SierraPatronHoldEntry])
@@ -28,27 +29,27 @@ case class SierraPatronHoldEntry(id: String,
                                  pickupLocation: SierraLocation,
                                  status: SierraHoldStatus)
 case class SierraPatronHoldRequest(recordType: String,
-                                   recordNumber: Int,
+                                   recordNumber: String,
                                    pickupLocation: String,
                                    note: String)
+case object DeleteSuccess
 
-trait SierrApi {
-  val authUser: String
-  val authPass: String
+trait SierraApi {
+  val config: SierraApiConfig
   val rootUrl: String
 }
 
 // TODO: Use eithers not options
-class SierraHttpApi(val authUser: String, val authPass: String)
-    extends SierrApi {
+class HttpSierraApi(val config: SierraApiConfig)
+    extends SierraApi {
 
-  val rootUrl = "https://libsys.wellcomelibrary.org/iii/sierra-api/v3"
+  val rootUrl = "https://libsys.wellcomelibrary.org/iii/sierra-api/v5"
 
   private def getToken(): Option[SierraToken] = {
     val resp =
       Http(s"$rootUrl/token")
         .postData("grant_type=client_credentials")
-        .auth(authUser, authPass)
+        .auth(config.user, config.pass)
         .asString
 
     fromJson[SierraToken](resp.body).toOption
@@ -70,23 +71,35 @@ class SierraHttpApi(val authUser: String, val authPass: String)
     get[SierraItem](s"/items/$id")
   }
 
-  def getPatron(id: Int) = {
+  def validatePatron(patronId: String, pass: String) = {
+    authed(s"/patrons/validate") map { req =>
+      val resp = req
+        .header("content-type", "application/json")
+        .postData(s"""{ "barcode": "$patronId", "pin": "$pass" }""")
+        .asString
+
+      println(resp.body)
+    }
+
+  }
+
+  def getPatron(id: String) = {
     get[SierraPatron](s"/patrons/$id?fields=names,emails")
   }
 
-  def getPatronHolds(id: Int) = {
-    get[SierraPatronHolds](s"/patrons/$id/holds")
+
+  def getPatronHolds(patronId: String) = {
+    get[SierraPatronHolds](s"/patrons/$patronId/holds")
   }
 
-  // TODO: Return type
-  def deletePatronHold(holdId: Int) = {
-    authed(s"/patrons/holds/$holdId") flatMap { req =>
+  def deletePatronHolds(patronId: String) = {
+    authed(s"/patrons/$patronId/holds") map { req =>
       req.method("DELETE").asString
-      None
+      DeleteSuccess
     }
   }
 
-  def postPatronPlaceHold(patronId: Int, itemId: Int) = {
+  def postPatronPlaceHold(patronId: String, itemId: String) = {
     val holdRequest = SierraPatronHoldRequest(
       "i",
       recordNumber = itemId,

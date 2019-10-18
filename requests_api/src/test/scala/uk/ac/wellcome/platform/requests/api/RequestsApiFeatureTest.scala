@@ -1,10 +1,9 @@
-package uk.ac.wellcome.platform.storage.bags.api
+package uk.ac.wellcome.platform.requests.api
 
-import akka.http.scaladsl.model.StatusCodes
+import akka.http.scaladsl.model.{HttpEntity, StatusCodes, ContentTypes}
 import org.scalatest.concurrent.IntegrationPatience
 import org.scalatest.{FunSpec, Matchers}
 import uk.ac.wellcome.json.utils.JsonAssertions
-import uk.ac.wellcome.platform.requests.api.HttpMetricResults
 import uk.ac.wellcome.platform.requests.api.fixtures.RequestsApiFixture
 
 class RequestsApiFeatureTest
@@ -22,9 +21,9 @@ class RequestsApiFeatureTest
             s"""{ "workId": "12345", "itemId": "67890" }""".stripMargin
 
           val url =
-            s"$baseUrl/works/12345/items/67890"
+            s"$baseUrl/works/a2239muq/items/v9m3ewes"
 
-          whenGetRequestReady(url) { response =>
+          whenPostRequestReady(url, HttpEntity(ContentTypes.`application/json`, """{ "id" : 1097124 }""")) { response =>
             response.status shouldBe StatusCodes.OK
 
             withStringEntity(response.entity) { actualJson =>
