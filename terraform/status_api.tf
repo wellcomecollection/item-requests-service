@@ -1,9 +1,9 @@
-module "requests_api" {
+module "status_api" {
   source = "./modules/service/api"
 
-  namespace = "requests-api"
+  namespace = "status-api"
 
-  container_image = "760097843905.dkr.ecr.eu-west-1.amazonaws.com/uk.ac.wellcome/requests_api:479ad97af792ae839ce086ffbf1895fc25a67579"
+  container_image = "760097843905.dkr.ecr.eu-west-1.amazonaws.com/uk.ac.wellcome/status_api:acefecad19bbcb438abec7cd459a27f154620aad"
   container_port  = "9001"
 
   namespace_id = "${aws_service_discovery_private_dns_namespace.namespace.id}"
@@ -22,9 +22,9 @@ module "requests_api" {
   nginx_container_image = "wellcome/nginx_api-gw:77d1ba9b060a184097a26bc685735be343b1a754"
 
   env_vars = {
-    app_base_url      = "https://api.wellcomecollection.org/requests/v1/storage/v1/bags"
-    context_url       = "https://api.wellcomecollection.org/requests/v1/context.json"
-    metrics_namespace = "requests_api"
+    app_base_url      = "https://api.wellcomecollection.org/item-status/v1/storage/v1/bags"
+    context_url       = "https://api.wellcomecollection.org/item-status/v1/context.json"
+    metrics_namespace = "status_api"
   }
 
   env_vars_length = 1
@@ -37,7 +37,7 @@ module "requests_api" {
   secret_env_vars_length = 2
 
   lb_arn             = "${data.terraform_remote_state.catalogue_api.catalogue_api_nlb_arn}"
-  listener_port      = "65525"
+  listener_port      = "65524"
   cpu                = 2048
   memory             = 4096
   sidecar_cpu        = 1024
@@ -46,3 +46,5 @@ module "requests_api" {
   app_memory         = 2048
   task_desired_count = "1"
 }
+
+

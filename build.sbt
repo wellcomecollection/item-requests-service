@@ -47,3 +47,9 @@ lazy val requests_api = setupProject(
   "requests_api",
   externalDependencies = RequestsDependencies.commonDependencies
 )
+
+lazy val status_api = setupProject(
+  project,
+  "status_api",
+  externalDependencies = RequestsDependencies.commonDependencies
+)

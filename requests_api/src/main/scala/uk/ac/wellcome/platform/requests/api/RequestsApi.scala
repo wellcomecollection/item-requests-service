@@ -16,7 +16,6 @@ trait RequestsApi extends Logging {
   implicit val sierraApi: HttpSierraApi
 
   val routes: Route = concat(
-
     path("members" / Segment) { memberId =>
       val holds = sierraApi.getPatronHolds(memberId)
       complete(holds)
@@ -29,11 +28,6 @@ trait RequestsApi extends Logging {
     },
     path("works" / Segment / "items" / Segment) {
       case (_, itemId) =>
-        get {
-          val sierraItemNumber = HttpCatalogueApi.getItemINumber(itemId)
-          val item = sierraApi.getItem(sierraItemNumber.get)
-          complete(item)
-        }
         post {
           entity(as[SierraPatron]) { patron =>
             val sierraItemNumber = HttpCatalogueApi.getItemINumber(itemId)
