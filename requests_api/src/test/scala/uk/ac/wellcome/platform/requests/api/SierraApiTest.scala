@@ -26,7 +26,7 @@ class SierraApiTest extends FunSpec with Matchers with JsonAssertions {
       }
 
       it("getPatronHolds") {
-        api.getPatronHolds(patronId)
+        println(api.getPatronHolds(patronId))
       }
 
       it("deletePatronHolds") {

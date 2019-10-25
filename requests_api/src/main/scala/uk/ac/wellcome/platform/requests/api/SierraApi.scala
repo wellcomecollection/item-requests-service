@@ -110,7 +110,7 @@ class HttpSierraApi(val config: SierraApiConfig)
 
       resp code match {
         case 204 => Some(holdRequest)
-        case _   => None
+        case _   => Some(holdRequest.copy(note = s"Error ${resp.body}"))
       }
     }
   }
