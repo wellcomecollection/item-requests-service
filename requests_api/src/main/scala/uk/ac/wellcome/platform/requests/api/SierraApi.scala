@@ -7,7 +7,7 @@ import uk.ac.wellcome.platform.requests.api.config.models.SierraApiConfig
 
 case class SierraToken(accessToken: String, tokenType: String, expiresIn: Int)
 object SierraToken {
-  implicit val decodeUser: Decoder[SierraToken] =
+  implicit val decodeSierraToken: Decoder[SierraToken] =
     Decoder.forProduct3("access_token", "token_type", "expires_in")(
       SierraToken.apply)
 }
@@ -18,9 +18,7 @@ case class SierraItem(id: String,
                       callNumber: String)
 case class SierraLocation(code: String, name: String)
 case class SierraStatus(code: String, display: String)
-case class SierraPatron(id: String,
-                        names: List[String] = Nil,
-                        emails: List[String] = Nil)
+case class SierraPatron(id: Int)
 case class SierraPatronHolds(total: Int, entries: List[SierraPatronHoldEntry])
 case class SierraHoldStatus(code: String, name: String)
 case class SierraPatronHoldEntry(id: String,
@@ -73,18 +71,15 @@ class HttpSierraApi(val config: SierraApiConfig)
 
   def validatePatron(patronId: String, pass: String) = {
     authed(s"/patrons/validate") map { req =>
-      val resp = req
+      req
         .header("content-type", "application/json")
         .postData(s"""{ "barcode": "$patronId", "pin": "$pass" }""")
         .asString
-
-      println(resp.body)
     }
-
   }
 
   def getPatron(id: String) = {
-    get[SierraPatron](s"/patrons/$id?fields=names,emails")
+    get[SierraPatron](s"/patrons/$id")
   }
 
 
