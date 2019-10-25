@@ -6,6 +6,7 @@ import grizzled.slf4j.Logging
 import scala.concurrent.ExecutionContext
 import uk.ac.wellcome.json.JsonUtil._
 
+case class Root(status: String = "ok")
 case class TestResponse(workId: String, itemId: String)
 trait RequestsApi extends Logging {
 
@@ -16,6 +17,9 @@ trait RequestsApi extends Logging {
   implicit val sierraApi: HttpSierraApi
 
   val routes: Route = concat(
+    pathSingleSlash {
+      complete(Root())
+    },
     path("members" / Segment) { memberId =>
       val holds = sierraApi.getPatronHolds(memberId)
       complete(holds)
