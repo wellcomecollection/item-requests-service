@@ -48,14 +48,14 @@ module "v1" {
   }
 
   # All integrations
-  depends_on = [
+  depends_on = ["${module.root_resource_method_static.integration_id}",
     "${concat(module.status.integration_uris,module.requests.integration_uris)}",
   ]
 }
 
 # Resources
 
-module "status" {
+module "context" {
   source = "../modules/resource/context"
 
   api_id = ""

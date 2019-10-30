@@ -13,7 +13,7 @@ terraform {
   required_version = ">= 0.9"
 
   backend "s3" {
-    role_arn = "arn:aws:iam::756629837203:role/platform-developer"
+    role_arn = "arn:aws:iam::760097843905:role/platform-developer"
 
     bucket         = "wellcomecollection-catalogue-infra"
     key            = "terraform/requests-service.tfstate"
