@@ -3,8 +3,8 @@ module "status_api" {
 
   namespace = "status-api"
 
-  container_image = "760097843905.dkr.ecr.eu-west-1.amazonaws.com/uk.ac.wellcome/status_api:acefecad19bbcb438abec7cd459a27f154620aad"
-  container_port  = "9001"
+  container_image = "vad1mo/hello-world-rest"
+  container_port  = "5050"
 
   namespace_id = "${aws_service_discovery_private_dns_namespace.namespace.id}"
 

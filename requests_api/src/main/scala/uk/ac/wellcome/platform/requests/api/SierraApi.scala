@@ -114,5 +114,4 @@ class HttpSierraApi(val config: SierraApiConfig)
       }
     }
   }
-
 }

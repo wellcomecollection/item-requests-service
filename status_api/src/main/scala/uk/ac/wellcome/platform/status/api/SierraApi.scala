@@ -11,23 +11,28 @@ object SierraToken {
     Decoder.forProduct3("access_token", "token_type", "expires_in")(
       SierraToken.apply)
 }
+
 case class SierraItem(id: String,
                       location: SierraLocation,
                       status: SierraStatus,
                       barcode: String,
                       callNumber: String)
+
 case class SierraLocation(code: String, name: String)
 case class SierraStatus(code: String, display: String)
 case class SierraPatron(id: String,
                         names: List[String] = Nil,
                         emails: List[String] = Nil)
+
 case class SierraPatronHolds(total: Int, entries: List[SierraPatronHoldEntry])
 case class SierraHoldStatus(code: String, name: String)
+
 case class SierraPatronHoldEntry(id: String,
                                  record: String,
                                  patron: String,
                                  pickupLocation: SierraLocation,
                                  status: SierraHoldStatus)
+
 case class SierraPatronHoldRequest(recordType: String,
                                    recordNumber: String,
                                    pickupLocation: String,

@@ -29,6 +29,4 @@ object HttpCatalogueApi extends CatalogueApi {
       identifier map (_.value)
     } toOption).flatten
   }
-
-
 }
