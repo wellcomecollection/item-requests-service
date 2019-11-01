@@ -1,6 +1,6 @@
-# item-requests-service
+# Stacks
 
-Library requesting and status APIs
+Library requests and item status APIs
 
 In order to transition away from the existing library site we need to provide a replacement to the existing item requesting service.
 
