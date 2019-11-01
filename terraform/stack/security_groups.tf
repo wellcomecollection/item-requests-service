@@ -1,7 +1,7 @@
 resource "aws_security_group" "service_egress_security_group" {
-  name        = "egress_security_group"
+  name        = "${var.namespace}_egress_security_group"
   description = "Allow traffic between services"
-  vpc_id      = "${local.vpc_id}"
+  vpc_id      = "${var.vpc_id}"
 
   egress {
     from_port   = 0
@@ -12,9 +12,9 @@ resource "aws_security_group" "service_egress_security_group" {
 }
 
 resource "aws_security_group" "service_lb_ingress_security_group" {
-  name        = "lb_ingress_security_group"
+  name        = "${var.namespace}_ingress_security_group"
   description = "Allow traffic between services and NLB"
-  vpc_id      = "${local.vpc_id}"
+  vpc_id      = "${var.vpc_id}"
 
   ingress {
     from_port   = 0
@@ -25,9 +25,9 @@ resource "aws_security_group" "service_lb_ingress_security_group" {
 }
 
 resource "aws_security_group" "interservice_security_group" {
-  name        = "interservice_security_group"
+  name        = "${var.namespace}_interservice_security_group"
   description = "Allow traffic between services"
-  vpc_id      = "${local.vpc_id}"
+  vpc_id      = "${var.vpc_id}"
 
   ingress {
     from_port = 0
@@ -37,6 +37,6 @@ resource "aws_security_group" "interservice_security_group" {
   }
 
   tags {
-    Name = "${local.namespace}-interservice"
+    Name = "${var.namespace}-interservice"
   }
 }

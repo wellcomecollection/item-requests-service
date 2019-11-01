@@ -1,7 +1,7 @@
 # API
 
 resource "aws_api_gateway_rest_api" "api" {
-  name = "Requests API (${var.namespace})"
+  name = "Stacks API (${var.namespace})"
 
   endpoint_configuration = {
     types = ["REGIONAL"]
@@ -48,8 +48,8 @@ module "v1" {
   }
 
   # All integrations
-  depends_on = ["${module.root_resource_method_static.integration_id}",
-    "${concat(module.status.integration_uris,module.requests.integration_uris)}",
+  depends_on = [
+    "${concat(module.context.integration_uris, module.items.integration_uris,module.requests.integration_uris)}",
   ]
 }
 
@@ -58,18 +58,19 @@ module "v1" {
 module "context" {
   source = "../modules/resource/context"
 
-  api_id = ""
-  api_root_resource_id = ""
+  api_id = "${aws_api_gateway_rest_api.api.id}"
+  api_root_resource_id = "${aws_api_gateway_rest_api.api.root_resource_id}"
   aws_region = "${var.aws_region}"
   namespace = "${var.namespace}"
-  static_content_bucket_name = ""
+
+  static_content_bucket_name = "${var.static_content_bucket_name}"
 }
 
-module "status" {
+module "items" {
   source = "../modules/resource/auth"
 
   api_id    = "${aws_api_gateway_rest_api.api.id}"
-  path_part = "status"
+  path_part = "items"
 
   root_resource_id = "${aws_api_gateway_rest_api.api.root_resource_id}"
   connection_id    = "${aws_api_gateway_vpc_link.link.id}"
@@ -77,8 +78,8 @@ module "status" {
   cognito_id  = "${aws_api_gateway_authorizer.cognito.id}"
   auth_scopes = ["${var.auth_scopes}"]
 
-  forward_port = "$${stageVariables.status_port}"
-  forward_path = "status"
+  forward_port = "$${stageVariables.items_port}"
+  forward_path = "items"
 }
 
 module "requests" {
