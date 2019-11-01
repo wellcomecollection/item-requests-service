@@ -18,5 +18,4 @@ variable "private_subnets" {
 
 variable "static_content_bucket_name" {}
 
-variable "items_container_image" {}
-variable "requests_container_image" {}
+variable "release_label" {}

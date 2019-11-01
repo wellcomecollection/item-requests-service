@@ -3,7 +3,8 @@ module "items_api" {
   name   = "items"
 
   cluster_id = "${aws_ecs_cluster.cluster.id}"
-  container_image = "${var.items_container_image}"
+
+  container_image = "${local.items_api_image}"
 
   env_vars = {
     app_base_url      = "https://api.wellcomecollection.org/stacks/v1/items"
@@ -36,7 +37,8 @@ module "requests_api" {
   name   = "requests"
 
   cluster_id = "${aws_ecs_cluster.cluster.id}"
-  container_image = "${var.requests_container_image}"
+
+  container_image = "${local.requests_api_image}"
 
   env_vars = {
     app_base_url      = "https://api.wellcomecollection.org/stacks/v1/requests"

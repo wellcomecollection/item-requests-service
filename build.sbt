@@ -48,8 +48,8 @@ lazy val requests_api = setupProject(
   externalDependencies = RequestsDependencies.commonDependencies
 )
 
-lazy val status_api = setupProject(
+lazy val items_api = setupProject(
   project,
-  "status_api",
+  "items_api",
   externalDependencies = RequestsDependencies.commonDependencies
 )

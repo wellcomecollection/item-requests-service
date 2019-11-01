@@ -8,6 +8,9 @@ locals {
   ]
 
   context_url = "https://api.wellcomecollection.org/stacks/v1/context.json"
+
+  requests_api_image = "${module.images.services["requests_api"]}"
+  items_api_image    = "${module.images.services["items_api"]}"
 }
 
 data "aws_vpc" "vpc" {
