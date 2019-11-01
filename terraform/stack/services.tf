@@ -1,14 +1,14 @@
-module "status_api" {
+module "items_api" {
   source = "api"
-  name   = "status"
+  name   = "items"
 
   cluster_id = "${aws_ecs_cluster.cluster.id}"
-  container_image = "${var.status_container_image}"
+  container_image = "${var.items_container_image}"
 
   env_vars = {
-    app_base_url      = "https://api.wellcomecollection.org/item-status/v1/storage/v1/status"
-    context_url       = "https://api.wellcomecollection.org/item-status/v1/context.json"
-    metrics_namespace = "status_api"
+    app_base_url      = "https://api.wellcomecollection.org/stacks/v1/items"
+    context_url       = "https://api.wellcomecollection.org/stacks/v1/context.json"
+    metrics_namespace = "items_api"
   }
 
   env_vars_length = 3
@@ -28,7 +28,7 @@ module "status_api" {
   service_discovery_namespace_id = "${aws_service_discovery_private_dns_namespace.namespace.id}"
 
   subnets = "${var.private_subnets}"
-  vpc_id = "${var.vpc_id}"
+  vpc_id  = "${var.vpc_id}"
 }
 
 module "requests_api" {
@@ -39,8 +39,8 @@ module "requests_api" {
   container_image = "${var.requests_container_image}"
 
   env_vars = {
-    app_base_url      = "https://api.wellcomecollection.org/item-status/v1/storage/v1/requests"
-    context_url       = "https://api.wellcomecollection.org/item-status/v1/context.json"
+    app_base_url      = "https://api.wellcomecollection.org/stacks/v1/requests"
+    context_url       = "https://api.wellcomecollection.org/stacks/v1/context.json"
     metrics_namespace = "requests_api"
   }
 
@@ -61,5 +61,5 @@ module "requests_api" {
   service_discovery_namespace_id = "${aws_service_discovery_private_dns_namespace.namespace.id}"
 
   subnets = "${var.private_subnets}"
-  vpc_id = "${var.vpc_id}"
+  vpc_id  = "${var.vpc_id}"
 }

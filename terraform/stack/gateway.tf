@@ -30,7 +30,7 @@ module "responses" {
   source = "../modules/responses"
 
   api_id      = "${aws_api_gateway_rest_api.api.id}"
-  context_url = "${var.context_url}"
+  context_url = "${local.context_url}"
 }
 
 # Stages

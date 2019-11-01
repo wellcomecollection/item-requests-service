@@ -18,8 +18,5 @@ variable "private_subnets" {
 
 variable "static_content_bucket_name" {}
 
-variable "status_container_image" {}
+variable "items_container_image" {}
 variable "requests_container_image" {}
-
-# Likely this will be internalisable
-variable "context_url" {}

@@ -22,3 +22,10 @@ output "static_content_bucket_arn" {
   value = "${aws_s3_bucket.static_content.arn}"
 }
 
+output "items_repository_url" {
+  value = "${module.aws_ecr_repository_items_api.repository_url}"
+}
+
+output "requests_repository_url" {
+  value = "${module.aws_ecr_repository_requests_api.repository_url}"
+}
