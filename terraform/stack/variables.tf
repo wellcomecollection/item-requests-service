@@ -10,7 +10,9 @@ variable "aws_region" {
 
 variable "vpc_id" {}
 
-variable "auth_scopes" {}
+variable "auth_scopes" {
+  type = "list"
+}
 
 variable "private_subnets" {
   type = "list"
