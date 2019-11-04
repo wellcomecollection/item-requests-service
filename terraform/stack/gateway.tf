@@ -44,7 +44,7 @@ module "v1" {
 
   variables = {
     requests_port = "${local.requests_listener_port}"
-    status_port  = "${local.status_listener_port}"
+    items_port  = "${local.items_listener_port}"
   }
 
   # All integrations

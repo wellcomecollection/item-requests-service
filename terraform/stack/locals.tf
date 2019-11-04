@@ -1,5 +1,5 @@
 locals {
-  status_listener_port   = "65535"
+  items_listener_port   = "65535"
   requests_listener_port = "65534"
 
   api_security_groups = [

@@ -15,7 +15,7 @@ module "items_api" {
   env_vars_length = 3
 
   nlb_arn  = "${module.nlb.arn}"
-  nlb_port = "${local.status_listener_port}"
+  nlb_port = "${local.items_listener_port}"
 
   secret_env_vars = {
     sierra_auth_user = "items/api/sierra_auth_user"
