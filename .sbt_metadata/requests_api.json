@@ -2,5 +2,6 @@
   "id" : "requests_api",
   "folder" : "requests_api",
   "dependencyIds" : [
+    "common"
   ]
 }

@@ -2,7 +2,6 @@ package uk.ac.wellcome.platform.requests.api
 
 import org.scalatest.{FunSpec, Matchers}
 import uk.ac.wellcome.json.utils.JsonAssertions
-import uk.ac.wellcome.platform.requests.api.config.models.SierraApiConfig
 
 class SierraApiTest extends FunSpec with Matchers with JsonAssertions {
 

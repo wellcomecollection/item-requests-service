@@ -1,4 +1,4 @@
-package uk.ac.wellcome.platform.requests.api
+package uk.ac.wellcome.platform.stacks.items.api
 
 import java.net.URL
 
@@ -27,12 +27,12 @@ object Main extends WellcomeTypesafeApp {
 
     val sierraApiConfig = SierraApiConfigBuilder.buildSierraApiConfig(config)
 
-    val router: RequestsApi = new RequestsApi {
+    val router: ItemsApi = new ItemsApi {
       override implicit val ec: ExecutionContext = ecMain
       override implicit val sierraApi: SierraApi = new SierraApi(sierraApiConfig)
     }
 
-    val appName = "RequestsApi"
+    val appName = "StatusApi"
 
     new WellcomeHttpApp(
       routes = router.routes,
@@ -42,7 +42,7 @@ object Main extends WellcomeTypesafeApp {
       ),
       httpServerConfig = HTTPServerBuilder.buildHTTPServerConfig(config),
       contextURL = new URL(
-        "https://api.wellcomecollection.org/item-requests/v1/context.json"),
+        "https://api.wellcomecollection.org/item-status/v1/context.json"),
       appName = appName
     )
   }

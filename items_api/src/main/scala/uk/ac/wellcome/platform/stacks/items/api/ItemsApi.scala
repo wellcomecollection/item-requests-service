@@ -1,17 +1,16 @@
-package uk.ac.wellcome.platform.requests.api
+package uk.ac.wellcome.platform.stacks.items.api
 
 import akka.http.scaladsl.server.Route
 import grizzled.slf4j.Logging
-
-import scala.concurrent.ExecutionContext
 import uk.ac.wellcome.json.JsonUtil._
 import uk.ac.wellcome.platform.stacks.common.catalogue.services.CatalogueApi
-import uk.ac.wellcome.platform.stacks.common.sierra.models.SierraPatron
 import uk.ac.wellcome.platform.stacks.common.sierra.services.SierraApi
 
-case class Root(status: String = "ok")
+import scala.concurrent.ExecutionContext
+
 case class TestResponse(workId: String, itemId: String)
-trait RequestsApi extends Logging {
+
+trait ItemsApi extends Logging {
 
   import akka.http.scaladsl.server.Directives._
   import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
@@ -20,18 +19,13 @@ trait RequestsApi extends Logging {
   implicit val sierraApi: SierraApi
 
   val routes: Route = concat(
-    pathSingleSlash {
-      complete(Root())
-    },
-
     path("works" / Segment / "items" / Segment) {
       case (_, itemId) =>
-        post {
-          entity(as[SierraPatron]) { patron =>
-            val sierraItemNumber = CatalogueApi.getItemINumber(itemId)
-            val holdRequest = sierraApi.postPatronPlaceHold(patron.id.toString, sierraItemNumber.get)
-            complete(holdRequest)
-          }
+        get {
+          val sierraItemNumber = CatalogueApi.getItemNumber(itemId)
+          val item = sierraApi.getItem(sierraItemNumber.get)
+
+          complete(item)
         }
     }
   )
