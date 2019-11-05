@@ -1,31 +1,38 @@
-package uk.ac.wellcome.platform.requests.api
+package uk.ac.wellcome.platform.status.api
 
 import io.circe.Decoder
 import scalaj.http.Http
 import uk.ac.wellcome.json.JsonUtil._
-import uk.ac.wellcome.platform.requests.api.config.models.SierraApiConfig
+import uk.ac.wellcome.platform.status.api.config.models.SierraApiConfig
 
 case class SierraToken(accessToken: String, tokenType: String, expiresIn: Int)
 object SierraToken {
-  implicit val decodeSierraToken: Decoder[SierraToken] =
+  implicit val decodeUser: Decoder[SierraToken] =
     Decoder.forProduct3("access_token", "token_type", "expires_in")(
       SierraToken.apply)
 }
+
 case class SierraItem(id: String,
                       location: SierraLocation,
                       status: SierraStatus,
                       barcode: String,
                       callNumber: String)
+
 case class SierraLocation(code: String, name: String)
 case class SierraStatus(code: String, display: String)
-case class SierraPatron(id: Int)
+case class SierraPatron(id: String,
+                        names: List[String] = Nil,
+                        emails: List[String] = Nil)
+
 case class SierraPatronHolds(total: Int, entries: List[SierraPatronHoldEntry])
 case class SierraHoldStatus(code: String, name: String)
+
 case class SierraPatronHoldEntry(id: String,
                                  record: String,
                                  patron: String,
                                  pickupLocation: SierraLocation,
                                  status: SierraHoldStatus)
+
 case class SierraPatronHoldRequest(recordType: String,
                                    recordNumber: String,
                                    pickupLocation: String,
@@ -71,15 +78,18 @@ class HttpSierraApi(val config: SierraApiConfig)
 
   def validatePatron(patronId: String, pass: String) = {
     authed(s"/patrons/validate") map { req =>
-      req
+      val resp = req
         .header("content-type", "application/json")
         .postData(s"""{ "barcode": "$patronId", "pin": "$pass" }""")
         .asString
+
+      println(resp.body)
     }
+
   }
 
   def getPatron(id: String) = {
-    get[SierraPatron](s"/patrons/$id")
+    get[SierraPatron](s"/patrons/$id?fields=names,emails")
   }
 
 
@@ -110,8 +120,9 @@ class HttpSierraApi(val config: SierraApiConfig)
 
       resp code match {
         case 204 => Some(holdRequest)
-        case _   => Some(holdRequest.copy(note = s"Error ${resp.body}"))
+        case _   => None
       }
     }
   }
+
 }
