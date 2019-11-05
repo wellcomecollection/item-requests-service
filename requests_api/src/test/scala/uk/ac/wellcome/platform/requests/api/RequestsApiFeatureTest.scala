@@ -4,7 +4,6 @@ import akka.http.scaladsl.model.{HttpEntity, StatusCodes, ContentTypes}
 import org.scalatest.concurrent.IntegrationPatience
 import org.scalatest.{FunSpec, Matchers}
 import uk.ac.wellcome.json.utils.JsonAssertions
-import uk.ac.wellcome.platform.requests.api.fixtures.RequestsApiFixture
 
 class RequestsApiFeatureTest
     extends FunSpec

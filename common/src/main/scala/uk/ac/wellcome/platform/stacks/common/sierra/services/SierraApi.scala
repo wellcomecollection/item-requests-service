@@ -73,8 +73,14 @@ class SierraApi(val config: SierraApiConfig) {
       recordNumber = itemId,
       pickupLocation = "-",
       note =
-        "THIS IS A TEST AND SHOULD BE IGNORED. IT WILL BE DELETED AUTOMATICALLY. IF THIS IS CAUSING HASSLES PLEASE EMAIL j.gorrie@wellcome.ac.uk."
+        """
+          |THIS IS A TEST AND SHOULD BE IGNORED.
+          |IT WILL BE DELETED AUTOMATICALLY.
+          |IF THIS IS CAUSING HASSLES PLEASE EMAIL:
+          |j.gorrie@wellcome.ac.uk
+          |""".stripMargin
     )
+
     authed(s"/patrons/$patronId/holds/requests") flatMap { req =>
       val resp = req
         .header("content-type", "application/json")

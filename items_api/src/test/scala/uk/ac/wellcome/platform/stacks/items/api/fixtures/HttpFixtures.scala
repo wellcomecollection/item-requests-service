@@ -1,4 +1,4 @@
-package uk.ac.wellcome.platform.status.api.fixtures
+package uk.ac.wellcome.platform.stacks.items.api.fixtures
 
 import java.net.URL
 
@@ -13,9 +13,9 @@ import org.scalatest.{Assertion, Matchers}
 import uk.ac.wellcome.akka.fixtures.Akka
 import uk.ac.wellcome.fixtures.TestWith
 import uk.ac.wellcome.monitoring.memory.MemoryMetrics
-import uk.ac.wellcome.platform.status.api.HttpMetricResults
-import uk.ac.wellcome.platform.status.api.config.models.HTTPServerConfig
-import uk.ac.wellcome.platform.status.api.models.{InternalServerErrorResponse, UserErrorResponse}
+import uk.ac.wellcome.platform.stacks.common.sierra.config.models.HTTPServerConfig
+import uk.ac.wellcome.platform.stacks.common.sierra.http.HttpMetricResults
+import uk.ac.wellcome.platform.stacks.common.sierra.http.models.{InternalServerErrorResponse, UserErrorResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -57,7 +57,7 @@ trait HttpFixtures extends Akka with ScalaFutures with Matchers {
   }
 
   def getT[T](entity: HttpEntity)(implicit decoder: Decoder[T]): T =
-    withMaterializer { implicit materializer =>
+    withMaterializer { implicit mat =>
       val timeout = 300.millis
 
       val stringBody = entity
@@ -73,7 +73,7 @@ trait HttpFixtures extends Akka with ScalaFutures with Matchers {
   def withStringEntity[R](
     httpEntity: HttpEntity
   )(testWith: TestWith[String, R]): R =
-    withMaterializer { implicit materializer =>
+    withMaterializer { implicit mat =>
       val value =
         httpEntity.dataBytes.runWith(Sink.fold("") {
           case (acc, byteString) =>
@@ -111,7 +111,7 @@ trait HttpFixtures extends Akka with ScalaFutures with Matchers {
     statusCode: StatusCode = StatusCodes.BadRequest,
     label: String = "Bad Request"
   ): Assertion =
-    withMaterializer { implicit materializer =>
+    withMaterializer { implicit mat =>
       response.status shouldBe statusCode
       response.entity.contentType shouldBe ContentTypes.`application/json`
 
@@ -128,7 +128,7 @@ trait HttpFixtures extends Akka with ScalaFutures with Matchers {
     }
 
   def assertIsInternalServerErrorResponse(response: HttpResponse): Assertion =
-    withMaterializer { implicit materializer =>
+    withMaterializer { implicit mat =>
       response.status shouldBe StatusCodes.InternalServerError
       response.entity.contentType shouldBe ContentTypes.`application/json`
 

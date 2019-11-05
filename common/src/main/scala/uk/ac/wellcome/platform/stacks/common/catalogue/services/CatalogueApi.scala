@@ -13,7 +13,7 @@ object CatalogueApi {
 
   val rootUrl = "https://api.wellcomecollection.org/catalogue/v2/works"
 
-  def getItemINumber(id: String) = {
+  def getItemNumber(id: String): Option[String] = {
     val jsonString = Http(s"$rootUrl?include=items,identifiers&query=$id")
       .header("Accept", "application/json")
       .asString

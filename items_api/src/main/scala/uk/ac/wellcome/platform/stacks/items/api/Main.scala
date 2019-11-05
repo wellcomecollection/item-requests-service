@@ -1,4 +1,4 @@
-package uk.ac.wellcome.platform.status.api
+package uk.ac.wellcome.platform.stacks.items.api
 
 import java.net.URL
 
@@ -8,8 +8,7 @@ import com.typesafe.config.Config
 import uk.ac.wellcome.monitoring.typesafe.MetricsBuilder
 import uk.ac.wellcome.platform.stacks.common.sierra.config.builders.{HTTPServerBuilder, SierraApiConfigBuilder}
 import uk.ac.wellcome.platform.stacks.common.sierra.http.{HttpMetrics, WellcomeHttpApp}
-import uk.ac.wellcome.platform.stacks.common.sierra.services.{HttpSierraApi, SierraApi}
-import uk.ac.wellcome.platform.status.api.config.builders.{HTTPServerBuilder, SierraApiConfigBuilder}
+import uk.ac.wellcome.platform.stacks.common.sierra.services.SierraApi
 import uk.ac.wellcome.typesafe.WellcomeTypesafeApp
 import uk.ac.wellcome.typesafe.config.builders.AkkaBuilder
 
@@ -28,7 +27,7 @@ object Main extends WellcomeTypesafeApp {
 
     val sierraApiConfig = SierraApiConfigBuilder.buildSierraApiConfig(config)
 
-    val router: StatusApi = new StatusApi {
+    val router: ItemsApi = new ItemsApi {
       override implicit val ec: ExecutionContext = ecMain
       override implicit val sierraApi: SierraApi = new SierraApi(sierraApiConfig)
     }

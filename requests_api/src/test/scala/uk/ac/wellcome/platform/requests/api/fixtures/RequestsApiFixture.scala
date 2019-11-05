@@ -6,8 +6,6 @@ import org.scalatest.concurrent.ScalaFutures
 import uk.ac.wellcome.fixtures.TestWith
 import uk.ac.wellcome.monitoring.fixtures.MetricsSenderFixture
 import uk.ac.wellcome.monitoring.memory.MemoryMetrics
-import uk.ac.wellcome.platform.requests.api.config.models.SierraApiConfig
-import uk.ac.wellcome.platform.requests.api.{HttpMetrics, HttpSierraApi, RequestsApi, WellcomeHttpApp}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global

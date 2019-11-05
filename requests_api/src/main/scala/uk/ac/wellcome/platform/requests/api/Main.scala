@@ -6,7 +6,6 @@ import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import com.typesafe.config.Config
 import uk.ac.wellcome.monitoring.typesafe.MetricsBuilder
-import uk.ac.wellcome.platform.requests.api.config.builders.{HTTPServerBuilder, SierraApiConfigBuilder}
 import uk.ac.wellcome.platform.stacks.common.sierra.config.builders.{HTTPServerBuilder, SierraApiConfigBuilder}
 import uk.ac.wellcome.platform.stacks.common.sierra.http.{HttpMetrics, WellcomeHttpApp}
 import uk.ac.wellcome.platform.stacks.common.sierra.services.SierraApi

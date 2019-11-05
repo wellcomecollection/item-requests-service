@@ -1,15 +1,16 @@
-package uk.ac.wellcome.platform.status.api
+package uk.ac.wellcome.platform.stacks.items.api
 
 import akka.http.scaladsl.server.Route
 import grizzled.slf4j.Logging
-
-import scala.concurrent.ExecutionContext
 import uk.ac.wellcome.json.JsonUtil._
 import uk.ac.wellcome.platform.stacks.common.catalogue.services.CatalogueApi
 import uk.ac.wellcome.platform.stacks.common.sierra.services.SierraApi
 
+import scala.concurrent.ExecutionContext
+
 case class TestResponse(workId: String, itemId: String)
-trait StatusApi extends Logging {
+
+trait ItemsApi extends Logging {
 
   import akka.http.scaladsl.server.Directives._
   import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
@@ -21,8 +22,9 @@ trait StatusApi extends Logging {
     path("works" / Segment / "items" / Segment) {
       case (_, itemId) =>
         get {
-          val sierraItemNumber = CatalogueApi.getItemINumber(itemId)
+          val sierraItemNumber = CatalogueApi.getItemNumber(itemId)
           val item = sierraApi.getItem(sierraItemNumber.get)
+
           complete(item)
         }
     }

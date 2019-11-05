@@ -1,4 +1,4 @@
-package uk.ac.wellcome.platform.status.api.fixtures
+package uk.ac.wellcome.platform.stacks.items.api.fixtures
 
 import java.net.URL
 
@@ -7,13 +7,14 @@ import uk.ac.wellcome.fixtures.TestWith
 import uk.ac.wellcome.monitoring.fixtures.MetricsSenderFixture
 import uk.ac.wellcome.monitoring.memory.MemoryMetrics
 import uk.ac.wellcome.platform.stacks.common.sierra.config.models.SierraApiConfig
-import uk.ac.wellcome.platform.stacks.common.sierra.services.HttpSierraApi
-import uk.ac.wellcome.platform.status.api.{HttpMetrics, StatusApi, WellcomeHttpApp}
+import uk.ac.wellcome.platform.stacks.common.sierra.http.{HttpMetrics, WellcomeHttpApp}
+import uk.ac.wellcome.platform.stacks.common.sierra.services.SierraApi
+import uk.ac.wellcome.platform.stacks.items.api.ItemsApi
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
 
-trait RequestsApiFixture
+trait ItemsApiFixture
     extends ScalaFutures
     with HttpFixtures
     with MetricsSenderFixture {
@@ -34,9 +35,9 @@ trait RequestsApiFixture
           metrics = metrics
         )
 
-        val router: StatusApi = new StatusApi {
+        val router: ItemsApi = new ItemsApi {
           override implicit val ec: ExecutionContext = global
-          override implicit val sierraApi: HttpSierraApi = new HttpSierraApi(SierraApiConfig(
+          override implicit val sierraApi: SierraApi = new SierraApi(SierraApiConfig(
             "hello",
             "123"
           ))

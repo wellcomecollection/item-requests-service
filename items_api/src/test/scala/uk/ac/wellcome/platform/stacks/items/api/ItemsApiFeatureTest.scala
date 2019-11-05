@@ -1,17 +1,17 @@
-package uk.ac.wellcome.platform.requests.api
+package uk.ac.wellcome.platform.stacks.items.api
 
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes}
 import org.scalatest.concurrent.IntegrationPatience
 import org.scalatest.{FunSpec, Matchers}
 import uk.ac.wellcome.json.utils.JsonAssertions
-import uk.ac.wellcome.platform.status.api.HttpMetricResults
-import uk.ac.wellcome.platform.status.api.fixtures.RequestsApiFixture
+import uk.ac.wellcome.platform.stacks.common.sierra.http.HttpMetricResults
+import uk.ac.wellcome.platform.stacks.items.api.fixtures.ItemsApiFixture
 
 
-class StatusApiFeatureTest
+class ItemsApiFeatureTest
     extends FunSpec
     with Matchers
-    with RequestsApiFixture
+    with ItemsApiFixture
     with JsonAssertions
     with IntegrationPatience {
 
@@ -25,7 +25,9 @@ class StatusApiFeatureTest
           val url =
             s"$baseUrl/works/a2239muq/items/v9m3ewes"
 
-          whenPostRequestReady(url, HttpEntity(ContentTypes.`application/json`, """{ "id" : 1097124 }""")) { response =>
+          whenPostRequestReady(
+            url,
+            HttpEntity(ContentTypes.`application/json`, """{ "id" : 1097124 }""")) { response =>
             response.status shouldBe StatusCodes.OK
 
             withStringEntity(response.entity) { actualJson =>

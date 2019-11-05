@@ -23,16 +23,7 @@ trait RequestsApi extends Logging {
     pathSingleSlash {
       complete(Root())
     },
-//    path("members" / Segment) { memberId =>
-//      val holds = sierraApi.getPatronHolds(memberId)
-//      complete(holds)
-//    },
-//    path("members" / Segment) { memberId =>
-//      delete {
-//        sierraApi.deletePatronHolds(memberId)
-//        complete("""{ "status": "success" }""")
-//      }
-//    },
+
     path("works" / Segment / "items" / Segment) {
       case (_, itemId) =>
         post {

@@ -13,9 +13,6 @@ import org.scalatest.{Assertion, Matchers}
 import uk.ac.wellcome.akka.fixtures.Akka
 import uk.ac.wellcome.fixtures.TestWith
 import uk.ac.wellcome.monitoring.memory.MemoryMetrics
-import uk.ac.wellcome.platform.requests.api.HttpMetricResults
-import uk.ac.wellcome.platform.requests.api.config.models.HTTPServerConfig
-import uk.ac.wellcome.platform.requests.api.models.{InternalServerErrorResponse, UserErrorResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
