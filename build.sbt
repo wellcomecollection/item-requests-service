@@ -42,14 +42,20 @@ s3CredentialsProvider := { _ =>
   builder.build()
 }
 
+lazy val common = setupProject(
+  project = project,
+  folder = "common",
+  externalDependencies = RequestsDependencies.commonDependencies
+)
+
 lazy val requests_api = setupProject(
   project,
   "requests_api",
-  externalDependencies = RequestsDependencies.commonDependencies
+  localDependencies = Seq(common)
 )
 
 lazy val items_api = setupProject(
   project,
   "items_api",
-  externalDependencies = RequestsDependencies.commonDependencies
+  localDependencies = Seq(common)
 )
