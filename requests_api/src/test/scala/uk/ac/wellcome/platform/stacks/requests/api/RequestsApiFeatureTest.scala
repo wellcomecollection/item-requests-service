@@ -1,9 +1,10 @@
 package uk.ac.wellcome.platform.requests.api
 
-import akka.http.scaladsl.model.{HttpEntity, StatusCodes, ContentTypes}
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes}
 import org.scalatest.concurrent.IntegrationPatience
 import org.scalatest.{FunSpec, Matchers}
 import uk.ac.wellcome.json.utils.JsonAssertions
+import uk.ac.wellcome.platform.stacks.requests.api.fixtures.RequestsApiFixture
 
 class RequestsApiFeatureTest
     extends FunSpec
@@ -28,11 +29,6 @@ class RequestsApiFeatureTest
             withStringEntity(response.entity) { actualJson =>
               assertJsonStringsAreEqual(actualJson, expectedJson)
             }
-
-            assertMetricSent(
-              metrics,
-              result = HttpMetricResults.Success
-            )
           }
       }
     }

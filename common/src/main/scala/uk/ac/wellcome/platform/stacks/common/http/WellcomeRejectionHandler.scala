@@ -1,15 +1,15 @@
-package uk.ac.wellcome.platform.stacks.common.sierra.http
+package uk.ac.wellcome.platform.stacks.common.http
 
 import java.net.URL
 
 import akka.http.scaladsl.marshalling.Marshal
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse, MessageEntity, StatusCode}
 import akka.http.scaladsl.model.StatusCodes.BadRequest
+import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.{MalformedRequestContentRejection, RejectionHandler, StandardRoute}
 import akka.stream.scaladsl.Flow
 import akka.util.ByteString
 import io.circe.CursorOp
-import uk.ac.wellcome.platform.stacks.common.sierra.http.models.{InternalServerErrorResponse, UserErrorResponse}
+import uk.ac.wellcome.platform.stacks.common.http.models.{InternalServerErrorResponse, UserErrorResponse}
 
 import scala.concurrent.ExecutionContext
 

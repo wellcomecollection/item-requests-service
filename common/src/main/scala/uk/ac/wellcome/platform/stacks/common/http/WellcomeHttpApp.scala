@@ -1,4 +1,4 @@
-package uk.ac.wellcome.platform.stacks.common.sierra.http
+package uk.ac.wellcome.platform.stacks.common.http
 
 import java.net.URL
 import java.util.UUID
@@ -10,7 +10,7 @@ import akka.http.scaladsl.server._
 import akka.http.scaladsl.server.directives.DebuggingDirectives
 import akka.stream.ActorMaterializer
 import grizzled.slf4j.Logging
-import uk.ac.wellcome.platform.stacks.common.sierra.config.models.HTTPServerConfig
+import uk.ac.wellcome.platform.stacks.common.http.config.models.HTTPServerConfig
 import uk.ac.wellcome.typesafe.Runnable
 
 import scala.concurrent.{ExecutionContext, Future}

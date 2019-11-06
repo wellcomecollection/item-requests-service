@@ -1,4 +1,4 @@
-package uk.ac.wellcome.platform.stacks.common.sierra.http
+package uk.ac.wellcome.platform.stacks.common.http
 
 import akka.http.scaladsl.model.{HttpResponse, StatusCode}
 import grizzled.slf4j.Logging

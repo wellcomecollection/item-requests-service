@@ -2,8 +2,6 @@ package uk.ac.wellcome.platform.stacks.items.api
 
 import akka.http.scaladsl.server.Route
 import grizzled.slf4j.Logging
-import uk.ac.wellcome.json.JsonUtil._
-import uk.ac.wellcome.platform.stacks.common.catalogue.services.CatalogueApi
 import uk.ac.wellcome.platform.stacks.common.sierra.services.SierraApi
 
 import scala.concurrent.ExecutionContext
@@ -19,14 +17,12 @@ trait ItemsApi extends Logging {
   implicit val sierraApi: SierraApi
 
   val routes: Route = concat(
-    path("works" / Segment / "items" / Segment) {
-      case (_, itemId) =>
+    pathPrefix("works") {
+      path(Segment) { _: String =>
         get {
-          val sierraItemNumber = CatalogueApi.getItemNumber(itemId)
-          val item = sierraApi.getItem(sierraItemNumber.get)
-
-          complete(item)
+          complete("ok")
         }
+      }
     }
   )
 }
