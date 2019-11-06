@@ -1,4 +1,4 @@
-package uk.ac.wellcome.platform.stacks.common.sierra.http.models
+package uk.ac.wellcome.platform.stacks.common.http.models
 
 import java.net.URL
 

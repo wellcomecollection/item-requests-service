@@ -1,9 +1,9 @@
-package uk.ac.wellcome.platform.stacks.common.sierra.config.builders
+package uk.ac.wellcome.platform.stacks.common.http.config.builders
 
 import java.net.URL
 
 import com.typesafe.config.Config
-import uk.ac.wellcome.platform.stacks.common.sierra.config.models.HTTPServerConfig
+import uk.ac.wellcome.platform.stacks.common.http.config.models.HTTPServerConfig
 import uk.ac.wellcome.typesafe.config.builders.EnrichConfig._
 
 object HTTPServerBuilder {

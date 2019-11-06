@@ -6,8 +6,9 @@ import org.scalatest.concurrent.ScalaFutures
 import uk.ac.wellcome.fixtures.TestWith
 import uk.ac.wellcome.monitoring.fixtures.MetricsSenderFixture
 import uk.ac.wellcome.monitoring.memory.MemoryMetrics
+import uk.ac.wellcome.platform.stacks.common.http.{HttpMetrics, WellcomeHttpApp}
+import uk.ac.wellcome.platform.stacks.common.http.fixtures.HttpFixtures
 import uk.ac.wellcome.platform.stacks.common.sierra.config.models.SierraApiConfig
-import uk.ac.wellcome.platform.stacks.common.sierra.http.{HttpMetrics, WellcomeHttpApp}
 import uk.ac.wellcome.platform.stacks.common.sierra.services.SierraApi
 import uk.ac.wellcome.platform.stacks.items.api.ItemsApi
 
@@ -19,17 +20,18 @@ trait ItemsApiFixture
     with HttpFixtures
     with MetricsSenderFixture {
 
-  val metricsName = "StatusApiFixture"
+  val metricsName = "ItemsApiFixture"
 
   val contextURLTest = new URL(
-    "http://api.wellcomecollection.org/requests/v1/context.json"
+    "http://api.wellcomecollection.org/stacks/v1/context.json"
   )
 
   private def withApp[R](
       metrics: MemoryMetrics[Unit]
   )(testWith: TestWith[WellcomeHttpApp, R]): R =
     withActorSystem { implicit actorSystem =>
-      withMaterializer(actorSystem) { implicit materializer =>
+      withMaterializer(actorSystem) { implicit mat =>
+
         val httpMetrics = new HttpMetrics(
           name = metricsName,
           metrics = metrics

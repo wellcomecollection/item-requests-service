@@ -1,16 +1,15 @@
-package uk.ac.wellcome.platform.requests.api
+package uk.ac.wellcome.platform.stacks.requests.api
 
 import akka.http.scaladsl.server.Route
 import grizzled.slf4j.Logging
 
 import scala.concurrent.ExecutionContext
 import uk.ac.wellcome.json.JsonUtil._
-import uk.ac.wellcome.platform.stacks.common.catalogue.services.CatalogueApi
-import uk.ac.wellcome.platform.stacks.common.sierra.models.SierraPatron
 import uk.ac.wellcome.platform.stacks.common.sierra.services.SierraApi
 
 case class Root(status: String = "ok")
 case class TestResponse(workId: String, itemId: String)
+
 trait RequestsApi extends Logging {
 
   import akka.http.scaladsl.server.Directives._
@@ -24,15 +23,10 @@ trait RequestsApi extends Logging {
       complete(Root())
     },
 
-    path("works" / Segment / "items" / Segment) {
-      case (_, itemId) =>
-        post {
-          entity(as[SierraPatron]) { patron =>
-            val sierraItemNumber = CatalogueApi.getItemINumber(itemId)
-            val holdRequest = sierraApi.postPatronPlaceHold(patron.id.toString, sierraItemNumber.get)
-            complete(holdRequest)
-          }
-        }
+    path("healthcheck") {
+      get {
+        complete("ok")
+      }
     }
   )
 }

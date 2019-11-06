@@ -1,15 +1,14 @@
 package uk.ac.wellcome.platform.stacks.items.api
 
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes}
+import akka.http.scaladsl.model.StatusCodes
 import org.scalatest.concurrent.IntegrationPatience
 import org.scalatest.{FunSpec, Matchers}
 import uk.ac.wellcome.json.utils.JsonAssertions
-import uk.ac.wellcome.platform.stacks.common.sierra.http.HttpMetricResults
 import uk.ac.wellcome.platform.stacks.items.api.fixtures.ItemsApiFixture
 
 
 class ItemsApiFeatureTest
-    extends FunSpec
+  extends FunSpec
     with Matchers
     with ItemsApiFixture
     with JsonAssertions
@@ -18,26 +17,11 @@ class ItemsApiFeatureTest
   describe("requests") {
     it("shows a user their requested items") {
       withConfiguredApp() {
-        case (metrics, baseUrl) =>
-          val expectedJson =
-            s"""{ "workId": "12345", "itemId": "67890" }""".stripMargin
+        case (_, _) =>
+          val path = "/works/a2239muq"
 
-          val url =
-            s"$baseUrl/works/a2239muq/items/v9m3ewes"
-
-          whenPostRequestReady(
-            url,
-            HttpEntity(ContentTypes.`application/json`, """{ "id" : 1097124 }""")) { response =>
+          whenGetRequestReady(path) { response =>
             response.status shouldBe StatusCodes.OK
-
-            withStringEntity(response.entity) { actualJson =>
-              assertJsonStringsAreEqual(actualJson, expectedJson)
-            }
-
-            assertMetricSent(
-              metrics,
-              result = HttpMetricResults.Success
-            )
           }
       }
     }

@@ -93,5 +93,4 @@ class SierraApi(val config: SierraApiConfig) {
       }
     }
   }
-
 }
