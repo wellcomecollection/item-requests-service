@@ -1,5 +1,5 @@
 locals {
-  items_listener_port   = "65535"
+  items_listener_port    = "65535"
   requests_listener_port = "65534"
 
   api_security_groups = [
@@ -11,6 +11,9 @@ locals {
 
   requests_api_image = "${module.images.services["requests_api"]}"
   items_api_image    = "${module.images.services["items_api"]}"
+
+  // This is taken from the routemaster AWS account which doesn't expose it's terraform state
+  routermaster_router53_zone_id = "Z3THRVQ5VDYDMC"
 }
 
 data "aws_vpc" "vpc" {
