@@ -104,3 +104,10 @@ resource "aws_api_gateway_vpc_link" "link" {
   name        = "${var.namespace}-api_vpc_link"
   target_arns = ["${module.nlb.arn}"]
 }
+
+resource "aws_api_gateway_base_path_mapping" "test" {
+  api_id      = "${aws_api_gateway_rest_api.api.id}"
+  stage_name  = "v1"
+  domain_name = "${module.domain.domain_name}"
+  base_path   = "stacks"
+}
