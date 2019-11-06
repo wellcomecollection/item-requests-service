@@ -44,7 +44,7 @@ module "v1" {
 
   variables = {
     requests_port = "${local.requests_listener_port}"
-    items_port  = "${local.items_listener_port}"
+    items_port    = "${local.items_listener_port}"
   }
 
   # All integrations
@@ -58,10 +58,10 @@ module "v1" {
 module "context" {
   source = "../modules/resource/context"
 
-  api_id = "${aws_api_gateway_rest_api.api.id}"
+  api_id               = "${aws_api_gateway_rest_api.api.id}"
   api_root_resource_id = "${aws_api_gateway_rest_api.api.root_resource_id}"
-  aws_region = "${var.aws_region}"
-  namespace = "${var.namespace}"
+  aws_region           = "${var.aws_region}"
+  namespace            = "${var.namespace}"
 
   static_content_bucket_name = "${var.static_content_bucket_name}"
 }
