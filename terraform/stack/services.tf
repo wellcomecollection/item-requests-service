@@ -18,8 +18,8 @@ module "items_api" {
   nlb_port = "${local.items_listener_port}"
 
   secret_env_vars = {
-    sierra_api_key    = "stacks/config/prod/sierra_api_key"
-    sierra_api_secret = "stacks/config/prod/sierra_api_secret"
+    sierra_api_key    = "stacks/prod/sierra_api_key"
+    sierra_api_secret = "stacks/prod/sierra_api_secret"
   }
 
   secret_env_vars_length = "2"
@@ -52,8 +52,8 @@ module "requests_api" {
   nlb_port = "${local.requests_listener_port}"
 
   secret_env_vars = {
-    sierra_api_key    = "stacks/config/prod/sierra_api_key"
-    sierra_api_secret = "stacks/config/prod/sierra_api_secret"
+    sierra_api_key    = "stacks/prod/sierra_api_key"
+    sierra_api_secret = "stacks/prod/sierra_api_secret"
   }
 
   secret_env_vars_length = "2"
