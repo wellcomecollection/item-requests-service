@@ -8,12 +8,12 @@ import uk.ac.wellcome.typesafe.config.builders.EnrichConfig._
 object SierraApiConfigBuilder {
 
   def buildSierraApiConfig(config: Config): SierraApiConfig = {
-    val user = config.required[String]("sierra.auth.user")
-    val pass = config.required[String]("sierra.auth.pass")
+    val key = config.required[String]("sierra.api.key")
+    val secret = config.required[String]("sierra.api.secret")
 
     SierraApiConfig(
-      user = user,
-      pass = pass
+      key = key,
+      secret = secret
     )
   }
 }
