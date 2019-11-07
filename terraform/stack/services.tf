@@ -52,8 +52,8 @@ module "requests_api" {
   nlb_port = "${local.requests_listener_port}"
 
   secret_env_vars = {
-    sierra_auth_user = "items/api/sierra_auth_user"
-    sierra_auth_pass = "items/api/sierra_auth_pass"
+    sierra_username = "stacks/config/prod/sierra_username"
+    sierra_password = "stacks/config/prod/sierra_password"
   }
 
   secret_env_vars_length = "2"
