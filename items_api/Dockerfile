@@ -1,4 +1,4 @@
 FROM wellcome/typesafe_config_base:edge
 ADD target/universal/stage /opt/docker
 
-ENV PROJECT=status_api
+ENV PROJECT=items_api
