@@ -17,7 +17,7 @@ class SierraApi(val config: SierraApiConfig) {
     val resp =
       Http(s"$rootUrl/token")
         .postData("grant_type=client_credentials")
-        .auth(config.user, config.pass)
+        .auth(config.key, config.secret)
         .asString
 
     fromJson[SierraToken](resp.body).toOption
