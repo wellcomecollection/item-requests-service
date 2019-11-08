@@ -1,0 +1,31 @@
+{
+  "id" : "e1bbb335-ac39-30b0-b8a1-970dbe83cbae",
+  "request" : {
+    "url" : "/catalogue/v2/works/a227dajt?include=items",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "body-catalogue-v2-works-a227dajt-0mQPF.json",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Connection" : "keep-alive",
+      "Date" : "Fri, 08 Nov 2019 12:58:35 GMT",
+      "x-amzn-RequestId" : "402446c5-2d97-4af3-9e2b-aa3a4f8a9177",
+      "Access-Control-Allow-Origin" : "*",
+      "Access-Control-Allow-Headers" : "DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type",
+      "x-amzn-Remapped-Content-Length" : "627",
+      "x-amzn-Remapped-Connection" : "keep-alive",
+      "x-amz-apigw-id" : "C1zzRHAfDoEF95A=",
+      "x-amzn-Remapped-Server" : "nginx",
+      "Access-Control-Allow-Methods" : "GET, POST, OPTIONS",
+      "x-amzn-Remapped-Date" : "Fri, 08 Nov 2019 12:58:35 GMT",
+      "Access-Control-Allow-Credentials" : "true",
+      "X-Cache" : "Miss from cloudfront",
+      "Via" : "1.1 1d61815344be6df2eace7e0cbeebe716.cloudfront.net (CloudFront)",
+      "X-Amz-Cf-Pop" : "LHR62-C3",
+      "X-Amz-Cf-Id" : "PuZex3QDJJ7tDA63cuA1HB0RRs4WCOoCFFugop4OFuRvr48T194zfg=="
+    }
+  },
+  "uuid" : "e1bbb335-ac39-30b0-b8a1-970dbe83cbae"
+}

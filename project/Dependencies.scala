@@ -8,7 +8,13 @@ object WellcomeDependencies {
     val monitoring = "2.3.0"
     val storage = "7.24.1"
     val typesafe = "1.0.0"
+    val catalogueClient = "0.0.2"
   }
+
+  val catalogueClient: Seq[ModuleID] = library(
+    name = "scala-catalogue-client",
+    version = versions.catalogueClient
+  )
 
   val jsonLibrary: Seq[ModuleID] = library(
     name = "json",
@@ -75,7 +81,6 @@ object ExternalDependencies {
     val logback = "1.2.3"
     val logstashLogback = "6.1"
     val scalajHttp = "2.4.2"
-
   }
 
   val logbackDependencies = Seq(
@@ -127,6 +132,7 @@ object RequestsDependencies {
       ExternalDependencies.cloudwatchMetricsDependencies ++
       ExternalDependencies.scalatestDependencies ++
       ExternalDependencies.logbackDependencies ++
+      ExternalDependencies.wiremockDependencies ++
       ExternalDependencies.scalajHttp ++
       ExternalDependencies.circeOpticsDependencies ++
       WellcomeDependencies.jsonLibrary ++
@@ -136,5 +142,6 @@ object RequestsDependencies {
       WellcomeDependencies.typesafeLibrary ++
       WellcomeDependencies.monitoringTypesafeLibrary ++
       WellcomeDependencies.messagingTypesafeLibrary ++
-      WellcomeDependencies.storageTypesafeLibrary
+      WellcomeDependencies.storageTypesafeLibrary ++
+      WellcomeDependencies.catalogueClient
 }

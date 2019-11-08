@@ -5,6 +5,8 @@ import grizzled.slf4j.Logging
 
 import scala.concurrent.ExecutionContext
 import uk.ac.wellcome.json.JsonUtil._
+import uk.ac.wellcome.platform.stacks.common.catalogue.services.CatalogueApi
+import uk.ac.wellcome.platform.stacks.common.sierra.models.SierraPatron
 import uk.ac.wellcome.platform.stacks.common.sierra.services.SierraApi
 
 case class Root(status: String = "ok")
@@ -19,14 +21,33 @@ trait RequestsApi extends Logging {
   implicit val sierraApi: SierraApi
 
   val routes: Route = concat(
-    pathSingleSlash {
-      complete(Root())
+
+    path("members" / Segment) { memberId =>
+      val holds = sierraApi.getPatronHolds(memberId)
+      complete(holds)
     },
 
-    path("healthcheck") {
-      get {
-        complete("ok")
+    path("members" / Segment) { memberId =>
+      delete {
+        sierraApi.deletePatronHolds(memberId)
+        complete("""{ "status": "success" }""")
       }
+    },
+
+    path("works" / Segment / "items" / Segment) {
+      case (_, itemId) =>
+        get {
+          val sierraItemNumber = CatalogueApi.getItemNumber(itemId)
+          val item = sierraApi.getItem(sierraItemNumber.get)
+          complete(item)
+        }
+        post {
+          entity(as[SierraPatron]) { patron =>
+            val sierraItemNumber = CatalogueApi.getItemNumber(itemId)
+            val holdRequest = sierraApi.postPatronPlaceHold(patron.id, sierraItemNumber.get)
+            complete(holdRequest)
+          }
+        }
     }
   )
 }
