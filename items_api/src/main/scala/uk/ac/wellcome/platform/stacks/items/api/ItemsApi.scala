@@ -23,9 +23,9 @@ trait ItemsApi extends Logging {
     pathPrefix("works") {
       path(Segment) { workId: String =>
         get {
-          val apiClient = new ApiClient().setBasePath("http://localhost:8080/catalogue/v2/")
-          val worksApi = new WorksApi(apiClient)
+          val apiClient = new ApiClient().setBasePath("http://localhost:8080/")
 
+          val worksApi = new WorksApi(apiClient)
           val work: Work = worksApi.getWork(workId, "items")
 
           val items = work.getItems()

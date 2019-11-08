@@ -11,7 +11,7 @@ import uk.ac.wellcome.platform.stacks.items.api.fixtures.ItemsApiFixture
 trait CatalogueWireMockFixture extends FunSpec with WireMockFixture {
   lazy val apiUrl = "https://api.wellcomecollection.org/catalogue/v2/"
   lazy val mappingsFolder = "src/test/resources/catalogue/"
-  lazy val port = 8181
+  lazy val port = 8080
 }
 
 class ItemsApiFeatureTest
