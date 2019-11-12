@@ -29,7 +29,8 @@ class ItemsApiFeatureTest
                  |  "items" : [
                  |    {
                  |      "itemId" : "ys3ern6x",
-                 |      "locationLabel" : "foo"
+                 |      "locationId": "sicon"
+                 |      "locationLabel" : "Closed stores Iconographic"
                  |    }
                  |  ]
                  |}"""

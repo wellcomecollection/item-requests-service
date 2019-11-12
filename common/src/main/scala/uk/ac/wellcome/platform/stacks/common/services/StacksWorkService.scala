@@ -13,8 +13,10 @@ object StacksWorkService {
     StacksWork(
       workId = work.getId,
       items = items.asScala.toList.map { item =>
+
         StacksItem(
           itemId = item.getId,
+          locationId = "bar",
           locationLabel = "foo"
         )
       }

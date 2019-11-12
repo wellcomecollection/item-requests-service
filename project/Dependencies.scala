@@ -9,7 +9,18 @@ object WellcomeDependencies {
     val storage = "7.24.1"
     val typesafe = "1.0.0"
     val catalogueClient = "0.0.5"
+    val sierraClient = "0.0.1"
   }
+
+  val catalogueClient: Seq[ModuleID] = library(
+    name = "scala-catalogue-client",
+    version = versions.catalogueClient
+  )
+
+  val sierraClient: Seq[ModuleID] = library(
+    name = "scala-catalogue-client",
+    version = versions.sierraClient
+  )
 
   val jsonLibrary: Seq[ModuleID] = library(
     name = "json",
@@ -76,7 +87,6 @@ object ExternalDependencies {
     val logback = "1.2.3"
     val logstashLogback = "6.1"
     val scalajHttp = "2.4.2"
-
   }
 
   val logbackDependencies = Seq(
@@ -130,6 +140,7 @@ object RequestsDependencies {
       ExternalDependencies.logbackDependencies ++
       ExternalDependencies.scalajHttp ++
       ExternalDependencies.circeOpticsDependencies ++
+      ExternalDependencies.wiremockDependencies ++
       WellcomeDependencies.jsonLibrary ++
       WellcomeDependencies.messagingLibrary ++
       WellcomeDependencies.monitoringLibrary ++
@@ -137,5 +148,8 @@ object RequestsDependencies {
       WellcomeDependencies.typesafeLibrary ++
       WellcomeDependencies.monitoringTypesafeLibrary ++
       WellcomeDependencies.messagingTypesafeLibrary ++
-      WellcomeDependencies.storageTypesafeLibrary
+      WellcomeDependencies.storageTypesafeLibrary ++
+      WellcomeDependencies.catalogueClient ++
+      WellcomeDependencies.sierraClient
+
 }
