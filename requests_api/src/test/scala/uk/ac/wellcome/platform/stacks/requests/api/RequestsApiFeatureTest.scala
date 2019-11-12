@@ -1,4 +1,4 @@
-package uk.ac.wellcome.platform.requests.api
+package uk.ac.wellcome.platform.stacks.requests.api
 
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes}
 import org.scalatest.concurrent.IntegrationPatience
@@ -16,19 +16,11 @@ class RequestsApiFeatureTest
   describe("requests") {
     it("shows a user their requested items") {
       withConfiguredApp() {
-        case (metrics, baseUrl) =>
-          val expectedJson =
-            s"""{ "workId": "12345", "itemId": "67890" }""".stripMargin
+        case (_, _) =>
+          val path = "/requests"
 
-          val url =
-            s"$baseUrl/works/a2239muq/items/v9m3ewes"
-
-          whenPostRequestReady(url, HttpEntity(ContentTypes.`application/json`, """{ "id" : 1097124 }""")) { response =>
+          whenGetRequestReady(path) { response =>
             response.status shouldBe StatusCodes.OK
-
-            withStringEntity(response.entity) { actualJson =>
-              assertJsonStringsAreEqual(actualJson, expectedJson)
-            }
           }
       }
     }

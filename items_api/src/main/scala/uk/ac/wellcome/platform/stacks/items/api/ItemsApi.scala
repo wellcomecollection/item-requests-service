@@ -1,26 +1,38 @@
 package uk.ac.wellcome.platform.stacks.items.api
 
 import akka.http.scaladsl.server.Route
+import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import grizzled.slf4j.Logging
-import uk.ac.wellcome.platform.stacks.common.sierra.services.SierraApi
+import uk.ac.wellcome.platform.catalogue.api.WorksApi
+import uk.ac.wellcome.platform.stacks.common.services.StacksWorkService
 
 import scala.concurrent.ExecutionContext
+import scala.util.{Failure, Success, Try}
 
-case class TestResponse(workId: String, itemId: String)
-
-trait ItemsApi extends Logging {
+trait ItemsApi extends Logging with FailFastCirceSupport {
 
   import akka.http.scaladsl.server.Directives._
-  import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
+  import io.circe.generic.auto._
 
   implicit val ec: ExecutionContext
-  implicit val sierraApi: SierraApi
+  implicit val worksApi: WorksApi
 
   val routes: Route = concat(
     pathPrefix("works") {
-      path(Segment) { _: String =>
+      path(Segment) { id: String =>
         get {
-          complete("ok")
+          val result = for {
+            work <- Try {
+              worksApi.getWork(id, "items")
+            }
+
+            stacksWork <- StacksWorkService.convertWork(work)
+          } yield stacksWork
+
+          result match {
+            case Success(stacksWork) => complete(stacksWork)
+            case Failure(err) => failWith(err)
+          }
         }
       }
     }

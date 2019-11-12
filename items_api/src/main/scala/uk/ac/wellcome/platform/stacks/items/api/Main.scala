@@ -6,10 +6,10 @@ import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import com.typesafe.config.Config
 import uk.ac.wellcome.monitoring.typesafe.MetricsBuilder
+import uk.ac.wellcome.platform.catalogue.ApiClient
+import uk.ac.wellcome.platform.catalogue.api.WorksApi
 import uk.ac.wellcome.platform.stacks.common.http.config.builders.HTTPServerBuilder
 import uk.ac.wellcome.platform.stacks.common.http.{HttpMetrics, WellcomeHttpApp}
-import uk.ac.wellcome.platform.stacks.common.sierra.config.builders.SierraApiConfigBuilder
-import uk.ac.wellcome.platform.stacks.common.sierra.services.SierraApi
 import uk.ac.wellcome.typesafe.WellcomeTypesafeApp
 import uk.ac.wellcome.typesafe.config.builders.AkkaBuilder
 
@@ -26,12 +26,15 @@ object Main extends WellcomeTypesafeApp {
     implicit val amMain: ActorMaterializer =
       AkkaBuilder.buildActorMaterializer()
 
-    val sierraApiConfig = SierraApiConfigBuilder.buildSierraApiConfig(config)
+    // TODO: Set from config
+    val apiClient = new ApiClient().setBasePath("http://localhost:8080/")
 
     val router: ItemsApi = new ItemsApi {
       override implicit val ec: ExecutionContext = ecMain
-      override implicit val sierraApi: SierraApi = new SierraApi(sierraApiConfig)
+      override implicit val worksApi: WorksApi = new WorksApi(apiClient)
     }
+
+
 
     val appName = "ItemsApi"
 
