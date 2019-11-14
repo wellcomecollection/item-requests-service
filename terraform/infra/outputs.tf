@@ -14,7 +14,7 @@ output "cognito_api_identifier" {
   # value = "${data.terraform_remote_state.infra_critical.cognito_stacks_api_identifier}"
   # the cognito stuff is in TF0.12
   # TODO: Update this to TF0.12
-  value = "eu-west-1_r132f7RNa"
+  value = "eu-west-1_Gvjy3bP52"
 }
 
 output "static_content_bucket_name" {
