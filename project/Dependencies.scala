@@ -9,7 +9,7 @@ object WellcomeDependencies {
     val storage = "7.24.1"
     val typesafe = "1.0.0"
     val catalogueClient = "0.0.5"
-    val sierraClient = "0.0.1"
+    val sierraClient = "0.0.3"
   }
 
   val catalogueClient: Seq[ModuleID] = library(
@@ -18,7 +18,7 @@ object WellcomeDependencies {
   )
 
   val sierraClient: Seq[ModuleID] = library(
-    name = "scala-catalogue-client",
+    name = "scala-sierra-client",
     version = versions.sierraClient
   )
 
@@ -87,6 +87,7 @@ object ExternalDependencies {
     val logback = "1.2.3"
     val logstashLogback = "6.1"
     val scalajHttp = "2.4.2"
+    val gson = "1.7.1"
   }
 
   val logbackDependencies = Seq(
@@ -123,6 +124,10 @@ object ExternalDependencies {
     "com.amazonaws" % "aws-java-sdk-cloudwatchmetrics" % versions.aws
   )
 
+  val gsonDependencies = Seq[ModuleID](
+    "com.google.code.gson" % "gson" % versions.gson
+  )
+
   val wiremockDependencies = Seq[ModuleID](
     "com.github.tomakehurst" % "wiremock" % versions.wiremock % "test"
   )
@@ -141,6 +146,7 @@ object RequestsDependencies {
       ExternalDependencies.scalajHttp ++
       ExternalDependencies.circeOpticsDependencies ++
       ExternalDependencies.wiremockDependencies ++
+      ExternalDependencies.gsonDependencies ++
       WellcomeDependencies.jsonLibrary ++
       WellcomeDependencies.messagingLibrary ++
       WellcomeDependencies.monitoringLibrary ++

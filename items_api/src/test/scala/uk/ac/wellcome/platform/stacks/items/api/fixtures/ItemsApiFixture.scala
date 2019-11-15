@@ -6,10 +6,11 @@ import org.scalatest.concurrent.ScalaFutures
 import uk.ac.wellcome.fixtures.TestWith
 import uk.ac.wellcome.monitoring.fixtures.MetricsSenderFixture
 import uk.ac.wellcome.monitoring.memory.MemoryMetrics
-import uk.ac.wellcome.platform.catalogue.ApiClient
-import uk.ac.wellcome.platform.catalogue.api.WorksApi
+import uk.ac.wellcome.platform.sierra
+import uk.ac.wellcome.platform.catalogue
 import uk.ac.wellcome.platform.stacks.common.http.fixtures.HttpFixtures
 import uk.ac.wellcome.platform.stacks.common.http.{HttpMetrics, WellcomeHttpApp}
+import uk.ac.wellcome.platform.stacks.common.services.{SierraService, StacksWorkService}
 import uk.ac.wellcome.platform.stacks.items.api.ItemsApi
 
 import scala.concurrent.ExecutionContext
@@ -27,7 +28,8 @@ trait ItemsApiFixture
   )
 
   private def withApp[R](
-      catalogueApiBasePath: String,
+                          catalogueApiUrl: String,
+                          sierraApiUrl: String,
       metrics: MemoryMetrics[Unit]
   )(testWith: TestWith[WellcomeHttpApp, R]): R =
     withActorSystem { implicit actorSystem =>
@@ -38,11 +40,20 @@ trait ItemsApiFixture
           metrics = metrics
         )
 
-        val apiClient = new ApiClient().setBasePath(s"$catalogueApiBasePath/catalogue/v2")
+        val sierraService = new SierraService(
+          baseUrl = f"$sierraApiUrl/iii/sierra-api",
+          username = "username",
+          password = "password"
+        )
+
+        val apiClient = new catalogue.ApiClient().setBasePath(s"$catalogueApiUrl/catalogue/v2")
+        val worksApi = new catalogue.api.WorksApi(apiClient)
+
+        val workService = new StacksWorkService(worksApi, sierraService)
 
         val router: ItemsApi = new ItemsApi {
           override implicit val ec: ExecutionContext = global
-          override implicit val worksApi: WorksApi = new WorksApi(apiClient)
+          override implicit val stacksWorkService: StacksWorkService = workService
         }
 
         val app = new WellcomeHttpApp(
@@ -59,12 +70,15 @@ trait ItemsApiFixture
       }
     }
 
-  def withConfiguredApp[R](catalogueApiBasePath: String)(
+  def withConfiguredApp[R](
+                            catalogueApiUrl: String,
+                            sierraApiUrl: String
+                          )(
       testWith: TestWith[(MemoryMetrics[Unit], String), R]
   ): R = {
     val metrics = new MemoryMetrics[Unit]()
 
-    withApp(catalogueApiBasePath, metrics) { _ =>
+    withApp(catalogueApiUrl, sierraApiUrl, metrics) { _ =>
       testWith((metrics, httpServerConfigTest.externalBaseURL))
     }
   }

@@ -6,10 +6,11 @@ import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import com.typesafe.config.Config
 import uk.ac.wellcome.monitoring.typesafe.MetricsBuilder
-import uk.ac.wellcome.platform.catalogue.ApiClient
-import uk.ac.wellcome.platform.catalogue.api.WorksApi
+import uk.ac.wellcome.platform.catalogue
+import uk.ac.wellcome.platform.sierra
 import uk.ac.wellcome.platform.stacks.common.http.config.builders.HTTPServerBuilder
 import uk.ac.wellcome.platform.stacks.common.http.{HttpMetrics, WellcomeHttpApp}
+import uk.ac.wellcome.platform.stacks.common.services.{SierraService, StacksWorkService}
 import uk.ac.wellcome.typesafe.WellcomeTypesafeApp
 import uk.ac.wellcome.typesafe.config.builders.AkkaBuilder
 
@@ -27,14 +28,22 @@ object Main extends WellcomeTypesafeApp {
       AkkaBuilder.buildActorMaterializer()
 
     // TODO: Set from config
-    val apiClient = new ApiClient().setBasePath("http://localhost:8080/")
+
+    val worksApiClient = new catalogue.ApiClient().setBasePath("http://localhost:8080/")
+    val worksApi = new catalogue.api.WorksApi(worksApiClient)
+
+    val sierraService = new SierraService(
+      baseUrl = "http://localhost:8080/iii/sierra-api",
+      username = "username",
+      password = "password"
+    )
+
+    val workService = new StacksWorkService(worksApi, sierraService)
 
     val router: ItemsApi = new ItemsApi {
       override implicit val ec: ExecutionContext = ecMain
-      override implicit val worksApi: WorksApi = new WorksApi(apiClient)
+      override implicit val stacksWorkService: StacksWorkService = workService
     }
-
-
 
     val appName = "ItemsApi"
 

@@ -9,6 +9,35 @@
     "type": "WorkType"
   },
   "lettering": "Guten Tag. Mach's mit. Bundeszentrale für gesundheitliche Aufklärung, 51101 Köln. Konzept + Gestaltung: Marcel Kolvenbach + Guido Meyer",
+  "identifiers": [
+    {
+      "identifierType": {
+        "id": "sierra-system-number",
+        "label": "Sierra system number",
+        "type": "IdentifierType"
+      },
+      "value": "b16656180",
+      "type": "Identifier"
+    },
+    {
+      "identifierType": {
+        "id": "sierra-identifier",
+        "label": "Sierra identifier",
+        "type": "IdentifierType"
+      },
+      "value": "1665618",
+      "type": "Identifier"
+    },
+    {
+      "identifierType": {
+        "id": "miro-image-number",
+        "label": "Miro image number",
+        "type": "IdentifierType"
+      },
+      "value": "L0053261",
+      "type": "Identifier"
+    }
+  ],
   "thumbnail": {
     "locationType": {
       "id": "thumbnail-image",
@@ -27,6 +56,26 @@
   "items": [
     {
       "id": "ys3ern6x",
+      "identifiers": [
+        {
+          "identifierType": {
+            "id": "sierra-system-number",
+            "label": "Sierra system number",
+            "type": "IdentifierType"
+          },
+          "value": "i16010176",
+          "type": "Identifier"
+        },
+        {
+          "identifierType": {
+            "id": "sierra-identifier",
+            "label": "Sierra identifier",
+            "type": "IdentifierType"
+          },
+          "value": "1601017",
+          "type": "Identifier"
+        }
+      ],
       "locations": [
         {
           "locationType": {

@@ -15,19 +15,13 @@ trait ItemsApi extends Logging with FailFastCirceSupport {
   import io.circe.generic.auto._
 
   implicit val ec: ExecutionContext
-  implicit val worksApi: WorksApi
+  implicit val stacksWorkService: StacksWorkService
 
   val routes: Route = concat(
     pathPrefix("works") {
       path(Segment) { id: String =>
         get {
-          val result = for {
-            work <- Try {
-              worksApi.getWork(id, "items")
-            }
-
-            stacksWork <- StacksWorkService.convertWork(work)
-          } yield stacksWork
+          val result = stacksWorkService.getItems(id)
 
           result match {
             case Success(stacksWork) => complete(stacksWork)
