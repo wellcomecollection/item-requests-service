@@ -16,10 +16,7 @@ module "prod_stack" {
 
   cognito_user_pool_arn = "${module.infra.cognito_user_pool_arn}"
 
-  auth_scopes = [
-    "${module.infra.cognito_api_identifier}/items",
-    "${module.infra.cognito_api_identifier}/requests",
-  ]
+  auth_scopes = []
 
   static_content_bucket_name = "${module.infra.static_content_bucket_name}"
 }

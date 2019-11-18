@@ -4,7 +4,6 @@ resource "aws_api_gateway_resource" "resource" {
   path_part   = "context.json"
 }
 
-
 resource "aws_s3_bucket_object" "context" {
   bucket  = "${var.static_content_bucket_name}"
   key     = "static/context.json"
