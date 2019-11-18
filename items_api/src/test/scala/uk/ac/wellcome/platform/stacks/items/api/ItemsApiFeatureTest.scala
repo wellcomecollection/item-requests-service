@@ -26,15 +26,20 @@ class ItemsApiFeatureTest
               val path = "/works/cnkv77md"
 
               val expectedJson =
-                s"""{
-                   |  "workId" : "cnkv77md",
+                s"""
+                   |{
+                   |  "id" : "cnkv77md",
                    |  "items" : [
                    |    {
-                   |      "itemId" : "ys3ern6x",
+                   |      "id" : "ys3ern6x",
                    |      "location" : {
-                   |          "locationId" : "sicon",
-                   |          "locationLabel" : "Closed stores Iconographic"
-                   |        }
+                   |        "id" : "sicon",
+                   |        "label" : "Closed stores Iconographic"
+                   |      },
+                   |      "status" : {
+                   |        "id" : "available",
+                   |        "label" : "Available"
+                   |      }
                    |    }
                    |  ]
                    |}"""
