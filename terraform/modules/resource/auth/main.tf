@@ -56,6 +56,7 @@ module "auth_subresource_integration" {
   forward_path = "${var.forward_path}/{proxy}"
 
   request_parameters = {
-    integration.request.path.proxy = "method.request.path.proxy"
+    integration.request.path.proxy              = "method.request.path.proxy"
+    integration.request.header.X-SierraPatronId = "context.authorizer.claims.custom:patronId"
   }
 }
