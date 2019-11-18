@@ -1,3 +1,3 @@
 package uk.ac.wellcome.platform.stacks.common.models
 
-case class StacksLocation(locationId: String, locationLabel: String)
+case class StacksLocation(id: String, label: String)

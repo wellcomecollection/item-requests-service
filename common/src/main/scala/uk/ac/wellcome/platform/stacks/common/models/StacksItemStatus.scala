@@ -1,21 +1,20 @@
 package uk.ac.wellcome.platform.stacks.common.models
 
-//return { label: 'Available', id: 'available' }
-//  case 'm':
-//  return { label: 'Missing', id: 'missing' }
-//  case 'z':
-//  return { label: 'CL Returned', id: 'cl-returned' }
-//  case 'o':
-//  return { label: 'o', id: 'Library use only' }
-//  case 'n':
-//  return { label: 'Billed not paid', id: 'billed-not-paid' }
-//  case '$':
-//  return { label: 'Billed paid', id: 'billed-paid' }
-//  case 't':
-//  return { label: 'In transit', id: 'in-transit' }
-//  case '!':
-//  return { label: 'On holdshelf', id: 'on-holdshelf' }
-//  case 'l':
-//  return { label: 'Lost', id: 'lost' }
+case class StacksItemStatus(id: String, label: String)
 
-case class StacksItemStatus(statusId: String, label: String)
+object StacksItemStatus {
+  def apply(rawCode: String): StacksItemStatus =
+    rawCode.trim match {
+      case "-" => StacksItemStatus("available", "Available")
+      case "z" => StacksItemStatus("cl-returned", "CL Returned")
+      case "o" => StacksItemStatus("library-use-only", "Library use only")
+      case "n" => StacksItemStatus("billed-not-paid", "Billed not paid")
+      case "$" => StacksItemStatus("billed-paid", "Billed paid")
+      case "t" => StacksItemStatus("in-transit", "In transit")
+      case "!" => StacksItemStatus("on-holdshelf", "On holdshelf")
+      case "l" => StacksItemStatus("lost", "Lost")
+      case "m" => StacksItemStatus("missing", "Missing")
+      case default => StacksItemStatus(default, "Unknown")
+    }
+}
+

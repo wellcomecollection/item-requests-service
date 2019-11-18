@@ -1,19 +1,28 @@
 package uk.ac.wellcome.platform.stacks.common.services
 
+import com.google.gson.internal.LinkedTreeMap
+import uk.ac.wellcome.platform.catalogue.api.WorksApi
+import uk.ac.wellcome.platform.catalogue.models.{ItemIdentifiers, ResultListItems}
 import uk.ac.wellcome.platform.stacks.common.models.{StacksItem, StacksItemStatus, StacksLocation, StacksWork}
 
 import scala.collection.JavaConverters._
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
-import com.google.gson.internal.LinkedTreeMap
-import uk.ac.wellcome.platform.catalogue.api.WorksApi
 
-import scala.concurrent.{Await, ExecutionContext, Future}
 
-import scala.concurrent._
-import scala.concurrent.duration._
+case class StacksWorkIdentifier(value: String)
+case class StacksItemIdentifier(catalogueId: String, sierraId: String)
 
-class StacksWorkService(worksApi: WorksApi, sierraService: SierraService)(
-                       implicit ec: ExecutionContext
+import cats.instances.future._
+import cats.instances.list._
+import cats.syntax.traverse._
+
+
+class StacksWorkService(
+                         val worksApi: WorksApi,
+                         val sierraService: SierraService
+                       )(
+                       implicit val ec: ExecutionContext
 ) {
   type LTM[T] = LinkedTreeMap[String, T]
 
@@ -22,57 +31,76 @@ class StacksWorkService(worksApi: WorksApi, sierraService: SierraService)(
       Option(ltm.get(key)).flatMap(o => Try(o.asInstanceOf[T]).toOption)
   }
 
-  def getItems(workId: String) = Try {
+  protected def getItemIdentifiers(item: ResultListItems): List[ItemIdentifiers] =
+    item.getIdentifiers.asScala.toList
 
-    val work = worksApi.getWork(workId, "items,identifiers")
+  protected def getItems(workId: StacksWorkIdentifier): Future[List[ResultListItems]] =
+    Future {
+      worksApi.getWork(workId.value, "items,identifiers")
+    }.map(_.getItems.asScala.toList)
 
-    StacksWork(
-      workId = work.getId,
-      items = work.getItems.asScala.toList.map { item =>
+  protected def getSierraIdentifier(item: ResultListItems): Future[StacksItemIdentifier] = {
+    val identifier = getItemIdentifiers(item)
+      .filter { _.getIdentifierType.getId == "sierra-identifier" }
+      .map { _.getValue }
 
-        val itemIdentifiers = item
-          .getIdentifiers
-          .asScala.toList
+    identifier match {
+      case List(sierraItemId) =>
+        Future.successful(StacksItemIdentifier(item.getId, sierraItemId))
+      case _ => Future.failed(new Throwable(
+        f"Ambiguous or missing identifier! ($identifier)"
+      ))
+    }
+  }
 
-        val identifiers = itemIdentifiers
-          .filter { _.getIdentifierType.getId == "sierra-identifier" }
-          .map { _.getValue }
+  protected def getStacksLocation(item: ResultListItems): Future[Option[StacksLocation]] = {
+    val itemLocations = item.getLocations.asScala.toList
 
-        val sierraIdentifier = identifiers.head
-
-        val itemLocations = item
-          .getLocations
-          .asScala.toList
-
-        val locations = itemLocations
-          .map(_.asInstanceOf[LTM[Any]])
-          .map { l =>
-            (
-              l.safeGet[LTM[String]]("locationType").map(_.get("id")),
-              l.safeGet[String]("type"),
-              l.safeGet[String]("label")
-            )
-          }
-          .collect {
-            case (Some(id), Some("PhysicalLocation"), Some(label)) =>
-              StacksLocation(id,label)
-          }
-
-        val futureStatus = sierraService.itemsApi().map { api =>
-          val sierraItem = api.getAnItemByRecordID(sierraIdentifier, List.empty[String].asJava)
-          val itemStatus = sierraItem.getStatus()
-
-          StacksItemStatus("nope", itemStatus.getDisplay)
-        }
-
-        val status = Await.result(futureStatus, 5 seconds)
-
-        StacksItem(
-          itemId = item.getId,
-          location = locations.head,
-          status = status
+    val physicalLocation = itemLocations
+      .map(_.asInstanceOf[LTM[Any]])
+      .map { l =>
+        (
+          l.safeGet[LTM[String]]("locationType").map(_.get("id")),
+          l.safeGet[String]("type"),
+          l.safeGet[String]("label")
         )
       }
+      .collect {
+        case (Some(id), Some("PhysicalLocation"), Some(label)) =>
+          StacksLocation(id, label)
+      }
+
+    physicalLocation match {
+      case List(location) => Future.successful(Some(location))
+      case Nil => Future.successful(None)
+      case _ => Future.failed(new Throwable(
+        f"Ambiguous location! ($itemLocations)"
+      ))
+    }
+  }
+
+  protected def getItemStatus(itemIdentity: StacksItemIdentifier): Future[StacksItemStatus] = for {
+    itemsApi <- sierraService.itemsApi()
+    sierraItem = itemsApi.getAnItemByRecordID(
+      itemIdentity.sierraId,
+      List.empty[String].asJava
     )
+  } yield StacksItemStatus(sierraItem.getStatus.getCode)
+
+  def getStacksWork(workId: StacksWorkIdentifier): Future[StacksWork] = {
+    val eventuallyIdsAndLocations = for {
+      items <- getItems(workId)
+      sierraIdentifier <- items.traverse(getSierraIdentifier)
+      itemLocations <- items.traverse(getStacksLocation)
+    } yield sierraIdentifier zip itemLocations
+
+    for {
+      idsAndLocations <- eventuallyIdsAndLocations
+      stacksItems <- idsAndLocations.traverse {
+        case (itemId, Some(location)) => getItemStatus(itemId).map { status =>
+          StacksItem(itemId.catalogueId, location, status)
+        }
+      }
+    } yield StacksWork(workId.value, stacksItems)
   }
 }

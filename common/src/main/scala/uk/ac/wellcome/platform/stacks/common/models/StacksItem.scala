@@ -1,7 +1,7 @@
 package uk.ac.wellcome.platform.stacks.common.models
 
 case class StacksItem(
-                       itemId: String,
+                       id: String,
                        location: StacksLocation,
                        status: StacksItemStatus
                      )
