@@ -1,4 +1,7 @@
 # API
+locals {
+  stage_name = "v1"
+}
 
 resource "aws_api_gateway_rest_api" "api" {
   name = "Stacks API (${var.namespace})"
@@ -105,9 +108,28 @@ resource "aws_api_gateway_vpc_link" "link" {
   target_arns = ["${module.nlb.arn}"]
 }
 
-resource "aws_api_gateway_base_path_mapping" "test" {
+resource "aws_api_gateway_base_path_mapping" "v1" {
   api_id      = "${aws_api_gateway_rest_api.api.id}"
-  stage_name  = "v1"
+  stage_name  = "${local.stage_name}"
   domain_name = "${module.domain.domain_name}"
   base_path   = "stacks"
+}
+
+resource "aws_api_gateway_api_key" "stacks_api_key" {
+  name = "stacks_api"
+}
+
+resource "aws_api_gateway_usage_plan" "get_items_usage_plan" {
+  name        = "GetItemsUsagePlan"
+  description = "Get items from the Stacks API"
+
+  api_stages {
+    api_id = "${aws_api_gateway_rest_api.api.id}"
+    stage  = "${local.stage_name}"
+  }
+
+  api_stages {
+    api_id = "${aws_api_gateway_rest_api.api.id}"
+    stage  = "${local.stage_name}"
+  }
 }

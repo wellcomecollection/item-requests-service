@@ -20,6 +20,7 @@ module "items_api" {
   secret_env_vars = {
     sierra_api_key    = "stacks/prod/sierra_api_key"
     sierra_api_secret = "stacks/prod/sierra_api_secret"
+    stacks_api_key    = "stacks/prod/stacks_api_key"
   }
 
   secret_env_vars_length = "2"
