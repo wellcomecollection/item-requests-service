@@ -3,11 +3,10 @@ package uk.ac.wellcome.platform.stacks.items.api
 import akka.http.scaladsl.server.Route
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import grizzled.slf4j.Logging
-import uk.ac.wellcome.platform.catalogue.api.WorksApi
-import uk.ac.wellcome.platform.stacks.common.services.StacksWorkService
+import uk.ac.wellcome.platform.stacks.common.services.{StacksWorkIdentifier, StacksWorkService}
 
 import scala.concurrent.ExecutionContext
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
 
 trait ItemsApi extends Logging with FailFastCirceSupport {
 
@@ -21,10 +20,12 @@ trait ItemsApi extends Logging with FailFastCirceSupport {
     pathPrefix("works") {
       path(Segment) { id: String =>
         get {
-          val result = stacksWorkService.getItems(id)
+          val result = stacksWorkService.getStacksWork(
+            StacksWorkIdentifier(id)
+          )
 
-          result match {
-            case Success(stacksWork) => complete(stacksWork)
+          onComplete(result) {
+            case Success(value) => complete(value)
             case Failure(err) => failWith(err)
           }
         }
