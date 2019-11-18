@@ -6,11 +6,11 @@ import org.scalatest.concurrent.ScalaFutures
 import uk.ac.wellcome.fixtures.TestWith
 import uk.ac.wellcome.monitoring.fixtures.MetricsSenderFixture
 import uk.ac.wellcome.monitoring.memory.MemoryMetrics
-import uk.ac.wellcome.platform.sierra
-import uk.ac.wellcome.platform.catalogue
 import uk.ac.wellcome.platform.stacks.common.http.fixtures.HttpFixtures
 import uk.ac.wellcome.platform.stacks.common.http.{HttpMetrics, WellcomeHttpApp}
-import uk.ac.wellcome.platform.stacks.common.services.{SierraService, StacksWorkService}
+import uk.ac.wellcome.platform.stacks.common.services.StacksWorkService
+import uk.ac.wellcome.platform.stacks.common.services.config.builders.{SierraServiceBuilder, WorksApiBuilder}
+import uk.ac.wellcome.platform.stacks.common.services.config.models.{SierraServiceConfig, WorksApiConfig}
 import uk.ac.wellcome.platform.stacks.items.api.ItemsApi
 
 import scala.concurrent.ExecutionContext
@@ -40,15 +40,18 @@ trait ItemsApiFixture
           metrics = metrics
         )
 
-        val sierraService = new SierraService(
-          baseUrl = f"$sierraApiUrl/iii/sierra-api",
+        val sierraServiceConfig = SierraServiceConfig(
+          baseUrl = Some(f"$sierraApiUrl/iii/sierra-api"),
           username = "username",
           password = "password"
         )
 
-        val apiClient = new catalogue.ApiClient().setBasePath(s"$catalogueApiUrl/catalogue/v2")
-        val worksApi = new catalogue.api.WorksApi(apiClient)
+        val worksApiConfig = WorksApiConfig(s"$catalogueApiUrl/catalogue/v2")
 
+        val sierraServiceBuilder = new SierraServiceBuilder()
+        val sierraService = sierraServiceBuilder.buildT(sierraServiceConfig)
+
+        val worksApi = WorksApiBuilder.buildT(worksApiConfig)
         val workService = new StacksWorkService(worksApi, sierraService)
 
         val router: ItemsApi = new ItemsApi {
