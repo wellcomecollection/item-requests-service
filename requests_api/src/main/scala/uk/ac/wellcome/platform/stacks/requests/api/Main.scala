@@ -8,6 +8,8 @@ import com.typesafe.config.Config
 import uk.ac.wellcome.monitoring.typesafe.MetricsBuilder
 import uk.ac.wellcome.platform.stacks.common.http.config.builders.HTTPServerBuilder
 import uk.ac.wellcome.platform.stacks.common.http.{HttpMetrics, WellcomeHttpApp}
+import uk.ac.wellcome.platform.stacks.common.services.StacksWorkService
+import uk.ac.wellcome.platform.stacks.common.services.config.builders.{SierraServiceBuilder, WorksApiBuilder}
 import uk.ac.wellcome.typesafe.WellcomeTypesafeApp
 import uk.ac.wellcome.typesafe.config.builders.AkkaBuilder
 
@@ -24,8 +26,15 @@ object Main extends WellcomeTypesafeApp {
     implicit val amMain: ActorMaterializer =
       AkkaBuilder.buildActorMaterializer()
 
+    val sierraServiceBuilder = new SierraServiceBuilder()
+
+    val worksApi = WorksApiBuilder.build(config)
+    val sierraService = sierraServiceBuilder.build(config)
+    val workService = new StacksWorkService(worksApi, sierraService)
+
     val router: RequestsApi = new RequestsApi {
       override implicit val ec: ExecutionContext = ecMain
+      override implicit val stacksWorkService: StacksWorkService = workService
     }
 
     val appName = "ItemsApi"

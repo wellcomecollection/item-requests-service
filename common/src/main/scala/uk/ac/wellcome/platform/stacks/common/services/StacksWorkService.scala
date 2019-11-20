@@ -1,15 +1,20 @@
 package uk.ac.wellcome.platform.stacks.common.services
 
+import java.time.Instant
+
 import com.google.gson.internal.LinkedTreeMap
+import org.threeten.bp.{ZoneId, ZoneOffset}
 import uk.ac.wellcome.platform.catalogue.api.WorksApi
-import uk.ac.wellcome.platform.catalogue.models.{ItemIdentifiers, ResultListItems}
-import uk.ac.wellcome.platform.stacks.common.models.{StacksItem, StacksItemStatus, StacksLocation, StacksWork}
+import uk.ac.wellcome.platform.catalogue.models.{ItemIdentifiers, ResultList, ResultListItems}
+import uk.ac.wellcome.platform.sierra.models.{Hold, HoldResultSet}
+import uk.ac.wellcome.platform.stacks.common.models.{StacksHold, StacksHoldStatus, StacksItem, StacksItemStatus, StacksLocation, StacksPickup, StacksUserHolds, StacksWork}
 
 import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
 
+case class StacksUserIdentifier(value: String)
 case class StacksWorkIdentifier(value: String)
 case class StacksItemIdentifier(catalogueId: String, sierraId: String)
 
@@ -79,11 +84,10 @@ class StacksWorkService(
     }
   }
 
-  protected def getItemStatus(itemIdentity: StacksItemIdentifier): Future[StacksItemStatus] = for {
+  protected def getItemStatus(sierraId: String): Future[StacksItemStatus] = for {
     itemsApi <- sierraService.itemsApi()
     sierraItem = itemsApi.getAnItemByRecordID(
-      itemIdentity.sierraId,
-      List.empty[String].asJava
+      sierraId, List.empty[String].asJava
     )
   } yield StacksItemStatus(sierraItem.getStatus.getCode)
 
@@ -97,10 +101,114 @@ class StacksWorkService(
     for {
       idsAndLocations <- eventuallyIdsAndLocations
       stacksItems <- idsAndLocations.traverse {
-        case (itemId, Some(location)) => getItemStatus(itemId).map { status =>
+        case (itemId, Some(location)) => getItemStatus(itemId.sierraId).map { status =>
           StacksItem(itemId.catalogueId, location, status)
         }
       }
     } yield StacksWork(workId.value, stacksItems)
   }
+
+  // ----
+
+  protected def getStacksItemIdentifier(sierraId: String) = {
+    val eventuallyItems = Future {
+      // The generated client forces this nasty interface
+      val worksResultList = worksApi.getWorks(
+        "items,identifiers",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        f"i$sierraId",
+        null,
+        null
+      ).getResults.asScala.toList
+
+      worksResultList match {
+        case headWork :: _ => headWork.getItems.asScala.toList
+        case _ => throw new Exception("No items found for work!")
+      }
+    }
+
+    for {
+      items <- eventuallyItems
+      sierraItems <- items.traverse(getSierraIdentifier)
+    } yield sierraItems
+  }
+
+  protected def getHoldResultSet(userIdentity: StacksUserIdentifier): Future[HoldResultSet] = for {
+    patronsApi <- sierraService.patronsApi()
+    holdResultSet = patronsApi.getTheHoldsDataForASinglePatronRecord(
+      userIdentity.value, 100, 0,
+      List.empty[String].asJava
+    )
+  } yield holdResultSet
+
+  protected def getStacksPickupFromHold(hold: Hold): StacksPickup = {
+    StacksPickup(
+      location =  StacksLocation(
+        hold.getPickupLocation.getCode,
+        hold.getPickupLocation.getName
+      ),
+      // This should be a simpler conversion to a Java Instant
+      pickUpBy = Instant.ofEpochSecond(
+        hold.getPickupByDate.toEpochSecond
+      )
+    )
+  }
+
+  protected def getStacksHoldStatusFromHold(hold: Hold): StacksHoldStatus = {
+    StacksHoldStatus(
+      id = hold.getStatus.getCode,
+      label = hold.getStatus.getName
+    )
+  }
+
+  protected def getStacksItemIdentifierFromHold(hold: Hold): Future[StacksItemIdentifier] = {
+    hold.getRecordType match {
+      case "i" => {
+        val sierraItemId = hold.getRecord.split("/").last
+        getStacksItemIdentifier(sierraItemId).map {
+          case List(stacksItemIdentifier) => stacksItemIdentifier
+          case _ => throw new Exception(f"Ambiguous or missing item record! ($hold)")
+        }
+      }
+      case _ => Future.failed(
+        new Throwable(f"Could not get item record from hold! ($hold)")
+      )
+    }
+  }
+
+  def getStacksUserHolds(userId: StacksUserIdentifier): Future[StacksUserHolds] = for {
+    holdResultSet <- getHoldResultSet(userId)
+    entries = holdResultSet.getEntries.asScala.toList
+
+    stacksItemsIdentifiers <- entries.traverse(getStacksItemIdentifierFromHold)
+    holdStatuses = entries.map(getStacksHoldStatusFromHold)
+    stacksPickups = entries.map(getStacksPickupFromHold)
+
+    userHolds = (stacksItemsIdentifiers, holdStatuses, stacksPickups)
+      .zipped.toList map {
+      case (stacksItemsIdentifier, holdStatus, stacksPickup) =>
+            StacksHold(
+              itemId = stacksItemsIdentifier.catalogueId,
+              pickup = stacksPickup,
+              status = holdStatus
+            )
+    }
+
+  } yield StacksUserHolds(
+    userId = userId.value,
+    holds = userHolds,
+  )
+
+  // ----
+
+
 }

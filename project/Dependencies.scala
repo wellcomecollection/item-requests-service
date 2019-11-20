@@ -9,7 +9,7 @@ object WellcomeDependencies {
     val storage = "7.24.1"
     val typesafe = "1.0.0"
     val catalogueClient = "0.0.5"
-    val sierraClient = "0.0.3"
+    val sierraClient = "0.0.4"
   }
 
   val catalogueClient: Seq[ModuleID] = library(

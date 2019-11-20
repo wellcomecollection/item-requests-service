@@ -17,7 +17,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
 
 trait ItemsApiFixture
-    extends ScalaFutures
+  extends ScalaFutures
     with HttpFixtures
     with MetricsSenderFixture {
 
@@ -30,8 +30,8 @@ trait ItemsApiFixture
   private def withApp[R](
                           catalogueApiUrl: String,
                           sierraApiUrl: String,
-      metrics: MemoryMetrics[Unit]
-  )(testWith: TestWith[WellcomeHttpApp, R]): R =
+                          metrics: MemoryMetrics[Unit]
+                        )(testWith: TestWith[WellcomeHttpApp, R]): R =
     withActorSystem { implicit actorSystem =>
       withMaterializer(actorSystem) { implicit mat =>
 
@@ -77,8 +77,8 @@ trait ItemsApiFixture
                             catalogueApiUrl: String,
                             sierraApiUrl: String
                           )(
-      testWith: TestWith[(MemoryMetrics[Unit], String), R]
-  ): R = {
+                            testWith: TestWith[(MemoryMetrics[Unit], String), R]
+                          ): R = {
     val metrics = new MemoryMetrics[Unit]()
 
     withApp(catalogueApiUrl, sierraApiUrl, metrics) { _ =>

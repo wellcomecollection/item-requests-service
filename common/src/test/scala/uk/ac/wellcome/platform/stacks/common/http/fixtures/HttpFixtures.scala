@@ -2,7 +2,7 @@ package uk.ac.wellcome.platform.stacks.common.http.fixtures
 
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.HttpMethods.{GET, POST}
-import akka.http.scaladsl.model.{HttpEntity, HttpRequest, HttpResponse, RequestEntity}
+import akka.http.scaladsl.model.{HttpEntity, HttpHeader, HttpRequest, HttpResponse, RequestEntity}
 import akka.stream.scaladsl.Sink
 import io.circe.Decoder
 import org.scalatest.Matchers
@@ -24,12 +24,14 @@ trait HttpFixtures extends Akka with ScalaFutures with Matchers {
     }
 
   def whenGetRequestReady[R](
-    path: String
+    path: String,
+    headers: List[HttpHeader] = Nil
   )(testWith: TestWith[HttpResponse, R]): R = {
 
     val request = HttpRequest(
       method = GET,
       uri = s"${externalBaseURL}${path}",
+      headers = headers
     )
 
     whenRequestReady(request) { response =>

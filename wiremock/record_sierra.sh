@@ -26,7 +26,15 @@ sleep 5
 WIREMOCK_PID=$!
 
 ACCESS_TOKEN=$(curl -X POST -u $USER:$PASS http://localhost:8080/iii/sierra-api/v5/token | jq -r ".access_token")
-curl --header "Authorization:Bearer $ACCESS_TOKEN" http://localhost:8080/iii/sierra-api/v5/items/1601017
+
+curl --header "Authorization:Bearer $ACCESS_TOKEN" http://localhost:8080/iii/sierra-api/v5/items/1606370
+#curl --header "Authorization:Bearer $ACCESS_TOKEN" http://localhost:8080/iii/sierra-api/v5/patrons/1100189/holds
+
+#curl \
+#  --header "Content-Type: application/json" \
+#  --header "Authorization:Bearer $ACCESS_TOKEN" \
+#  --data '{"recordType": "i", "recordNumber": 1606370, "pickupLocation": "sepbb" }' \
+#  -XPOST http://localhost:8080/iii/sierra-api/v5/patrons/1100189/holds/requests
 
 kill $WIREMOCK_PID
 

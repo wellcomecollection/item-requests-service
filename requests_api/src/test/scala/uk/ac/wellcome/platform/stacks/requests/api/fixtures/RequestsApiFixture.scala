@@ -8,13 +8,16 @@ import uk.ac.wellcome.monitoring.fixtures.MetricsSenderFixture
 import uk.ac.wellcome.monitoring.memory.MemoryMetrics
 import uk.ac.wellcome.platform.stacks.common.http.fixtures.HttpFixtures
 import uk.ac.wellcome.platform.stacks.common.http.{HttpMetrics, WellcomeHttpApp}
+import uk.ac.wellcome.platform.stacks.common.services.StacksWorkService
+import uk.ac.wellcome.platform.stacks.common.services.config.builders.{SierraServiceBuilder, WorksApiBuilder}
+import uk.ac.wellcome.platform.stacks.common.services.config.models.{SierraServiceConfig, WorksApiConfig}
 import uk.ac.wellcome.platform.stacks.requests.api.RequestsApi
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
 
 trait RequestsApiFixture
-    extends ScalaFutures
+  extends ScalaFutures
     with HttpFixtures
     with MetricsSenderFixture {
 
@@ -25,8 +28,10 @@ trait RequestsApiFixture
   )
 
   private def withApp[R](
-      metrics: MemoryMetrics[Unit]
-  )(testWith: TestWith[WellcomeHttpApp, R]): R =
+                          catalogueApiUrl: String,
+                          sierraApiUrl: String,
+                          metrics: MemoryMetrics[Unit]
+                        )(testWith: TestWith[WellcomeHttpApp, R]): R =
     withActorSystem { implicit actorSystem =>
       withMaterializer(actorSystem) { implicit materializer =>
         val httpMetrics = new HttpMetrics(
@@ -34,8 +39,23 @@ trait RequestsApiFixture
           metrics = metrics
         )
 
+        val sierraServiceConfig = SierraServiceConfig(
+          baseUrl = Some(f"$sierraApiUrl/iii/sierra-api"),
+          username = "username",
+          password = "password"
+        )
+
+        val worksApiConfig = WorksApiConfig(s"$catalogueApiUrl/catalogue/v2")
+
+        val sierraServiceBuilder = new SierraServiceBuilder()
+        val sierraService = sierraServiceBuilder.buildT(sierraServiceConfig)
+
+        val worksApi = WorksApiBuilder.buildT(worksApiConfig)
+        val workService = new StacksWorkService(worksApi, sierraService)
+
         val router: RequestsApi = new RequestsApi {
           override implicit val ec: ExecutionContext = global
+          override implicit val stacksWorkService: StacksWorkService = workService
         }
 
         val app = new WellcomeHttpApp(
@@ -52,12 +72,15 @@ trait RequestsApiFixture
       }
     }
 
-  def withConfiguredApp[R]()(
-      testWith: TestWith[(MemoryMetrics[Unit], String), R]
-  ): R = {
+  def withConfiguredApp[R](
+                            catalogueApiUrl: String,
+                            sierraApiUrl: String
+                          )(
+                            testWith: TestWith[(MemoryMetrics[Unit], String), R]
+                          ): R = {
     val metrics = new MemoryMetrics[Unit]()
 
-    withApp(metrics) { _ =>
+    withApp(catalogueApiUrl, sierraApiUrl, metrics) { _ =>
       testWith((metrics, httpServerConfigTest.externalBaseURL))
     }
   }

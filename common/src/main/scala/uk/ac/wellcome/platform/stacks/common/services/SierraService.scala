@@ -8,7 +8,7 @@ import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
 import io.circe.Json
 import uk.ac.wellcome.platform.sierra
-import uk.ac.wellcome.platform.sierra.api.V5itemsApi
+import uk.ac.wellcome.platform.sierra.api.{V5itemsApi, V5patronsApi}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -50,5 +50,11 @@ class SierraService(baseUrl: Option[String], username: String, password: String)
     sierraApiClient.setAccessToken(token)
 
     new sierra.api.V5itemsApi(sierraApiClient)
+  }
+
+  def patronsApi(): Future[V5patronsApi] = AuthToken.get().map { token =>
+    sierraApiClient.setAccessToken(token)
+
+    new sierra.api.V5patronsApi(sierraApiClient)
   }
 }
