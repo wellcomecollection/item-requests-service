@@ -7,7 +7,10 @@ output "vpc_id" {
 }
 
 output "cognito_user_pool_arn" {
-  value = "${data.terraform_remote_state.infra_critical.cognito_user_pool_arn}"
+  # value = "${data.terraform_remote_state.infra_critical.cognito_user_pool_arn}"
+  # the cognito stuff is in TF0.12
+  # TODO: Update this to TF0.12
+  value = "arn:aws:cognito-idp:eu-west-1:760097843905:userpool/eu-west-1_oToO0mWFj"
 }
 
 output "cognito_api_identifier" {
