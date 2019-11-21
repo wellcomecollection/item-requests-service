@@ -1,7 +1,9 @@
 package uk.ac.wellcome.platform.stacks.common.models
 
+import uk.ac.wellcome.platform.stacks.common.services.StacksItemIdentifier
+
 case class StacksItem(
-                       id: String,
+                       id: StacksItemIdentifier,
                        location: StacksLocation,
-                       status: StacksItemStatus
+                       status: Option[StacksItemStatus] = None
                      )

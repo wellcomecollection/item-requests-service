@@ -116,11 +116,10 @@ class StacksWorkService(
   } yield StacksItemStatus(sierraItem.getStatus.getCode)
 
   def getStacksWork(workId: StacksWorkIdentifier): Future[StacksWork] = {
-    val eventuallyIdsAndLocations = for {
+    val eventuallyStacksItems = for {
       items <- getItemsFrom(workId)
-      sierraIdentifier <- items.traverse(getStacksItemIdentifierFrom)
-      itemLocations <- items.traverse(getStacksLocationFrom)
-    } yield sierraIdentifier zip itemLocations
+      stacksItems <- items.traverse(getStacksItemIdentifierFrom)
+    } yield stacksItems
 
     for {
       idsAndLocations <- eventuallyIdsAndLocations
@@ -134,7 +133,7 @@ class StacksWorkService(
 
   // ----
 
-  protected def getStacksItemIdentifierFrom(identifier: ItemIdentifier): Future[StacksItemIdentifier] = {
+  protected def getStacksItemIdentifierFrom(identifier: ItemIdentifier): Future[StacksItem] = {
     val eventuallyItems = Future {
       // The generated client forces this nasty interface
       val worksResultList = worksApi.getWorks(
@@ -156,16 +155,27 @@ class StacksWorkService(
 
       worksResultList match {
         case headWork :: _ => headWork.getItems.asScala.toList
-        case _ => throw new Exception("No items found for work!")
+        case _ => throw new Exception("No matching works found!")
       }
     }
 
     for {
       items <- eventuallyItems
-      sierraItems <- items.traverse(getStacksItemIdentifierFrom)
-      itemIdentifier = sierraItems.toSet.toList match {
+      itemIdentifiers <- items.traverse(getStacksItemIdentifierFrom)
+      stacksLocations <- items.traverse(getStacksLocationFrom)
+
+      itemIdentifier = itemIdentifiers.toSet.toList match {
         case List(one) => one
-        case _ => throw new Exception(f"Ambiguous or missing item record!")
+        case _ => throw new Exception(
+          f"Ambiguous or missing item record!"
+        )
+      }
+
+      stacksLocation = stacksLocations.toSet.toList match {
+        case List(Some(one)) => one
+        case _ => throw new Exception(
+          f"Ambiguous or missing location for item record!"
+        )
       }
 
       _ = identifier match {
@@ -176,7 +186,10 @@ class StacksWorkService(
           if(itemIdentifier.catalogueId != id)
             throw new Exception(f"Catalogue item record ID mismatch!")
       }
-    } yield itemIdentifier
+    } yield StacksItem(
+      id = itemIdentifier,
+      location = stacksLocation
+    )
   }
 
   protected def getHoldResultSet(userIdentity: StacksUserIdentifier): Future[HoldResultSet] = for {
@@ -215,16 +228,6 @@ class StacksWorkService(
       )
     }
   }
-
-  protected def getItemLocation(sierraId: SierraItemIdentifier): Future[StacksLocation] = for {
-    itemsApi <- sierraService.itemsApi()
-    sierraItem = itemsApi.getAnItemByRecordID(
-      sierraId.value, List.empty[String].asJava
-    )
-  } yield StacksLocation(
-    sierraItem.getLocation.getCode,
-    sierraItem.getLocation.getName
-  )
 
   def getStacksUserHolds(userId: StacksUserIdentifier): Future[StacksUserHolds] = for {
     holdResultSet <- getHoldResultSet(userId)
