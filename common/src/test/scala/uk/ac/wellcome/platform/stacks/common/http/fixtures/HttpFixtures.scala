@@ -2,9 +2,9 @@ package uk.ac.wellcome.platform.stacks.common.http.fixtures
 
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.HttpMethods.{GET, POST}
-import akka.http.scaladsl.model.{HttpEntity, HttpHeader, HttpRequest, HttpResponse, RequestEntity}
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpHeader, HttpRequest, HttpResponse, RequestEntity}
 import akka.stream.scaladsl.Sink
-import io.circe.Decoder
+import io.circe.parser._
 import org.scalatest.Matchers
 import org.scalatest.concurrent.ScalaFutures
 import uk.ac.wellcome.akka.fixtures.Akka
@@ -39,14 +39,21 @@ trait HttpFixtures extends Akka with ScalaFutures with Matchers {
     }
   }
 
-  def whenPostRequestReady[R](url: String, entity: RequestEntity)(
+
+  def createJsonHttpEntityWith(jsonString: String): RequestEntity =
+    HttpEntity(
+      ContentTypes.`application/json`,
+      parse(jsonString).right.get.noSpaces
+    )
+
+  def whenPostRequestReady[R](path: String, entity: RequestEntity, headers: List[HttpHeader] = Nil)(
     testWith: TestWith[HttpResponse, R]
   ): R = {
 
     val request = HttpRequest(
       method = POST,
-      uri = url,
-      headers = Nil,
+      uri = s"${externalBaseURL}${path}",
+      headers = headers,
       entity = entity
     )
 

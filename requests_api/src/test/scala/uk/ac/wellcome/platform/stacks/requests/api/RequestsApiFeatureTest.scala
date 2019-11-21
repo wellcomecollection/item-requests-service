@@ -8,7 +8,7 @@ import uk.ac.wellcome.json.utils.JsonAssertions
 import uk.ac.wellcome.platform.stacks.requests.api.fixtures.{CatalogueWireMockFixture, RequestsApiFixture, SierraWireMockFixture}
 
 class RequestsApiFeatureTest
-    extends FunSpec
+  extends FunSpec
     with Matchers
     with RequestsApiFixture
     with JsonAssertions
@@ -32,6 +32,47 @@ class RequestsApiFeatureTest
 
             whenGetRequestReady(path, headers) { response =>
               response.status shouldBe StatusCodes.OK
+            }
+          }
+        }
+      }
+    }
+
+    it("accepts requests to place a hold on an item") {
+      withMockCatalogueServer { catalogueApiUrl: String =>
+        withMockSierraServer { sierraApiUrl: String =>
+          withConfiguredApp(catalogueApiUrl, sierraApiUrl) { case (_, _) =>
+            val path = "/requests"
+
+            val headers = List(
+              HttpHeader.parse(
+                name = "Sierra-Patron-Id",
+                value = "1234567"
+              ).asInstanceOf[ParsingResult.Ok].header
+            )
+
+            val entity = createJsonHttpEntityWith(
+              """
+                |{
+                |   "itemId": "wrte657"
+                |}
+                |""".stripMargin
+            )
+
+            val expectedJson =
+              """
+                |{
+                |  "itemId" : "wrte657",
+                |  "userId" : "1234567"
+                |}
+                |""".stripMargin
+
+            whenPostRequestReady(path, entity, headers) { response =>
+              response.status shouldBe StatusCodes.OK
+
+              withStringEntity(response.entity) { actualJson =>
+                assertJsonStringsAreEqual(actualJson, expectedJson)
+              }
             }
           }
         }
