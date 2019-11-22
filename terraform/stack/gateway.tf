@@ -131,7 +131,6 @@ resource "aws_api_gateway_vpc_link" "link" {
 
 resource "aws_api_gateway_base_path_mapping" "stacks" {
   api_id      = "${aws_api_gateway_rest_api.api.id}"
-  stage_name  = "${local.stage_name}"
   domain_name = "${module.domain.domain_name}"
   base_path   = "stacks"
 }
