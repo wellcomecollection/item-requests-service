@@ -33,6 +33,7 @@ trait RequestsApi extends Logging with FailFastCirceSupport {
               catalogueItemId = catalogueItemId
             )
 
+            // TODO: Return an updted view on users holds
             onComplete(result) {
               case Success(value) => complete(value)
               case Failure(err) => failWith(err)
