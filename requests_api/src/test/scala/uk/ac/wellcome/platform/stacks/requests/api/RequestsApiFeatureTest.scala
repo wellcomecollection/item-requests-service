@@ -54,7 +54,7 @@ class RequestsApiFeatureTest
             val entity = createJsonHttpEntityWith(
               """
                 |{
-                |   "itemId": "wrte657"
+                |   "itemId": "ys3ern6x"
                 |}
                 |""".stripMargin
             )
@@ -62,7 +62,7 @@ class RequestsApiFeatureTest
             val expectedJson =
               """
                 |{
-                |  "itemId" : "wrte657",
+                |  "itemId" : "ys3ern6x",
                 |  "userId" : "1234567"
                 |}
                 |""".stripMargin
@@ -98,7 +98,14 @@ class RequestsApiFeatureTest
                  |  "userId" : "1234567",
                  |  "holds" : [
                  |    {
-                 |      "itemId" : "ys3ern6x",
+                 |      "itemId" : {
+                 |        "catalogueId" : {
+                 |          "value" : "ys3ern6x"
+                 |        },
+                 |        "sierraId" : {
+                 |          "value" : "1292185"
+                 |        }
+                 |      },
                  |      "pickup" : {
                  |        "location" : {
                  |          "id" : "sepbb",

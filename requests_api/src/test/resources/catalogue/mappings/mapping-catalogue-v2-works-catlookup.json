@@ -1,0 +1,31 @@
+{
+  "id" : "39cb0933-b56b-33db-8639-d6303d32842b",
+  "request" : {
+    "url" : "/catalogue/v2/works?include=items%2Cidentifiers&query=ys3ern6x",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "body-catalogue-v2-works-catlookup.json",
+    "headers" : {
+      "Content-Type" : "application/json",
+      "Connection" : "keep-alive",
+      "Date" : "Wed, 20 Nov 2019 12:52:06 GMT",
+      "x-amzn-RequestId" : "d5cbc718-bb4f-4618-bdb6-ca28128fda00",
+      "Access-Control-Allow-Origin" : "*",
+      "Access-Control-Allow-Headers" : "DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type",
+      "x-amzn-Remapped-Content-Length" : "2617",
+      "x-amzn-Remapped-Connection" : "keep-alive",
+      "x-amz-apigw-id" : "DdWGfHpaDoEFl4g=",
+      "x-amzn-Remapped-Server" : "nginx",
+      "Access-Control-Allow-Methods" : "GET, POST, OPTIONS",
+      "x-amzn-Remapped-Date" : "Wed, 20 Nov 2019 12:52:06 GMT",
+      "Access-Control-Allow-Credentials" : "true",
+      "X-Cache" : "Miss from cloudfront",
+      "Via" : "1.1 68126347056de2d05be3dd362ccba987.cloudfront.net (CloudFront)",
+      "X-Amz-Cf-Pop" : "LHR50-C1",
+      "X-Amz-Cf-Id" : "9vxv3smutqW-naMiriXrFBqOv9Y-kotfw4T4Ma1HvN89SSUANOjyag=="
+    }
+  },
+  "uuid" : "39cb0933-b56b-33db-8639-d6303d32842b"
+}

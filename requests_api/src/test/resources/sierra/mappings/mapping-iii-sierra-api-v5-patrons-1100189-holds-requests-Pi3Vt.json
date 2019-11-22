@@ -9,7 +9,7 @@
       }
     },
     "bodyPatterns" : [ {
-      "equalToJson" : "{\"recordType\": \"i\", \"recordNumber\": 1601017, \"pickupLocation\": \"sepbb\" }",
+      "equalToJson" : "{\"recordType\": \"i\", \"recordNumber\": 1292185, \"pickupLocation\": \"sicon\" }",
       "ignoreArrayOrder" : true,
       "ignoreExtraElements" : false
     } ]

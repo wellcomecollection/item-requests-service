@@ -3,7 +3,8 @@ package uk.ac.wellcome.platform.stacks.requests.api
 import akka.http.scaladsl.server.Route
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import grizzled.slf4j.Logging
-import uk.ac.wellcome.platform.stacks.common.services.{CatalogueItemIdentifier, StacksUserIdentifier, StacksWorkService}
+import uk.ac.wellcome.platform.stacks.common.models.{CatalogueItemIdentifier, StacksUserIdentifier}
+import uk.ac.wellcome.platform.stacks.common.services.StacksService
 import uk.ac.wellcome.platform.stacks.requests.api.models.RequestItemHold
 
 import scala.concurrent.ExecutionContext
@@ -16,7 +17,7 @@ trait RequestsApi extends Logging with FailFastCirceSupport {
   import io.circe.generic.auto._
 
   implicit val ec: ExecutionContext
-  implicit val stacksWorkService: StacksWorkService
+  implicit val stacksWorkService: StacksService
 
   val routes: Route = concat(
     pathPrefix("requests") {
@@ -28,7 +29,7 @@ trait RequestsApi extends Logging with FailFastCirceSupport {
             val catalogueItemId = CatalogueItemIdentifier(requestItemHold.itemId)
 
             val result = stacksWorkService.requestHoldOnItem(
-              userIdentity = userIdentifier,
+              userIdentifier = userIdentifier,
               catalogueItemId = catalogueItemId
             )
 
@@ -39,7 +40,7 @@ trait RequestsApi extends Logging with FailFastCirceSupport {
           }
         } ~ get {
 
-          val result = stacksWorkService.getStacksUserHolds(
+          val result = stacksWorkService.getStacksUserHoldsWithStacksItemIdentifier(
             StacksUserIdentifier(sierraPatronId)
           )
 

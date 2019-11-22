@@ -1,7 +1,6 @@
 package uk.ac.wellcome.platform.stacks.items.api.fixtures
 
 import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.common.Slf4jNotifier
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import uk.ac.wellcome.fixtures.TestWith
 

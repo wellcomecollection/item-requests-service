@@ -3,10 +3,12 @@ package uk.ac.wellcome.platform.stacks.items.api
 import akka.http.scaladsl.server.Route
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import grizzled.slf4j.Logging
-import uk.ac.wellcome.platform.stacks.common.services.{StacksWorkIdentifier, StacksWorkService}
+import uk.ac.wellcome.platform.stacks.common.models.StacksWorkIdentifier
+import uk.ac.wellcome.platform.stacks.common.services.StacksService
 
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
+
 
 trait ItemsApi extends Logging with FailFastCirceSupport {
 
@@ -14,13 +16,13 @@ trait ItemsApi extends Logging with FailFastCirceSupport {
   import io.circe.generic.auto._
 
   implicit val ec: ExecutionContext
-  implicit val stacksWorkService: StacksWorkService
+  implicit val stacksWorkService: StacksService
 
   val routes: Route = concat(
     pathPrefix("works") {
       path(Segment) { id: String =>
         get {
-          val result = stacksWorkService.getStacksWork(
+          val result = stacksWorkService.getStacksWorkWithItemStatuses(
             StacksWorkIdentifier(id)
           )
 

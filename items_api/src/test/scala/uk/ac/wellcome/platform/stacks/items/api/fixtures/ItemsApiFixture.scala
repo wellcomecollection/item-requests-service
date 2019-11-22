@@ -8,9 +8,9 @@ import uk.ac.wellcome.monitoring.fixtures.MetricsSenderFixture
 import uk.ac.wellcome.monitoring.memory.MemoryMetrics
 import uk.ac.wellcome.platform.stacks.common.http.fixtures.HttpFixtures
 import uk.ac.wellcome.platform.stacks.common.http.{HttpMetrics, WellcomeHttpApp}
-import uk.ac.wellcome.platform.stacks.common.services.StacksWorkService
-import uk.ac.wellcome.platform.stacks.common.services.config.builders.{SierraServiceBuilder, WorksApiBuilder}
-import uk.ac.wellcome.platform.stacks.common.services.config.models.{SierraServiceConfig, WorksApiConfig}
+import uk.ac.wellcome.platform.stacks.common.services.StacksService
+import uk.ac.wellcome.platform.stacks.common.services.config.builders.StacksServiceBuilder
+import uk.ac.wellcome.platform.stacks.common.services.config.models.{CatalogueServiceConfig, SierraServiceConfig, StacksServiceConfig}
 import uk.ac.wellcome.platform.stacks.items.api.ItemsApi
 
 import scala.concurrent.ExecutionContext
@@ -46,17 +46,20 @@ trait ItemsApiFixture
           password = "password"
         )
 
-        val worksApiConfig = WorksApiConfig(s"$catalogueApiUrl/catalogue/v2")
+        val catalogueServiceConfig =
+          CatalogueServiceConfig(s"$catalogueApiUrl/catalogue/v2")
 
-        val sierraServiceBuilder = new SierraServiceBuilder()
-        val sierraService = sierraServiceBuilder.buildT(sierraServiceConfig)
-
-        val worksApi = WorksApiBuilder.buildT(worksApiConfig)
-        val workService = new StacksWorkService(worksApi, sierraService)
+        val stacksService: StacksService =
+          new StacksServiceBuilder().buildT(
+            StacksServiceConfig(
+              catalogueServiceConfig,
+              sierraServiceConfig
+            )
+          )
 
         val router: ItemsApi = new ItemsApi {
           override implicit val ec: ExecutionContext = global
-          override implicit val stacksWorkService: StacksWorkService = workService
+          override implicit val stacksWorkService: StacksService = stacksService
         }
 
         val app = new WellcomeHttpApp(

@@ -8,12 +8,13 @@ import com.typesafe.config.Config
 import uk.ac.wellcome.monitoring.typesafe.MetricsBuilder
 import uk.ac.wellcome.platform.stacks.common.http.config.builders.HTTPServerBuilder
 import uk.ac.wellcome.platform.stacks.common.http.{HttpMetrics, WellcomeHttpApp}
-import uk.ac.wellcome.platform.stacks.common.services.StacksWorkService
-import uk.ac.wellcome.platform.stacks.common.services.config.builders.{SierraServiceBuilder, WorksApiBuilder}
+import uk.ac.wellcome.platform.stacks.common.services.StacksService
+import uk.ac.wellcome.platform.stacks.common.services.config.builders.StacksServiceBuilder
 import uk.ac.wellcome.typesafe.WellcomeTypesafeApp
 import uk.ac.wellcome.typesafe.config.builders.AkkaBuilder
 
 import scala.concurrent.ExecutionContext
+
 
 object Main extends WellcomeTypesafeApp {
   runWithConfig { config: Config =>
@@ -26,15 +27,12 @@ object Main extends WellcomeTypesafeApp {
     implicit val amMain: ActorMaterializer =
       AkkaBuilder.buildActorMaterializer()
 
-    val sierraServiceBuilder = new SierraServiceBuilder()
-
-    val worksApi = WorksApiBuilder.build(config)
-    val sierraService = sierraServiceBuilder.build(config)
-    val workService = new StacksWorkService(worksApi, sierraService)
+    val workService: StacksService =
+      new StacksServiceBuilder().build(config)
 
     val router: ItemsApi = new ItemsApi {
       override implicit val ec: ExecutionContext = ecMain
-      override implicit val stacksWorkService: StacksWorkService = workService
+      override implicit val stacksWorkService: StacksService = workService
     }
 
     val appName = "ItemsApi"
