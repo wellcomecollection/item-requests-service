@@ -50,9 +50,9 @@ module "v1" {
     items_port    = "${local.items_listener_port}"
   }
 
-  # All integrations
+  # This forces a new deployment (which is necessary) when Gateway config changes
   depends_on = [
-    "${concat(module.context.integration_uris, module.items.integration_uris,module.requests.integration_uris)}",
+    "${filemd5("${path.module}/gateway.tf")}",
   ]
 }
 
