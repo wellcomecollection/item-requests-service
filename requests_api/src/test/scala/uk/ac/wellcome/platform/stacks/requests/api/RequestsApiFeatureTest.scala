@@ -17,7 +17,7 @@ class RequestsApiFeatureTest
     with IntegrationPatience {
 
   describe("requests") {
-    it("responds to requests containing an Sierra-Patron-Id header") {
+    it("responds to requests containing an Weco-Sierra-Patron-Id header") {
       withMockCatalogueServer { catalogueApiUrl: String =>
         withMockSierraServer { sierraApiUrl: String =>
           withConfiguredApp(catalogueApiUrl, sierraApiUrl) { case (_, _) =>
@@ -25,7 +25,7 @@ class RequestsApiFeatureTest
 
             val headers = List(
               HttpHeader.parse(
-                name = "Sierra-Patron-Id",
+                name = "Weco-Sierra-Patron-Id",
                 value = "1234567"
               ).asInstanceOf[ParsingResult.Ok].header
             )
@@ -46,7 +46,7 @@ class RequestsApiFeatureTest
 
             val headers = List(
               HttpHeader.parse(
-                name = "Sierra-Patron-Id",
+                name = "Weco-Sierra-Patron-Id",
                 value = "1234567"
               ).asInstanceOf[ParsingResult.Ok].header
             )
@@ -87,7 +87,7 @@ class RequestsApiFeatureTest
 
             val headers = List(
               HttpHeader.parse(
-                name = "Sierra-Patron-Id",
+                name = "Weco-Sierra-Patron-Id",
                 value = "1234567"
               ).asInstanceOf[ParsingResult.Ok].header
             )
