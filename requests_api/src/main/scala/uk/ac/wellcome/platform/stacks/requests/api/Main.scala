@@ -34,7 +34,7 @@ object Main extends WellcomeTypesafeApp {
       override implicit val stacksWorkService: StacksService = workService
     }
 
-    val appName = "ItemsApi"
+    val appName = "RequestsApi"
 
     new WellcomeHttpApp(
       routes = router.routes,
