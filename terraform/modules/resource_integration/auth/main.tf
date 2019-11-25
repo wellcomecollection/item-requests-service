@@ -23,6 +23,10 @@ module "auth_resource_integration" {
 
   forward_port = "${var.forward_port}"
   forward_path = "${var.forward_path}"
+
+  request_parameters = {
+    integration.request.header.Weco-Sierra-Patron-Id = "context.authorizer.claims.custom:patronId"
+  }
 }
 
 module "auth_subresource" {
