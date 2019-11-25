@@ -21,7 +21,7 @@ trait RequestsApi extends Logging with FailFastCirceSupport {
 
   val routes: Route = concat(
     pathPrefix("requests") {
-      headerValueByName("Sierra-Patron-Id") { sierraPatronId =>
+      headerValueByName("Weco-Sierra-Patron-Id") { sierraPatronId =>
         val userIdentifier = StacksUserIdentifier(sierraPatronId)
 
         post {
@@ -33,7 +33,7 @@ trait RequestsApi extends Logging with FailFastCirceSupport {
               catalogueItemId = catalogueItemId
             )
 
-            // TODO: Return an updted view on users holds
+            // TODO: Return an updated view on users holds
             onComplete(result) {
               case Success(value) => complete(value)
               case Failure(err) => failWith(err)
