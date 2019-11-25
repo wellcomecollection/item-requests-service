@@ -31,14 +31,7 @@ class ItemsApiFeatureTest
                    |  "id" : "cnkv77md",
                    |  "items" : [
                    |    {
-                   |      "id" : {
-                   |        "catalogueId" : {
-                   |          "value" : "ys3ern6x"
-                   |        },
-                   |        "sierraId" : {
-                   |          "value" : "1601017"
-                   |        }
-                   |      },
+                   |      "id" : "ys3ern6x",
                    |      "location" : {
                    |        "id" : "sicon",
                    |        "label" : "Closed stores Iconographic"
