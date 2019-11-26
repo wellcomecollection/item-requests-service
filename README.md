@@ -6,7 +6,7 @@ APIs for interacting  with the physical library.
 
 ### /requests
 
-Make and review user requests for holds.
+Create or list holds for a library member.
 
 ### /items
 
