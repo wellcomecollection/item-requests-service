@@ -91,7 +91,7 @@ class SierraService(baseUrl: Option[String], username: String, password: String)
     )
   }
 
-  def getSierraItemIdentifierFrom(hold: Hold): Future[SierraItemIdentifier] = Future {
+  protected def getSierraItemIdentifierFrom(hold: Hold): Future[SierraItemIdentifier] = Future {
     hold.getRecordType match {
       case "i" => SierraItemIdentifier(hold)
       case _ => throw
@@ -141,6 +141,7 @@ class SierraService(baseUrl: Option[String], username: String, password: String)
     patronsApi <- patronsApi()
     patronHoldPost = new PatronHoldPost()
     _ = patronHoldPost.setRecordType("i")
+    // TODO: Deal with this not being Longable
     _ = patronHoldPost.setRecordNumber(sierraItemIdentifier.value.toLong)
     _ = patronHoldPost.setPickupLocation(itemLocation.id)
 
@@ -152,5 +153,8 @@ class SierraService(baseUrl: Option[String], username: String, password: String)
     sierraItem = itemsApi.getAnItemByRecordID(
       sierraId.value, List.empty[String].asJava
     )
-  } yield StacksItemStatus(sierraItem.getStatus.getCode)
+  } yield StacksItemStatus(
+    rawCode = sierraItem.getStatus.getCode
+  )
+
 }

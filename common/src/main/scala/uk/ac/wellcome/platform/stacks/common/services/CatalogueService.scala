@@ -85,21 +85,6 @@ class CatalogueService(baseUrl: Option[String])(
     }
   }
 
-  def getStacksWork(workId: StacksWorkIdentifier): Future[StacksWork[StacksItemWithOutStatus]] = for {
-      items <- getItemsFrom(workId)
-      itemIdentifiers <- items.traverse(getStacksItemIdentifierFrom)
-      itemLocations <- items.traverse(getStacksLocationFrom)
-
-      stacksItems <- (itemIdentifiers zip itemLocations) traverse {
-        case (identifier, Some(location)) => Future.successful(
-          StacksItemWithOutStatus(identifier, location)
-        )
-      }
-    } yield StacksWork(
-      id = workId.value,
-      items = stacksItems
-    )
-
   private def getItems(identifierString: String) = Future {
     val worksResultList = worksApi.getWorks(
       "items,identifiers",
@@ -123,6 +108,21 @@ class CatalogueService(baseUrl: Option[String])(
       case _ => throw new Exception("No matching works found!")
     }
   }
+
+  def getStacksWork(workId: StacksWorkIdentifier): Future[StacksWork[StacksItemWithOutStatus]] = for {
+    items <- getItemsFrom(workId)
+    itemIdentifiers <- items.traverse(getStacksItemIdentifierFrom)
+    itemLocations <- items.traverse(getStacksLocationFrom)
+
+    stacksItems <- (itemIdentifiers zip itemLocations) traverse {
+      case (identifier, Some(location)) => Future.successful(
+        StacksItemWithOutStatus(identifier, location)
+      )
+    }
+  } yield StacksWork(
+    id = workId.value,
+    items = stacksItems
+  )
 
   def getStacksItem(identifier: ItemIdentifier): Future[StacksItem] = {
 

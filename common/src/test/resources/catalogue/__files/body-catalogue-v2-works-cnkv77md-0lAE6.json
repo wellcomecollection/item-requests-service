@@ -63,7 +63,7 @@
             "label": "Sierra system number",
             "type": "IdentifierType"
           },
-          "value": "i16010176",
+          "value": "i1292185",
           "type": "Identifier"
         },
         {
@@ -72,7 +72,7 @@
             "label": "Sierra identifier",
             "type": "IdentifierType"
           },
-          "value": "1601017",
+          "value": "1292185",
           "type": "Identifier"
         }
       ],

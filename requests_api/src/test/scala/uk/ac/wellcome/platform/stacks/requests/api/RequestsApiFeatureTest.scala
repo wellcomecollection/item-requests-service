@@ -5,7 +5,8 @@ import akka.http.scaladsl.model.{HttpHeader, StatusCodes}
 import org.scalatest.concurrent.IntegrationPatience
 import org.scalatest.{FunSpec, Matchers}
 import uk.ac.wellcome.json.utils.JsonAssertions
-import uk.ac.wellcome.platform.stacks.requests.api.fixtures.{CatalogueWireMockFixture, RequestsApiFixture, SierraWireMockFixture}
+import uk.ac.wellcome.platform.stacks.common.fixtures.{CatalogueWireMockFixture, SierraWireMockFixture}
+import uk.ac.wellcome.platform.stacks.requests.api.fixtures.RequestsApiFixture
 
 class RequestsApiFeatureTest
   extends FunSpec
