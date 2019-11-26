@@ -100,6 +100,30 @@ class CatalogueService(baseUrl: Option[String])(
       items = stacksItems
     )
 
+  private def getItems(identifierString: String) = Future {
+    val worksResultList = worksApi.getWorks(
+      "items,identifiers",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      identifierString,
+      null,
+      null
+    ).getResults.asScala.toList
+
+    worksResultList match {
+      case headWork :: _ => headWork.getItems.asScala.toList
+      case _ => throw new Exception("No matching works found!")
+    }
+  }
+
   def getStacksItem(identifier: ItemIdentifier): Future[StacksItem] = {
 
     val identifierString = identifier match {
@@ -107,33 +131,8 @@ class CatalogueService(baseUrl: Option[String])(
       case CatalogueItemIdentifier(value) => value
     }
 
-    val eventuallyItems = Future {
-      // The generated client forces this nasty interface
-      val worksResultList = worksApi.getWorks(
-        "items,identifiers",
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        identifierString,
-        null,
-        null
-      ).getResults.asScala.toList
-
-      worksResultList match {
-        case headWork :: _ => headWork.getItems.asScala.toList
-        case _ => throw new Exception("No matching works found!")
-      }
-    }
-
     for {
-      items <- eventuallyItems
+      items <- getItems(identifierString)
       itemIdentifiers <- items.traverse(getStacksItemIdentifierFrom)
       stacksLocations <- items.traverse(getStacksLocationFrom)
 

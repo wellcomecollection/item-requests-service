@@ -95,7 +95,9 @@ class SierraService(baseUrl: Option[String], username: String, password: String)
     hold.getRecordType match {
       case "i" => SierraItemIdentifier(hold)
       case _ => throw
-        new Throwable(f"Could not get SierraItemIdentifier from hold! ($hold)")
+        new Throwable(
+          f"Could not get SierraItemIdentifier from hold! ($hold)"
+        )
 
     }
   }
