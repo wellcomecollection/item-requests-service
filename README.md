@@ -1,7 +1,43 @@
 # Stacks
 
-Library requests and item status APIs
+APIs for interacting  with the physical library.
 
-In order to transition away from the existing library site we need to provide a replacement to the existing item requesting service.
+## APIs
 
-To determine the scope and further requirements a prototype incorporating authenticating users and creating requests should be built.
+### /requests
+
+Create or list holds for a library member.
+
+### /items
+
+View an items status.
+
+## Developing
+
+Use IntelliJ or ...
+
+```
+# Running test
+
+make request_api-test 
+make stacks_api-test 
+```
+
+## Releasing
+
+```sh
+# Ensure you have the correct AWS credentials in scope
+# before running!
+
+# build and publish apps
+make request_api-publish 
+make stacks_api-publish 
+
+# set up release
+./docker_run.py --aws --root -- -it wellcome/release_tooling:119 prepare
+./docker_run.py --aws --root -- -it wellcome/release_tooling:119 deploy
+
+# cd terraform
+terraform init
+terraform apply
+```
