@@ -125,14 +125,9 @@ class CatalogueService(baseUrl: Option[String])(
   )
 
   def getStacksItem(identifier: ItemIdentifier): Future[StacksItem] = {
-
-    val identifierString = identifier match {
-      case SierraItemIdentifier(value) => f"i${value}"
-      case CatalogueItemIdentifier(value) => value
-    }
-
+   
     for {
-      items <- getItems(identifierString)
+      items <- getItems(identifier.value)
       itemIdentifiers <- items.traverse(getStacksItemIdentifierFrom)
       stacksLocations <- items.traverse(getStacksLocationFrom)
 
