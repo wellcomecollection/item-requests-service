@@ -1,7 +1,5 @@
 package uk.ac.wellcome.platform.stacks.common.services.config.builders
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
 import com.typesafe.config.Config
 import uk.ac.wellcome.platform.stacks.common.config.TypesafeBuilder
 import uk.ac.wellcome.platform.stacks.common.services.CatalogueService
@@ -12,7 +10,7 @@ import scala.concurrent.ExecutionContext
 
 
 class CatalogueServiceBuilder()(
-  implicit am: ActorMaterializer, as: ActorSystem, ec: ExecutionContext
+  implicit ec: ExecutionContext
 ) extends TypesafeBuilder[CatalogueService, CatalogueServiceConfig]{
 
   def buildConfig(config: Config): CatalogueServiceConfig =

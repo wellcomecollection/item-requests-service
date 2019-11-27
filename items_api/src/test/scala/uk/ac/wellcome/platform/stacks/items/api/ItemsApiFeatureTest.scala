@@ -20,7 +20,7 @@ class ItemsApiFeatureTest
   describe("items") {
     it("shows a user the items on a work") {
       withMockCatalogueServer { catalogueApiUrl: String =>
-        withMockSierraServer { sierraApiUrl: String =>
+        withMockSierraServer { case (sierraApiUrl, _) =>
           withConfiguredApp(catalogueApiUrl, sierraApiUrl) {
             case (_, _) =>
 

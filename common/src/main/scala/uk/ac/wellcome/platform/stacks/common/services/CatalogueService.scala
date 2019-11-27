@@ -1,23 +1,19 @@
 package uk.ac.wellcome.platform.stacks.common.services
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
+import cats.instances.future._
+import cats.instances.list._
+import cats.syntax.traverse._
 import com.google.gson.internal.LinkedTreeMap
 import uk.ac.wellcome.platform.catalogue
 import uk.ac.wellcome.platform.catalogue.models.{ItemIdentifiers, ResultListItems}
-import uk.ac.wellcome.platform.stacks.common.models.{CatalogueItemIdentifier, ItemIdentifier, SierraItemIdentifier, StacksItem, StacksItemIdentifier, StacksItemWithOutStatus, StacksLocation, StacksWork, StacksWorkIdentifier}
+import uk.ac.wellcome.platform.stacks.common.models._
 
 import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
-import cats.instances.future._
-import cats.instances.list._
-import cats.syntax.traverse._
 
 class CatalogueService(baseUrl: Option[String])(
   implicit
-  as: ActorSystem,
-  am: ActorMaterializer,
   ec: ExecutionContext
 ) {
   protected val apiClient = new catalogue.ApiClient()
@@ -125,7 +121,7 @@ class CatalogueService(baseUrl: Option[String])(
   )
 
   def getStacksItem(identifier: ItemIdentifier): Future[StacksItem] = {
-   
+
     for {
       items <- getItems(identifier.value)
       itemIdentifiers <- items.traverse(getStacksItemIdentifierFrom)
@@ -133,15 +129,15 @@ class CatalogueService(baseUrl: Option[String])(
 
       itemIdentifier = itemIdentifiers.toSet.toList match {
         case List(one) => one
-        case _ => throw new Exception(
-          f"Ambiguous or missing item record!"
+        case record => throw new Exception(
+          f"Ambiguous or missing item record ($record)!"
         )
       }
 
       stacksLocation = stacksLocations.toSet.toList match {
         case List(Some(one)) => one
-        case _ => throw new Exception(
-          f"Ambiguous or missing location for item record!"
+        case record => throw new Exception(
+          f"Ambiguous or missing location for item record ($record)!"
         )
       }
 
@@ -152,6 +148,9 @@ class CatalogueService(baseUrl: Option[String])(
         case id@CatalogueItemIdentifier(_) =>
           if(itemIdentifier.catalogueId != id)
             throw new Exception(f"Catalogue item record ID mismatch!")
+        case id@StacksItemIdentifier(_,_) =>
+          if(id != id)
+            throw new Exception(f"Stacks item record ID mismatch!")
       }
 
     } yield StacksItemWithOutStatus(

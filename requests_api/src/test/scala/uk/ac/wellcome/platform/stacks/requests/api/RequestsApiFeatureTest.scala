@@ -2,6 +2,7 @@ package uk.ac.wellcome.platform.stacks.requests.api
 
 import akka.http.scaladsl.model.HttpHeader.ParsingResult
 import akka.http.scaladsl.model.{HttpHeader, StatusCodes}
+import com.github.tomakehurst.wiremock.client.WireMock.{equalToJson, postRequestedFor, urlEqualTo}
 import org.scalatest.concurrent.IntegrationPatience
 import org.scalatest.{FunSpec, Matchers}
 import uk.ac.wellcome.json.utils.JsonAssertions
@@ -41,7 +42,7 @@ class RequestsApiFeatureTest
 
     it("accepts requests to place a hold on an item") {
       withMockCatalogueServer { catalogueApiUrl: String =>
-        withMockSierraServer { case (sierraApiUrl, _) =>
+        withMockSierraServer { case (sierraApiUrl, wireMockServer) =>
           withConfiguredApp(catalogueApiUrl, sierraApiUrl) { case (_, _) =>
             val path = "/requests"
 
@@ -70,6 +71,18 @@ class RequestsApiFeatureTest
 
             whenPostRequestReady(path, entity, headers) { response =>
               response.status shouldBe StatusCodes.OK
+
+              wireMockServer.verify(1, postRequestedFor(
+                urlEqualTo("/iii/sierra-api/v5/patrons/1234567/holds/requests")
+              ).withRequestBody(equalToJson(
+                """
+                  |{
+                  |  "recordType" : "i",
+                  |  "recordNumber" : 1292185,
+                  |  "pickupLocation" : "sicon"
+                  |}
+                  |""".stripMargin)
+              ))
 
               withStringEntity(response.entity) { actualJson =>
                 assertJsonStringsAreEqual(actualJson, expectedJson)
