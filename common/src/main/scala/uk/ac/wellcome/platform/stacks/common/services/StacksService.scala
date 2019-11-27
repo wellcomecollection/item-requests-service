@@ -48,7 +48,6 @@ class StacksService(
     } yield stacksWorkWithoutItemStatuses
       .updateItems(stacksItemsWithStatuses)
 
-
   def getStacksUserHoldsWithStacksItemIdentifier(
                                                   userId: StacksUserIdentifier
                                                 ): Future[StacksUserHolds[StacksItemIdentifier]] =

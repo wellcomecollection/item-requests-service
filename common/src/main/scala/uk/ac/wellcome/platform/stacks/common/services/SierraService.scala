@@ -14,7 +14,7 @@ import cats.syntax.traverse._
 import io.circe.Json
 import uk.ac.wellcome.platform.sierra
 import uk.ac.wellcome.platform.sierra.api.{V5itemsApi, V5patronsApi}
-import uk.ac.wellcome.platform.sierra.models.{Hold, HoldResultSet, PatronHoldPost}
+import uk.ac.wellcome.platform.sierra.models.{Hold, PatronHoldPost}
 import uk.ac.wellcome.platform.stacks.common.models._
 
 import scala.collection.JavaConverters._
@@ -70,13 +70,13 @@ class SierraService(baseUrl: Option[String], username: String, password: String)
     new sierra.api.V5patronsApi(sierraApiClient)
   }
 
-  protected def getHoldResultSet(userIdentity: StacksUserIdentifier): Future[HoldResultSet] = for {
+  protected def getHoldResultSet(userIdentity: StacksUserIdentifier): Future[List[Hold]] = for {
     patronsApi <- patronsApi()
     holdResultSet = patronsApi.getTheHoldsDataForASinglePatronRecord(
       userIdentity.value, 100, 0,
       List.empty[String].asJava
     )
-  } yield holdResultSet
+  } yield holdResultSet.getEntries.asScala.toList
 
   protected def getStacksPickupFromHold(hold: Hold): StacksPickup = {
     StacksPickup(
@@ -91,7 +91,7 @@ class SierraService(baseUrl: Option[String], username: String, password: String)
     )
   }
 
-  protected def getSierraItemIdentifierFrom(hold: Hold): Future[SierraItemIdentifier] = Future {
+  protected def getSierraItemIdentifierFromHold(hold: Hold): Future[SierraItemIdentifier] = Future {
     hold.getRecordType match {
       case "i" => SierraItemIdentifier(hold)
       case _ => throw
@@ -102,19 +102,18 @@ class SierraService(baseUrl: Option[String], username: String, password: String)
     }
   }
 
-  protected def getStacksHoldStatusFrom(hold: Hold): StacksHoldStatus =
+  protected def getStacksHoldStatusFromHold(hold: Hold): StacksHoldStatus =
     StacksHoldStatus(
       id = hold.getStatus.getCode,
       label = hold.getStatus.getName
     )
 
   def getStacksUserHolds(userId: StacksUserIdentifier): Future[StacksUserHolds[SierraItemIdentifier]] = for {
-    holdResultSet <- getHoldResultSet(userId)
-    entries = holdResultSet.getEntries.asScala.toList
+    holds <- getHoldResultSet(userId)
 
-    sierraItemIdentifiers <- entries.traverse(getSierraItemIdentifierFrom)
-    holdStatuses = entries.map(getStacksHoldStatusFrom)
-    stacksPickups = entries.map(getStacksPickupFromHold)
+    sierraItemIdentifiers <- holds.traverse(getSierraItemIdentifierFromHold)
+    holdStatuses = holds.map(getStacksHoldStatusFromHold)
+    stacksPickups = holds.map(getStacksPickupFromHold)
 
     userHolds = (sierraItemIdentifiers, holdStatuses, stacksPickups)
       .zipped.toList map {
@@ -156,5 +155,4 @@ class SierraService(baseUrl: Option[String], username: String, password: String)
   } yield StacksItemStatus(
     rawCode = sierraItem.getStatus.getCode
   )
-
 }

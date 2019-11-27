@@ -20,7 +20,7 @@ class RequestsApiFeatureTest
   describe("requests") {
     it("responds to requests containing an Weco-Sierra-Patron-Id header") {
       withMockCatalogueServer { catalogueApiUrl: String =>
-        withMockSierraServer { sierraApiUrl: String =>
+        withMockSierraServer { case (sierraApiUrl, _) =>
           withConfiguredApp(catalogueApiUrl, sierraApiUrl) { case (_, _) =>
             val path = "/requests"
 
@@ -41,7 +41,7 @@ class RequestsApiFeatureTest
 
     it("accepts requests to place a hold on an item") {
       withMockCatalogueServer { catalogueApiUrl: String =>
-        withMockSierraServer { sierraApiUrl: String =>
+        withMockSierraServer { case (sierraApiUrl, _) =>
           withConfiguredApp(catalogueApiUrl, sierraApiUrl) { case (_, _) =>
             val path = "/requests"
 
@@ -82,7 +82,7 @@ class RequestsApiFeatureTest
 
     it("provides information about a users' holds") {
       withMockCatalogueServer { catalogueApiUrl: String =>
-        withMockSierraServer { sierraApiUrl: String =>
+        withMockSierraServer { case (sierraApiUrl, _) =>
           withConfiguredApp(catalogueApiUrl, sierraApiUrl) { case (_, _) =>
             val path = "/requests"
 

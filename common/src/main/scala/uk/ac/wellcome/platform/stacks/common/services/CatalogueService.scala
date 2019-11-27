@@ -85,7 +85,7 @@ class CatalogueService(baseUrl: Option[String])(
     }
   }
 
-  private def getItems(identifierString: String) = Future {
+  private def getItems(query: String) = Future {
     val worksResultList = worksApi.getWorks(
       "items,identifiers",
       null,
@@ -98,14 +98,14 @@ class CatalogueService(baseUrl: Option[String])(
       null,
       null,
       null,
-      identifierString,
+      query,
       null,
       null
     ).getResults.asScala.toList
 
     worksResultList match {
       case headWork :: _ => headWork.getItems.asScala.toList
-      case _ => throw new Exception("No matching works found!")
+      case _ => throw new Exception(f"No matching works found for query: ${query}!")
     }
   }
 
