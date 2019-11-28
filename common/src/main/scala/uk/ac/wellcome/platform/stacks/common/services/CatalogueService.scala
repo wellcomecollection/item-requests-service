@@ -78,25 +78,30 @@ class CatalogueService(baseUrl: Option[String])(
 
   private def getItems(identifier: Identifier): Future[List[StacksItemWithOutStatus]] = {
     for {
-      items <- Future {
-        worksApi.getWorks(
-          "items,identifiers",
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          identifier.value,
-          null,
-          null
-        ).getResults.asScala.toList match {
-          case headWork :: _ => headWork.getItems.asScala.toList
-          case _ => Nil
+      items <- identifier match {
+        case StacksWorkIdentifier(workId) => Future {
+          val work = worksApi.getWork(workId, "items,identifiers")
+          work.getItems.asScala.toList
+        }
+        case _ => Future {
+          worksApi.getWorks(
+            "items,identifiers",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            identifier.value,
+            null,
+            null
+          ).getResults
+            .asScala.toList
+            .flatMap(_.getItems.asScala.toList)
         }
       }
 
@@ -117,11 +122,11 @@ class CatalogueService(baseUrl: Option[String])(
       case StacksWorkIdentifier(_) =>
         stacksItems
 
-      case SierraItemIdentifier(value) =>
-        stacksItems.filter(_.id.sierraId.value == value)
+      case id@SierraItemIdentifier(_) =>
+        stacksItems.filter(_.id.sierraId == id)
 
-      case CatalogueItemIdentifier(value) =>
-        stacksItems.filter(_.id.catalogueId.value == value)
+      case id@CatalogueItemIdentifier(_) =>
+        stacksItems.filter(_.id.catalogueId == id)
 
       case id@StacksItemIdentifier(_,_) =>
         stacksItems.filter(_.id == id)
