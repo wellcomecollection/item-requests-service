@@ -1,12 +1,12 @@
 {
   "id" : "22a926db-2837-3b7f-8aa3-466484bd4894",
   "request" : {
-    "url" : "/catalogue/v2/works/cnkv77md?include=items%2Cidentifiers",
+    "url" : "/catalogue/v2/works?include=items%2Cidentifiers&query=cnkv77md",
     "method" : "GET"
   },
   "response" : {
     "status" : 200,
-    "bodyFileName" : "body-catalogue-v2-works-cnkv77md-0lAE6.json",
+    "bodyFileName" : "body-catalogue-v2-works.json",
     "headers" : {
       "Content-Type" : "application/json",
       "Connection" : "keep-alive",

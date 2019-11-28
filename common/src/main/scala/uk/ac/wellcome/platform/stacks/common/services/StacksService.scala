@@ -16,7 +16,7 @@ class StacksService(
                    ) {
 
   def requestHoldOnItem(
-                         userIdentifier: StacksUserIdentifier,
+                         userIdentifier: StacksUser,
                          catalogueItemId: CatalogueItemIdentifier
                        ): Future[StacksHoldRequest] = for {
     stacksItem <- catalogueService.getStacksItem(catalogueItemId)
@@ -49,7 +49,7 @@ class StacksService(
       .updateItems(stacksItemsWithStatuses)
 
   def getStacksUserHoldsWithStacksItemIdentifier(
-                                                  userId: StacksUserIdentifier
+                                                  userId: StacksUser
                                                 ): Future[StacksUserHolds[StacksItemIdentifier]] =
     for {
       userHolds <- sierraService.getStacksUserHolds(userId)

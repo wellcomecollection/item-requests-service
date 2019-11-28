@@ -32,11 +32,6 @@ class CatalogueService(baseUrl: Option[String])(
   protected def getItemIdentifiersFrom(item: ResultListItems): List[ItemIdentifiers] =
     item.getIdentifiers.asScala.toList
 
-  protected def getItemsFrom(workId: StacksWorkIdentifier): Future[List[ResultListItems]] =
-    Future {
-      worksApi.getWork(workId.value, "items,identifiers")
-    }.map(_.getItems.asScala.toList)
-
   protected def getStacksItemIdentifierFrom(item: ResultListItems): Future[StacksItemIdentifier] = {
     val identifier = getItemIdentifiersFrom(item)
       .filter { _.getIdentifierType.getId == "sierra-identifier" }
@@ -81,81 +76,77 @@ class CatalogueService(baseUrl: Option[String])(
     }
   }
 
-  private def getItems(query: String) = Future {
-    val worksResultList = worksApi.getWorks(
-      "items,identifiers",
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      query,
-      null,
-      null
-    ).getResults.asScala.toList
+  private def getItems(identifier: Identifier): Future[List[StacksItemWithOutStatus]] = {
+    for {
+      items <- Future {
+        worksApi.getWorks(
+          "items,identifiers",
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          identifier.value,
+          null,
+          null
+        ).getResults.asScala.toList match {
+          case headWork :: _ => headWork.getItems.asScala.toList
+          case _ => Nil
+        }
+      }
 
-    worksResultList match {
-      case headWork :: _ => headWork.getItems.asScala.toList
-      case _ => throw new Exception(f"No matching works found for query: ${query}!")
+      itemIdentifiers <- items.traverse(getStacksItemIdentifierFrom)
+      itemLocations <- items.traverse(getStacksLocationFrom)
+
+      stacksItems <- (itemIdentifiers zip itemLocations) traverse {
+        case (identifier, Some(location)) => Future.successful(
+          StacksItemWithOutStatus(identifier, location)
+        )
+        case (identifier, None) => throw new Exception(
+          f"Missing location for item: $identifier"
+        )
+      }
+
+    } yield identifier match {
+
+      case StacksWorkIdentifier(_) =>
+        stacksItems
+
+      case SierraItemIdentifier(value) =>
+        stacksItems.filter(_.id.sierraId.value == value)
+
+      case CatalogueItemIdentifier(value) =>
+        stacksItems.filter(_.id.catalogueId.value == value)
+
+      case id@StacksItemIdentifier(_,_) =>
+        stacksItems.filter(_.id == id)
+
     }
   }
 
   def getStacksWork(workId: StacksWorkIdentifier): Future[StacksWork[StacksItemWithOutStatus]] = for {
-    items <- getItemsFrom(workId)
-    itemIdentifiers <- items.traverse(getStacksItemIdentifierFrom)
-    itemLocations <- items.traverse(getStacksLocationFrom)
-
-    stacksItems <- (itemIdentifiers zip itemLocations) traverse {
-      case (identifier, Some(location)) => Future.successful(
-        StacksItemWithOutStatus(identifier, location)
-      )
-    }
+    items <- getItems(workId)
   } yield StacksWork(
     id = workId.value,
-    items = stacksItems
+    items = items
   )
 
-  def getStacksItem(identifier: ItemIdentifier): Future[StacksItem] = {
-
+  def getStacksItem(identifier: Identifier): Future[StacksItem] = {
     for {
-      items <- getItems(identifier.value)
-      itemIdentifiers <- items.traverse(getStacksItemIdentifierFrom)
-      stacksLocations <- items.traverse(getStacksLocationFrom)
-
-      itemIdentifier = itemIdentifiers.toSet.toList match {
-        case List(one) => one
-        case record => throw new Exception(
-          f"Ambiguous or missing item record ($record)!"
-        )
-      }
-
-      stacksLocation = stacksLocations.toSet.toList match {
-        case List(Some(one)) => one
-        case record => throw new Exception(
-          f"Ambiguous or missing location for item record ($record)!"
-        )
-      }
-
-      _ = identifier match {
-        case id@SierraItemIdentifier(_) =>
-          if(itemIdentifier.sierraId != id)
-            throw new Exception(f"Sierra item record ID mismatch!")
-        case id@CatalogueItemIdentifier(_) =>
-          if(itemIdentifier.catalogueId != id)
-            throw new Exception(f"Catalogue item record ID mismatch!")
-        case id@StacksItemIdentifier(_,_) =>
-          if(id != id)
-            throw new Exception(f"Stacks item record ID mismatch!")
-      }
-
-    } yield StacksItemWithOutStatus(
-      id = itemIdentifier,
-      location = stacksLocation
-    )
+      items <- getItems(identifier)
+    } yield items match {
+      case List(item) => item
+      case Nil => throw new Exception(
+        f"No item found for: $identifier"
+      )
+      case default => throw new Exception(
+        f"Ambiguous item results found for: $identifier ($default)"
+      )
+    }
   }
 }

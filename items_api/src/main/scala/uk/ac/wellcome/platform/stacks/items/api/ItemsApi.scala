@@ -3,7 +3,7 @@ package uk.ac.wellcome.platform.stacks.items.api
 import akka.http.scaladsl.server.Route
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import grizzled.slf4j.Logging
-import uk.ac.wellcome.platform.stacks.common.models.{StacksItemWithStatus, StacksWork, StacksWorkIdentifier}
+import uk.ac.wellcome.platform.stacks.common.models.StacksWorkIdentifier
 import uk.ac.wellcome.platform.stacks.common.services.StacksService
 import uk.ac.wellcome.platform.stacks.items.api.display.models.DisplayStacksWork
 

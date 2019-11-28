@@ -34,7 +34,7 @@ class SierraServiceTest
     describe("getStacksUserHolds") {
       it("gets a StacksUserHolds") {
         withSierraService { case (sierraService, _) =>
-          val stacksUserIdentifier = StacksUserIdentifier("1234567")
+          val stacksUserIdentifier = StacksUser("1234567")
 
           whenReady(
             sierraService.getStacksUserHolds(stacksUserIdentifier)
@@ -66,7 +66,7 @@ class SierraServiceTest
       it("should request a hold from the Sierra API") {
         withSierraService { case (sierraService, wireMockServer) =>
           val sierraItemIdentifier = SierraItemIdentifier("1292185")
-          val stacksUserIdentifier = StacksUserIdentifier("1234567")
+          val stacksUserIdentifier = StacksUser("1234567")
           val stacksLocation = StacksLocation("sicon", "this value is ignored")
 
           whenReady(

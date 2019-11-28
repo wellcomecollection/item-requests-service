@@ -70,7 +70,7 @@ class SierraService(baseUrl: Option[String], username: String, password: String)
     new sierra.api.V5patronsApi(sierraApiClient)
   }
 
-  protected def getHoldResultSet(userIdentity: StacksUserIdentifier): Future[List[Hold]] = for {
+  protected def getHoldResultSet(userIdentity: StacksUser): Future[List[Hold]] = for {
     patronsApi <- patronsApi()
     holdResultSet = patronsApi.getTheHoldsDataForASinglePatronRecord(
       userIdentity.value, 100, 0,
@@ -108,7 +108,7 @@ class SierraService(baseUrl: Option[String], username: String, password: String)
       label = hold.getStatus.getName
     )
 
-  def getStacksUserHolds(userId: StacksUserIdentifier): Future[StacksUserHolds[SierraItemIdentifier]] = for {
+  def getStacksUserHolds(userId: StacksUser): Future[StacksUserHolds[SierraItemIdentifier]] = for {
     holds <- getHoldResultSet(userId)
 
     sierraItemIdentifiers <- holds.traverse(getSierraItemIdentifierFromHold)
@@ -133,7 +133,7 @@ class SierraService(baseUrl: Option[String], username: String, password: String)
   )
 
   def placeHold(
-                 userIdentifier: StacksUserIdentifier,
+                 userIdentifier: StacksUser,
                  sierraItemIdentifier: SierraItemIdentifier,
                  itemLocation: StacksLocation
                ): Future[Unit] = for {

@@ -2,11 +2,11 @@ package uk.ac.wellcome.platform.stacks.common.models
 
 import java.time.Instant
 
-case class StacksUserHolds[ItemId <: ItemIdentifier](
+case class StacksUserHolds[ItemId <: Identifier](
                             userId: String,
                             holds: List[StacksHold[ItemId]]
                           ) {
-  def updateHolds[DifferentItemId <: ItemIdentifier](
+  def updateHolds[DifferentItemId <: Identifier](
                                                       holds: List[StacksHold[DifferentItemId]]
                                                     ): StacksUserHolds[DifferentItemId] =
     StacksUserHolds[DifferentItemId](
@@ -16,12 +16,12 @@ case class StacksUserHolds[ItemId <: ItemIdentifier](
 
 }
 
-case class StacksHold[ItemId <: ItemIdentifier](
+case class StacksHold[ItemId <: Identifier](
                        itemId: ItemId,
                        pickup: StacksPickup,
                        status: StacksHoldStatus,
                      ) {
-  def updateItemId[DifferentItemId <: ItemIdentifier](itemId: DifferentItemId): StacksHold[DifferentItemId] = {
+  def updateItemId[DifferentItemId <: Identifier](itemId: DifferentItemId): StacksHold[DifferentItemId] = {
     StacksHold[DifferentItemId](
       itemId = itemId,
       pickup = this.pickup,
