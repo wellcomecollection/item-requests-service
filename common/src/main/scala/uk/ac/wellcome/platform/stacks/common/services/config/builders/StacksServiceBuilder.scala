@@ -4,8 +4,8 @@ import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import com.typesafe.config.Config
 import uk.ac.wellcome.platform.stacks.common.config.TypesafeBuilder
-import uk.ac.wellcome.platform.stacks.common.services.{SierraService, StacksService}
-import uk.ac.wellcome.platform.stacks.common.services.config.models.{CatalogueServiceConfig, SierraServiceConfig, StacksServiceConfig}
+import uk.ac.wellcome.platform.stacks.common.services.StacksService
+import uk.ac.wellcome.platform.stacks.common.services.config.models.StacksServiceConfig
 
 import scala.concurrent.ExecutionContext
 

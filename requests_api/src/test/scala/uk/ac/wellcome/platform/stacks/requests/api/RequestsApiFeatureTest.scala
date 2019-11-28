@@ -2,10 +2,12 @@ package uk.ac.wellcome.platform.stacks.requests.api
 
 import akka.http.scaladsl.model.HttpHeader.ParsingResult
 import akka.http.scaladsl.model.{HttpHeader, StatusCodes}
+import com.github.tomakehurst.wiremock.client.WireMock.{equalToJson, postRequestedFor, urlEqualTo}
 import org.scalatest.concurrent.IntegrationPatience
 import org.scalatest.{FunSpec, Matchers}
 import uk.ac.wellcome.json.utils.JsonAssertions
-import uk.ac.wellcome.platform.stacks.requests.api.fixtures.{CatalogueWireMockFixture, RequestsApiFixture, SierraWireMockFixture}
+import uk.ac.wellcome.platform.stacks.common.fixtures.{CatalogueWireMockFixture, SierraWireMockFixture}
+import uk.ac.wellcome.platform.stacks.requests.api.fixtures.RequestsApiFixture
 
 class RequestsApiFeatureTest
   extends FunSpec
@@ -19,7 +21,7 @@ class RequestsApiFeatureTest
   describe("requests") {
     it("responds to requests containing an Weco-Sierra-Patron-Id header") {
       withMockCatalogueServer { catalogueApiUrl: String =>
-        withMockSierraServer { sierraApiUrl: String =>
+        withMockSierraServer { case (sierraApiUrl, _) =>
           withConfiguredApp(catalogueApiUrl, sierraApiUrl) { case (_, _) =>
             val path = "/requests"
 
@@ -40,7 +42,7 @@ class RequestsApiFeatureTest
 
     it("accepts requests to place a hold on an item") {
       withMockCatalogueServer { catalogueApiUrl: String =>
-        withMockSierraServer { sierraApiUrl: String =>
+        withMockSierraServer { case (sierraApiUrl, wireMockServer) =>
           withConfiguredApp(catalogueApiUrl, sierraApiUrl) { case (_, _) =>
             val path = "/requests"
 
@@ -70,6 +72,18 @@ class RequestsApiFeatureTest
             whenPostRequestReady(path, entity, headers) { response =>
               response.status shouldBe StatusCodes.OK
 
+              wireMockServer.verify(1, postRequestedFor(
+                urlEqualTo("/iii/sierra-api/v5/patrons/1234567/holds/requests")
+              ).withRequestBody(equalToJson(
+                """
+                  |{
+                  |  "recordType" : "i",
+                  |  "recordNumber" : 1292185,
+                  |  "pickupLocation" : "sicon"
+                  |}
+                  |""".stripMargin)
+              ))
+
               withStringEntity(response.entity) { actualJson =>
                 assertJsonStringsAreEqual(actualJson, expectedJson)
               }
@@ -81,7 +95,7 @@ class RequestsApiFeatureTest
 
     it("provides information about a users' holds") {
       withMockCatalogueServer { catalogueApiUrl: String =>
-        withMockSierraServer { sierraApiUrl: String =>
+        withMockSierraServer { case (sierraApiUrl, _) =>
           withConfiguredApp(catalogueApiUrl, sierraApiUrl) { case (_, _) =>
             val path = "/requests"
 

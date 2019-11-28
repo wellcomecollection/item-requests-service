@@ -6,7 +6,7 @@
   },
   "response" : {
     "status" : 200,
-    "bodyFileName" : "body-catalogue-v2-works-cnkv77md-0lAE6.json",
+    "bodyFileName" : "body-catalogue-v2-works-single.json",
     "headers" : {
       "Content-Type" : "application/json",
       "Connection" : "keep-alive",

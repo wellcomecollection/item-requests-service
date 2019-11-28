@@ -5,6 +5,7 @@ import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import grizzled.slf4j.Logging
 import uk.ac.wellcome.platform.stacks.common.models.StacksWorkIdentifier
 import uk.ac.wellcome.platform.stacks.common.services.StacksService
+import uk.ac.wellcome.platform.stacks.items.api.display.models.DisplayStacksWork
 
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
@@ -27,7 +28,7 @@ trait ItemsApi extends Logging with FailFastCirceSupport {
           )
 
           onComplete(result) {
-            case Success(value) => complete(value)
+            case Success(value) => complete(DisplayStacksWork(value))
             case Failure(err) => failWith(err)
           }
         }

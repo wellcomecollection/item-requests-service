@@ -1,12 +1,12 @@
 {
   "id" : "39cb0933-b56b-33db-8639-d6303d32842b",
   "request" : {
-    "url" : "/catalogue/v2/works?include=items%2Cidentifiers&query=i1292185",
+    "url" : "/catalogue/v2/works?include=items%2Cidentifiers&query=1292185",
     "method" : "GET"
   },
   "response" : {
     "status" : 200,
-    "bodyFileName" : "body-catalogue-v2-works-sirlookup.json",
+    "bodyFileName" : "body-catalogue-v2-works.json",
     "headers" : {
       "Content-Type" : "application/json",
       "Connection" : "keep-alive",

@@ -41,3 +41,11 @@ make stacks_api-publish
 terraform init
 terraform apply
 ```
+
+## Adding users
+
+To create a Cognito user from a Sierra user:
+
+```sh
+./scripts/migrate_user.py "sierra_id" "sierra_secret" "eu-west-1_mypool" "email@sierra.com"
+```

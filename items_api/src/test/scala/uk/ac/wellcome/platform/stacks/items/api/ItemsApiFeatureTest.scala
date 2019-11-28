@@ -4,7 +4,8 @@ import akka.http.scaladsl.model.StatusCodes
 import org.scalatest.concurrent.IntegrationPatience
 import org.scalatest.{FunSpec, Matchers}
 import uk.ac.wellcome.json.utils.JsonAssertions
-import uk.ac.wellcome.platform.stacks.items.api.fixtures.{CatalogueWireMockFixture, ItemsApiFixture, SierraWireMockFixture}
+import uk.ac.wellcome.platform.stacks.common.fixtures.{CatalogueWireMockFixture, SierraWireMockFixture}
+import uk.ac.wellcome.platform.stacks.items.api.fixtures.ItemsApiFixture
 
 
 class ItemsApiFeatureTest
@@ -19,7 +20,7 @@ class ItemsApiFeatureTest
   describe("items") {
     it("shows a user the items on a work") {
       withMockCatalogueServer { catalogueApiUrl: String =>
-        withMockSierraServer { sierraApiUrl: String =>
+        withMockSierraServer { case (sierraApiUrl, _) =>
           withConfiguredApp(catalogueApiUrl, sierraApiUrl) {
             case (_, _) =>
 
@@ -31,14 +32,7 @@ class ItemsApiFeatureTest
                    |  "id" : "cnkv77md",
                    |  "items" : [
                    |    {
-                   |      "id" : {
-                   |        "catalogueId" : {
-                   |          "value" : "ys3ern6x"
-                   |        },
-                   |        "sierraId" : {
-                   |          "value" : "1601017"
-                   |        }
-                   |      },
+                   |      "id" : "ys3ern6x",
                    |      "location" : {
                    |        "id" : "sicon",
                    |        "label" : "Closed stores Iconographic"

@@ -1,4 +1,4 @@
-package uk.ac.wellcome.platform.stacks.common.http.fixtures
+package uk.ac.wellcome.platform.stacks.common.fixtures
 
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.HttpMethods.{GET, POST}

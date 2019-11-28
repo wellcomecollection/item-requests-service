@@ -17,7 +17,7 @@ sleep 5
 WIREMOCK_PID=$!
 
 #curl http://localhost:8080/catalogue/v2/works/cnkv77md?include=items%2Cidentifiers
-curl "http://localhost:8080/catalogue/v2/works?query=ys3ern6x&include=items,identifiers"
+curl "http://localhost:8080/catalogue/v2/works?query=i1493069&include=items,identifiers"
 
 kill $WIREMOCK_PID
 
