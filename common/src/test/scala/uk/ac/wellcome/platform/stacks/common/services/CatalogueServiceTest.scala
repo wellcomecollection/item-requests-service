@@ -53,13 +53,13 @@ class CatalogueServiceTest
             catalogueService.getStacksItem(itemIdentifier)
           ) { actualWork =>
 
-            val expectedItem = StacksItemWithOutStatus(
+            val expectedItem = Some(StacksItemWithOutStatus(
               id = StacksItemIdentifier(
                 catalogueId = CatalogueItemIdentifier("ys3ern6x"),
                 sierraId = SierraItemIdentifier("1292185")),
               location = StacksLocation("sicon", "Closed stores Iconographic"
               )
-            )
+            ))
 
             actualWork shouldBe expectedItem
           }
@@ -74,13 +74,13 @@ class CatalogueServiceTest
             catalogueService.getStacksItem(itemIdentifier)
           ) { actualWork =>
 
-            val expectedItem = StacksItemWithOutStatus(
+            val expectedItem = Some(StacksItemWithOutStatus(
               id = StacksItemIdentifier(
                 catalogueId = CatalogueItemIdentifier("ys3ern6x"),
                 sierraId = SierraItemIdentifier("1292185")),
               location = StacksLocation("sicon", "Closed stores Iconographic"
               )
-            )
+            ))
 
             actualWork shouldBe expectedItem
           }
