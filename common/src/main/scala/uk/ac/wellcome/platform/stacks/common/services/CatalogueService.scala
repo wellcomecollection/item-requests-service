@@ -141,14 +141,12 @@ class CatalogueService(baseUrl: Option[String])(
     items = items
   )
 
-  def getStacksItem(identifier: Identifier): Future[StacksItem] = {
+  def getStacksItem(identifier: Identifier): Future[Option[StacksItem]] = {
     for {
       items <- getItems(identifier)
     } yield items match {
-      case List(item) => item
-      case Nil => throw new Exception(
-        f"No item found for: $identifier"
-      )
+      case List(item) => Some(item)
+      case Nil => None
       case default => throw new Exception(
         f"Ambiguous item results found for: $identifier ($default)"
       )

@@ -3,6 +3,7 @@ package uk.ac.wellcome.platform.stacks.common.services
 import cats.instances.future._
 import cats.instances.list._
 import cats.syntax.traverse._
+import grizzled.slf4j.Logging
 import uk.ac.wellcome.platform.stacks.common.models._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -13,7 +14,7 @@ class StacksService(
                      sierraService: SierraService
                    )(
                      implicit ec: ExecutionContext
-                   ) {
+                   ) extends Logging {
 
   def requestHoldOnItem(
                          userIdentifier: StacksUser,
@@ -21,11 +22,16 @@ class StacksService(
                        ): Future[StacksHoldRequest] = for {
     stacksItem <- catalogueService.getStacksItem(catalogueItemId)
 
-    _ <- sierraService.placeHold(
-      userIdentifier = userIdentifier,
-      sierraItemIdentifier = stacksItem.id.sierraId,
-      itemLocation = stacksItem.location
-    )
+    _ <- stacksItem match {
+      case Some(item) => sierraService.placeHold(
+        userIdentifier = userIdentifier,
+        sierraItemIdentifier = item.id.sierraId,
+        itemLocation = item.location
+      )
+      case None => Future.failed(
+        new Exception(f"Could not locate item $catalogueItemId!")
+      )
+  }
 
   } yield StacksHoldRequest(
     itemId = catalogueItemId.value,
@@ -58,9 +64,14 @@ class StacksService(
         .traverse(catalogueService.getStacksItem)
 
       updatedUserHolds = (userHolds.holds zip stacksItems) map {
-        case (hold: StacksHold[SierraItemIdentifier], stacksItem) =>
-          hold.updateItemId[StacksItemIdentifier](stacksItem.id)
+        case (hold, Some(stacksItem)) =>
+          Some(hold.updateItemId[StacksItemIdentifier](stacksItem.id))
+        case (hold, None) => {
+          error(f"Unable to map $hold to Catalogue Id!")
+
+          None
+        }
       }
 
-    } yield userHolds.updateHolds(updatedUserHolds)
+    } yield userHolds.updateHolds(updatedUserHolds.flatten)
 }
