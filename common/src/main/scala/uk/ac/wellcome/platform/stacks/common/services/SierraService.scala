@@ -85,9 +85,9 @@ class SierraService(baseUrl: Option[String], username: String, password: String)
         hold.getPickupLocation.getName
       ),
       // This should be a simpler conversion to a Java Instant
-      pickUpBy = Instant.ofEpochSecond(
-        hold.getPickupByDate.toEpochSecond
-      )
+      pickUpBy = Option(hold.getPickupByDate)
+        .map(_.toEpochSecond)
+        .map(Instant.ofEpochSecond)
     )
   }
 

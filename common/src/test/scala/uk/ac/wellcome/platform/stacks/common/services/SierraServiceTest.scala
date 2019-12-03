@@ -48,7 +48,7 @@ class SierraServiceTest
                       id = "sepbb",
                       label = "Rare Materials Room"
                     ),
-                    pickUpBy = Instant.parse("2019-12-03T04:00:00Z")
+                    pickUpBy = Some(Instant.parse("2019-12-03T04:00:00Z"))
                   ),
                   status = StacksHoldStatus(
                     id = "i",
