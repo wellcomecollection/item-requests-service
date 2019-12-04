@@ -37,5 +37,5 @@ case class StacksHoldStatus(
 
 case class StacksPickup(
                          location: StacksLocation,
-                         pickUpBy: Instant
+                         pickUpBy: Option[Instant]
                        )

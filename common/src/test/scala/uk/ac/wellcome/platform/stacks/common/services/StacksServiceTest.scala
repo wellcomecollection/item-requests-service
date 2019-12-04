@@ -100,13 +100,12 @@ class StacksServiceTest
                   ),
                   pickup = StacksPickup(
                     location = StacksLocation("sepbb", "Rare Materials Room"),
-                    pickUpBy = Instant.parse("2019-12-03T04:00:00Z")
+                    pickUpBy = Some(Instant.parse("2019-12-03T04:00:00Z"))
                   ),
                   status = StacksHoldStatus("i", "item hold ready for pickup.")
                 )
               )
             )
-
           }
         }
       }

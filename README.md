@@ -30,8 +30,8 @@ make stacks_api-test
 # before running!
 
 # build and publish apps
-make request_api-publish 
-make stacks_api-publish 
+make requests_api-publish 
+make items_api-publish 
 
 # set up release
 ./docker_run.py --aws --root -- -it wellcome/release_tooling:119 prepare
