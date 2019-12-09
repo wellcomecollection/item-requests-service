@@ -15,12 +15,28 @@ import io.circe.Json
 import uk.ac.wellcome.platform.sierra
 import uk.ac.wellcome.platform.sierra.ApiException
 import uk.ac.wellcome.platform.sierra.api.{V5itemsApi, V5patronsApi}
-import uk.ac.wellcome.platform.sierra.models.{ErrorCode, Hold, PatronHoldPost}
+import uk.ac.wellcome.platform.sierra.models.{Hold, PatronHoldPost}
 import uk.ac.wellcome.platform.stacks.common.models._
 
 import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
+
+import io.circe.generic.auto._
+import io.circe.syntax._
+
+case class SierraHoldRequest(userIdentifier: StacksUser,
+                             sierraItemIdentifier: SierraItemIdentifier,
+                             itemLocation: StacksLocation)
+
+case class SierraErrorResponse(code: Int, specificCode: Int, httpStatus: Int, name: String, description: String)
+
+sealed trait SierraServiceError
+
+case class HoldAlreadyExists(e: ApiException) extends SierraServiceError
+case class UnknownApiException(e: ApiException) extends SierraServiceError
+case class UnknownSierraServiceError(e: Throwable) extends SierraServiceError
+
 
 class SierraService(baseUrl: Option[String], username: String, password: String)(
   implicit
@@ -144,23 +160,41 @@ class SierraService(baseUrl: Option[String], username: String, password: String)
     patronHoldPost
   }
 
-  def placeHold(
-                 userIdentifier: StacksUser,
-                 sierraItemIdentifier: SierraItemIdentifier,
-                 itemLocation: StacksLocation
-               ): Future[Unit] = for {
+  def placeHold(holdRequest: SierraHoldRequest): Future[Either[SierraServiceError, SierraHoldRequest]] = for {
     patronsApi <- patronsApi()
 
     patronHoldPost = createPatronHoldPost(
-      sierraItemIdentifier,
-      itemLocation
+      holdRequest.sierraItemIdentifier,
+      holdRequest.itemLocation
     )
 
     result = Try {
-      patronsApi.placeANewHoldRequest(patronHoldPost, userIdentifier.value.toInt)
+      patronsApi.placeANewHoldRequest(
+        patronHoldPost,
+        // TODO: Handle sierra user id / stacks user id
+        // long/string
+        holdRequest.userIdentifier.value.toInt
+      )
     } match {
-      case Success(_) => ()
-      case Failure(e: ApiException) => ()
+
+      case Success(_) => Right(holdRequest)
+
+      case Failure(e: ApiException) => {
+        import io.circe.parser.decode
+
+        decode[SierraErrorResponse](e.getResponseBody) match {
+          case Right(SierraErrorResponse(132, _, _, _, _)) =>
+            // This is potentially _not_ exhaustive -
+            // we should go back to the APIs to confirm
+            // this is "HoldAlreadyExists"
+
+            Left(HoldAlreadyExists(e))
+          case Right(_) => Left(UnknownApiException(e))
+          case Left(_) => Left(UnknownSierraServiceError(e))
+        }
+      }
+
+      case Failure(e: Throwable) => Left(UnknownSierraServiceError(e))
     }
 
   } yield result

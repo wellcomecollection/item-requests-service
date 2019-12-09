@@ -48,6 +48,36 @@ class StacksServiceTest
           }
         }
       }
+
+      it("allows you to re-request an item you already have on hold without error") {
+        // TODO: The Sierra service needs a test for underlying function
+        withActorSystem { implicit as =>
+          withMaterializer(as) { implicit mat =>
+            withStacksService { case (stacksService, _) =>
+
+            val user = StacksUser("1100189")
+            val catalogueItemIdentifier = CatalogueItemIdentifier("u7rucefa")
+
+            // Confirm user has no hold
+            // val result = stacksService.getStacksUserHolds(user)
+
+            // Request hold
+            val result1 = stacksService.requestHoldOnItem(user,catalogueItemIdentifier)
+
+            // Confirm user has hold
+            // val result = stacksService.getStacksUserHolds(user)
+
+            val result2 = stacksService.requestHoldOnItem(user,catalogueItemIdentifier)
+
+            whenReady(result2) { response =>
+              response shouldBe StacksHoldRequest(
+                "u7rucefa",
+                "1100189"
+              )
+            }
+          }
+        }
+      }
     }
 
     describe("getStacksWorkWithItemStatuses") {

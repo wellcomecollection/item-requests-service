@@ -22,16 +22,26 @@ class StacksService(
                        ): Future[StacksHoldRequest] = for {
     stacksItem <- catalogueService.getStacksItem(catalogueItemId)
 
-    _ <- stacksItem match {
+    holdRequest <- stacksItem match {
       case Some(item) => sierraService.placeHold(
-        userIdentifier = userIdentifier,
-        sierraItemIdentifier = item.id.sierraId,
-        itemLocation = item.location
+        SierraHoldRequest(
+          userIdentifier = userIdentifier,
+          sierraItemIdentifier = item.id.sierraId,
+          itemLocation = item.location
+        )
       )
       case None => Future.failed(
         new Exception(f"Could not locate item $catalogueItemId!")
       )
   }
+    _ <- holdRequest match {
+      case Right(_) =>
+        Future.successful(())
+      case Left(_: HoldAlreadyExists) =>
+        Future.successful(())
+      case Left(sierraError: UnknownSierraServiceError) =>
+        Future.failed(sierraError.e)
+    }
 
   } yield StacksHoldRequest(
     itemId = catalogueItemId.value,

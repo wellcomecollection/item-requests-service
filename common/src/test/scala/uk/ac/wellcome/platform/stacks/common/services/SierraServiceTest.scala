@@ -71,9 +71,11 @@ class SierraServiceTest
 
           whenReady(
             sierraService.placeHold(
-              userIdentifier = stacksUserIdentifier,
-              sierraItemIdentifier = sierraItemIdentifier,
-              itemLocation = stacksLocation
+              SierraHoldRequest(
+                userIdentifier = stacksUserIdentifier,
+                sierraItemIdentifier = sierraItemIdentifier,
+                itemLocation = stacksLocation
+              )
             )) { _ =>
 
             wireMockServer.verify(1, postRequestedFor(
