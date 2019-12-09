@@ -13,12 +13,14 @@ import cats.instances.list._
 import cats.syntax.traverse._
 import io.circe.Json
 import uk.ac.wellcome.platform.sierra
+import uk.ac.wellcome.platform.sierra.ApiException
 import uk.ac.wellcome.platform.sierra.api.{V5itemsApi, V5patronsApi}
-import uk.ac.wellcome.platform.sierra.models.{Hold, PatronHoldPost}
+import uk.ac.wellcome.platform.sierra.models.{ErrorCode, Hold, PatronHoldPost}
 import uk.ac.wellcome.platform.stacks.common.models._
 
 import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
 
 class SierraService(baseUrl: Option[String], username: String, password: String)(
   implicit
@@ -93,7 +95,7 @@ class SierraService(baseUrl: Option[String], username: String, password: String)
 
   protected def getSierraItemIdentifierFromHold(hold: Hold): Future[SierraItemIdentifier] = Future {
     hold.getRecordType match {
-      case "i" => SierraItemIdentifier(hold)
+      case "i" => SierraItemIdentifier.createFromHold(hold)
       case _ => throw
         new Throwable(
           f"Could not get SierraItemIdentifier from hold! ($hold)"
@@ -132,25 +134,41 @@ class SierraService(baseUrl: Option[String], username: String, password: String)
     holds = userHolds,
   )
 
+  private def createPatronHoldPost(itemIdentifier: SierraItemIdentifier, itemLocation: StacksLocation) = {
+    val patronHoldPost = new PatronHoldPost()
+
+    patronHoldPost.setRecordType("i")
+    patronHoldPost.setRecordNumber(itemIdentifier.value)
+    patronHoldPost.setPickupLocation(itemLocation.id)
+
+    patronHoldPost
+  }
+
   def placeHold(
                  userIdentifier: StacksUser,
                  sierraItemIdentifier: SierraItemIdentifier,
                  itemLocation: StacksLocation
                ): Future[Unit] = for {
     patronsApi <- patronsApi()
-    patronHoldPost = new PatronHoldPost()
-    _ = patronHoldPost.setRecordType("i")
-    // TODO: Deal with this not being Longable
-    _ = patronHoldPost.setRecordNumber(sierraItemIdentifier.value.toLong)
-    _ = patronHoldPost.setPickupLocation(itemLocation.id)
 
-    _ = patronsApi.placeANewHoldRequest(patronHoldPost, userIdentifier.value.toInt)
-  } yield ()
+    patronHoldPost = createPatronHoldPost(
+      sierraItemIdentifier,
+      itemLocation
+    )
+
+    result = Try {
+      patronsApi.placeANewHoldRequest(patronHoldPost, userIdentifier.value.toInt)
+    } match {
+      case Success(_) => ()
+      case Failure(e: ApiException) => ()
+    }
+
+  } yield result
 
   def getItemStatus(sierraId: SierraItemIdentifier): Future[StacksItemStatus] = for {
     itemsApi <- itemsApi()
     sierraItem = itemsApi.getAnItemByRecordID(
-      sierraId.value, List.empty[String].asJava
+      sierraId.value.toString, List.empty[String].asJava
     )
   } yield StacksItemStatus(
     rawCode = sierraItem.getStatus.getCode
