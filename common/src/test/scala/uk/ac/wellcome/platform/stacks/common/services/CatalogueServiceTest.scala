@@ -31,7 +31,7 @@ class CatalogueServiceTest
                 StacksItemWithOutStatus(
                   id = StacksItemIdentifier(
                     catalogueId = CatalogueItemIdentifier("ys3ern6x"),
-                    sierraId = SierraItemIdentifier("1292185")),
+                    sierraId = SierraItemIdentifier(1292185)),
                   location = StacksLocation("sicon", "Closed stores Iconographic")
                 )
               )
@@ -47,7 +47,7 @@ class CatalogueServiceTest
     describe("getStacksItem") {
       it("should get a StacksItem for a SierraItemIdentifier") {
         withCatalogueService { catalogueService =>
-          val itemIdentifier = SierraItemIdentifier("1292185")
+          val itemIdentifier = SierraItemIdentifier(1292185)
 
           whenReady(
             catalogueService.getStacksItem(itemIdentifier)
@@ -56,7 +56,7 @@ class CatalogueServiceTest
             val expectedItem = Some(StacksItemWithOutStatus(
               id = StacksItemIdentifier(
                 catalogueId = CatalogueItemIdentifier("ys3ern6x"),
-                sierraId = SierraItemIdentifier("1292185")),
+                sierraId = SierraItemIdentifier(1292185)),
               location = StacksLocation("sicon", "Closed stores Iconographic"
               )
             ))
@@ -77,7 +77,7 @@ class CatalogueServiceTest
             val expectedItem = Some(StacksItemWithOutStatus(
               id = StacksItemIdentifier(
                 catalogueId = CatalogueItemIdentifier("ys3ern6x"),
-                sierraId = SierraItemIdentifier("1292185")),
+                sierraId = SierraItemIdentifier(1292185)),
               location = StacksLocation("sicon", "Closed stores Iconographic"
               )
             ))

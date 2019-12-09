@@ -42,7 +42,8 @@ class CatalogueService(baseUrl: Option[String])(
     identifier match {
       case List(sierraItemId) => {
         val catalogueId = CatalogueItemIdentifier(item.getId)
-        val sierraId = SierraItemIdentifier(sierraItemId)
+        val sierraId = SierraItemIdentifier
+          .createFromString(sierraItemId)
 
         Future.successful(
           Some(StacksItemIdentifier(catalogueId, sierraId))
@@ -81,7 +82,7 @@ class CatalogueService(baseUrl: Option[String])(
     }
   }
 
-  private def getItems(identifier: Identifier): Future[List[StacksItemWithOutStatus]] = {
+  private def getItems(identifier: Identifier[_]): Future[List[StacksItemWithOutStatus]] = {
     for {
       items <- identifier match {
         case StacksWorkIdentifier(workId) => Future {
@@ -101,7 +102,7 @@ class CatalogueService(baseUrl: Option[String])(
             null,
             null,
             null,
-            identifier.value,
+            identifier.value.toString,
             null,
             null
           ).getResults
@@ -143,7 +144,7 @@ class CatalogueService(baseUrl: Option[String])(
     items = items
   )
 
-  def getStacksItem(identifier: Identifier): Future[Option[StacksItem]] = {
+  def getStacksItem(identifier: Identifier[_]): Future[Option[StacksItem]] = {
     for {
       items <- getItems(identifier)
     } yield items match {

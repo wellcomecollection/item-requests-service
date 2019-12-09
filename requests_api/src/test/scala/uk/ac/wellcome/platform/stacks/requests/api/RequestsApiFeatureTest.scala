@@ -117,7 +117,7 @@ class RequestsApiFeatureTest
                  |          "value" : "ys3ern6x"
                  |        },
                  |        "sierraId" : {
-                 |          "value" : "1292185"
+                 |          "value" : 1292185
                  |        }
                  |      },
                  |      "pickup" : {

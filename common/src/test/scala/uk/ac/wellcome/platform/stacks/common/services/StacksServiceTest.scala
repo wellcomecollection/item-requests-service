@@ -67,7 +67,7 @@ class StacksServiceTest
                 StacksItemWithStatus(
                   id = StacksItemIdentifier(
                     catalogueId = CatalogueItemIdentifier("ys3ern6x"),
-                    sierraId = SierraItemIdentifier("1292185")),
+                    sierraId = SierraItemIdentifier(1292185)),
                   location = StacksLocation("sicon", "Closed stores Iconographic"),
                   status = StacksItemStatus("available", "Available")
                 )
@@ -85,7 +85,7 @@ class StacksServiceTest
           val stacksUserIdentifier = StacksUser("1234567")
 
           whenReady(
-            stacksService.getStacksUserHoldsWithStacksItemIdentifier(
+            stacksService.getStacksUserHolds(
               userId = stacksUserIdentifier
             )
           ){ stacksUserHolds =>
@@ -96,7 +96,7 @@ class StacksServiceTest
                 StacksHold(
                   itemId = StacksItemIdentifier(
                     catalogueId = CatalogueItemIdentifier("ys3ern6x"),
-                    sierraId = SierraItemIdentifier("1292185")
+                    sierraId = SierraItemIdentifier(1292185)
                   ),
                   pickup = StacksPickup(
                     location = StacksLocation("sepbb", "Rare Materials Room"),
