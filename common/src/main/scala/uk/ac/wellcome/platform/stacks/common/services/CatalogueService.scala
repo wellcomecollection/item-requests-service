@@ -30,9 +30,11 @@ class CatalogueService(baseUrl: Option[String])(
   }
 
   protected def getItemIdentifiersFrom(item: ResultListItems): List[ItemIdentifiers] =
-    item.getIdentifiers.asScala.toList
+    Option(item.getIdentifiers)
+      .map(_.asScala.toList)
+      .getOrElse(Nil)
 
-  protected def getStacksItemIdentifierFrom(item: ResultListItems): Future[StacksItemIdentifier] = {
+  protected def getStacksItemIdentifierFrom(item: ResultListItems): Future[Option[StacksItemIdentifier]] = {
     val identifier = getItemIdentifiersFrom(item)
       .filter { _.getIdentifierType.getId == "sierra-identifier" }
       .map { _.getValue }
@@ -42,10 +44,13 @@ class CatalogueService(baseUrl: Option[String])(
         val catalogueId = CatalogueItemIdentifier(item.getId)
         val sierraId = SierraItemIdentifier(sierraItemId)
 
-        Future.successful(StacksItemIdentifier(catalogueId, sierraId))
+        Future.successful(
+          Some(StacksItemIdentifier(catalogueId, sierraId))
+        )
       }
+      case Nil => Future.successful(None)
       case _ => Future.failed(new Throwable(
-        f"Ambiguous or missing identifier! ($identifier)"
+        f"Ambiguous identifier! ($identifier)"
       ))
     }
   }
@@ -108,13 +113,10 @@ class CatalogueService(baseUrl: Option[String])(
       itemIdentifiers <- items.traverse(getStacksItemIdentifierFrom)
       itemLocations <- items.traverse(getStacksLocationFrom)
 
-      stacksItems <- (itemIdentifiers zip itemLocations) traverse {
-        case (identifier, Some(location)) => Future.successful(
-          StacksItemWithOutStatus(identifier, location)
-        )
-        case (identifier, None) => throw new Exception(
-          f"Missing location for item: $identifier"
-        )
+      stacksItems = (itemIdentifiers zip itemLocations) flatMap {
+        case (Some(identifier), Some(location)) =>
+          Some(StacksItemWithOutStatus(identifier, location))
+        case _ => None
       }
 
     } yield identifier match {
