@@ -93,6 +93,7 @@ class RequestsApiFeatureTest
       }
     }
 
+    // TODO: return multiple items on hold
     it("provides information about a users' holds") {
       withMockCatalogueServer { catalogueApiUrl: String =>
         withMockSierraServer { case (sierraApiUrl, _) =>
@@ -145,6 +146,16 @@ class RequestsApiFeatureTest
             }
           }
         }
+      }
+    }
+
+    describe("filters a users holds by item identifier") {
+      it("displays only the filtered items") {
+        true shouldBe false
+      }
+
+      it("displays no items if there are no matches") {
+        true shouldBe false
       }
     }
   }
