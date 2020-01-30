@@ -22,7 +22,7 @@ import scala.util.Try
 import uk.ac.wellcome.json.JsonUtil._
 
 
-class CatalogueService2(baseUri: Uri) {
+class CatalogueService2(maybeBaseUri: Option[Uri]) {
 
   import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
   import io.circe.generic.auto._
@@ -38,25 +38,50 @@ class CatalogueService2(baseUri: Uri) {
   def getStacksWork(workId: StacksWorkIdentifier): Future[StacksWork[StacksItemWithOutStatus]] = {
     val urlPath = s"works/${workId.value}"
     val queryParams = "include=items,identifiers"
-
+    val baseUri = maybeBaseUri.getOrElse(defaultBaseUri)
     val uri = s"${defaultBaseUri}/${urlPath}?${queryParams}"
 
-    case class LocationTypeStub(id: String, label: String)
-    case class LocationStub(locationType: LocationTypeStub, label: Option[String], `type`: String)
-    case class ItemStub(id: String, locations: List[LocationStub])
+    case class TypeStub(id: String, label: String)
+    case class LocationStub(
+      locationType: TypeStub,
+      label: Option[String],
+      `type`: String
+    )
+    case class IdentifiersStub(
+      identifierType: TypeStub,
+      value: String
+    )
+    case class ItemStub(
+      id: String,
+      identifiers: List[IdentifiersStub],
+      locations: List[LocationStub]
+    )
     case class WorkStub(id: String, items: List[ItemStub])
+
+    def getSierraIdentifier(identifiers: List[IdentifiersStub]) =
+      identifiers filter(_.identifierType.id == "sierra-identifier") match {
+        case List(IdentifiersStub(_,value)) =>
+          //TODO: This can fail!
+          Some(SierraItemIdentifier(value.toLong))
+        case _ =>  None
+      }
 
     for {
       response <- Http().singleRequest(HttpRequest(uri = uri))
       workStub <- Unmarshal(response).to[WorkStub]
+
       items = workStub.items collect {
-        case ItemStub(id, locations) =>
-          locations collectFirst {
+        case ItemStub(id, identifiers, locations) => locations collectFirst {
             case location@LocationStub(_, _, "PhysicalLocation") => {
+
+              // TODO: Extracting from an option!
+              val sierraIdentifier =
+                getSierraIdentifier(identifiers).get
+
               StacksItemWithOutStatus(
                 StacksItemIdentifier(
                   CatalogueItemIdentifier(id),
-                  SierraItemIdentifier(1)
+                  sierraIdentifier
                 ),
                 StacksLocation(
                   location.locationType.id,
