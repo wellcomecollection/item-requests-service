@@ -37,7 +37,7 @@ trait ServicesFixture
         implicit val ec: ExecutionContextExecutor = as.dispatcher
 
         withMaterializer { implicit mat =>
-          testWith(new CatalogueService2(Uri(catalogueApiUrl))
+          testWith(new CatalogueService2(Some(Uri(catalogueApiUrl)))
           )
         }
       }
