@@ -46,43 +46,26 @@ class CatalogueService2(baseUri: Uri) {
     case class ItemStub(id: String, locations: List[LocationStub])
     case class WorkStub(id: String, items: List[ItemStub])
 
-    Http().singleRequest(HttpRequest(uri = uri)).flatMap {
-
-      case response@HttpResponse(StatusCodes.OK, _, _, _) =>
-        val result = Unmarshal(response).to[WorkStub]
-
-        result.map { workStub =>
-          val workStubitems = workStub.items
-
-          val itemsWithPhysicalLocations = workStubitems.filter { item =>
-            item.locations.exists(_.`type` == "PhysicalLocation")
-          }
-
-          val items = itemsWithPhysicalLocations map { item =>
-            val physicalLocations = item.locations.filter {
-              _.`type` == "PhysicalLocation"
+    for {
+      response <- Http().singleRequest(HttpRequest(uri = uri))
+      workStub <- Unmarshal(response).to[WorkStub]
+      items = workStub.items collect {
+        case ItemStub(id, locations) =>
+          locations collectFirst {
+            case location@LocationStub(_, _, "PhysicalLocation") => {
+              StacksItemWithOutStatus(
+                StacksItemIdentifier(
+                  CatalogueItemIdentifier(id),
+                  SierraItemIdentifier(1)
+                ),
+                StacksLocation(
+                  location.locationType.id,
+                  location.locationType.label)
+              )
             }
-
-            val location: LocationStub = physicalLocations.head
-
-            StacksItemWithOutStatus(
-              StacksItemIdentifier(
-                CatalogueItemIdentifier(item.id),
-                SierraItemIdentifier(1)
-              ),
-              StacksLocation(
-                location.locationType.id,
-                location.locationType.label)
-            )
           }
-
-          StacksWork(
-            workStub.id,
-            items
-          )
-        }
-
-    }
+      } flatten
+    } yield StacksWork(workStub.id, items)
   }
 }
 
