@@ -39,7 +39,7 @@ class CatalogueService2(maybeBaseUri: Option[Uri]) {
     val urlPath = s"works/${workId.value}"
     val queryParams = "include=items,identifiers"
     val baseUri = maybeBaseUri.getOrElse(defaultBaseUri)
-    val uri = s"${defaultBaseUri}/${urlPath}?${queryParams}"
+    val uri = s"${baseUri}/${urlPath}?${queryParams}"
 
     case class TypeStub(id: String, label: String)
     case class LocationStub(
