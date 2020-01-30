@@ -1,16 +1,90 @@
 package uk.ac.wellcome.platform.stacks.common.services
 
+import akka.actor.ActorSystem
+import akka.http.scaladsl.Http
+import akka.http.scaladsl.model.{HttpRequest, HttpResponse, StatusCodes, Uri}
+import akka.http.scaladsl.unmarshalling.Unmarshal
+import akka.stream.ActorMaterializer
+import akka.stream.scaladsl.Source
 import cats.instances.future._
 import cats.instances.list._
 import cats.syntax.traverse._
 import com.google.gson.internal.LinkedTreeMap
+import io.circe.Json
 import uk.ac.wellcome.platform.catalogue
 import uk.ac.wellcome.platform.catalogue.models.{ItemIdentifiers, ResultListItems}
 import uk.ac.wellcome.platform.stacks.common.models._
 
 import scala.collection.JavaConverters._
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.Try
+
+import uk.ac.wellcome.json.JsonUtil._
+
+
+class CatalogueService2(baseUri: Uri) {
+
+  import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
+  import io.circe.generic.auto._
+
+  implicit val system: ActorSystem = ActorSystem()
+  implicit val materializer: ActorMaterializer = ActorMaterializer()
+  implicit val executionContext: ExecutionContextExecutor = system.dispatcher
+
+  val defaultBaseUri = Uri(
+    "https://api.wellcomecollection.org/catalogue/v2"
+  )
+
+  def getStacksWork(workId: StacksWorkIdentifier): Future[StacksWork[StacksItemWithOutStatus]] = {
+    val urlPath = s"works/${workId.value}"
+    val queryParams = "include=items,identifiers"
+
+    val uri = s"${defaultBaseUri}/${urlPath}?${queryParams}"
+
+    case class LocationTypeStub(id: String, label: String)
+    case class LocationStub(locationType: LocationTypeStub, label: Option[String], `type`: String)
+    case class ItemStub(id: String, locations: List[LocationStub])
+    case class WorkStub(id: String, items: List[ItemStub])
+
+    Http().singleRequest(HttpRequest(uri = uri)).flatMap {
+
+      case response@HttpResponse(StatusCodes.OK, _, _, _) =>
+        val result = Unmarshal(response).to[WorkStub]
+
+        result.map { workStub =>
+          val workStubitems = workStub.items
+
+          val itemsWithPhysicalLocations = workStubitems.filter { item =>
+            item.locations.exists(_.`type` == "PhysicalLocation")
+          }
+
+          val items = itemsWithPhysicalLocations map { item =>
+            val physicalLocations = item.locations.filter {
+              _.`type` == "PhysicalLocation"
+            }
+
+            val location: LocationStub = physicalLocations.head
+
+            StacksItemWithOutStatus(
+              StacksItemIdentifier(
+                CatalogueItemIdentifier(item.id),
+                SierraItemIdentifier(1)
+              ),
+              StacksLocation(
+                location.locationType.id,
+                location.locationType.label)
+            )
+          }
+
+          StacksWork(
+            workStub.id,
+            items
+          )
+        }
+
+    }
+  }
+}
 
 class CatalogueService(baseUrl: Option[String])(
   implicit
