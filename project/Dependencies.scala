@@ -8,14 +8,8 @@ object WellcomeDependencies {
     val monitoring = "2.3.0"
     val storage = "7.24.1"
     val typesafe = "1.0.0"
-    val catalogueClient = "0.0.5"
     val sierraClient = "0.0.4"
   }
-
-  val catalogueClient: Seq[ModuleID] = library(
-    name = "scala-catalogue-client",
-    version = versions.catalogueClient
-  )
 
   val sierraClient: Seq[ModuleID] = library(
     name = "scala-sierra-client",
@@ -155,7 +149,5 @@ object RequestsDependencies {
       WellcomeDependencies.monitoringTypesafeLibrary ++
       WellcomeDependencies.messagingTypesafeLibrary ++
       WellcomeDependencies.storageTypesafeLibrary ++
-      WellcomeDependencies.catalogueClient ++
       WellcomeDependencies.sierraClient
-
 }
