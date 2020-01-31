@@ -5,7 +5,7 @@ import java.time.Instant
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.headers.{Authorization, BasicHttpCredentials}
-import akka.http.scaladsl.model.{HttpMethods, HttpRequest}
+import akka.http.scaladsl.model.{HttpMethods, HttpRequest, Uri}
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
 import cats.instances.future._
@@ -17,10 +17,57 @@ import uk.ac.wellcome.platform.sierra.ApiException
 import uk.ac.wellcome.platform.sierra.api.{V5itemsApi, V5patronsApi}
 import uk.ac.wellcome.platform.sierra.models.{ErrorCode, Hold, PatronHoldPost}
 import uk.ac.wellcome.platform.stacks.common.models._
+import uk.ac.wellcome.platform.stacks.common.services.CatalogueService.WorkStub
 
 import scala.collection.JavaConverters._
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success, Try}
+
+class SierraService2(val maybeBaseUri: Option[Uri])(
+  implicit
+    val system: ActorSystem,
+    val mat: ActorMaterializer
+) extends AkkaClientServiceWrappper {
+
+  import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
+  import io.circe.generic.auto._
+
+  protected val defaultBaseUri = Uri(
+    "https://api.wellcomecollection.org/catalogue/v2"
+  )
+
+
+
+//  def placeHold(
+//                 userIdentifier: StacksUser,
+//                 sierraItemIdentifier: SierraItemIdentifier,
+//                 itemLocation: StacksLocation
+//               ): Future[Unit] = for {
+//    patronsApi <- patronsApi()
+//
+//    patronHoldPost = createPatronHoldPost(
+//      sierraItemIdentifier,
+//      itemLocation
+//    )
+//
+//    result = Try {
+//      patronsApi.placeANewHoldRequest(patronHoldPost, userIdentifier.value.toInt)
+//    } match {
+//      case Success(_) => ()
+//      case Failure(e: ApiException) => ()
+//    }
+//
+//  } yield result
+//  for {
+//    workStub <- query[WorkStub](
+//      s"works/${workId.value}",
+//      "include=items%2Cidentifiers"
+//    )
+//
+//    items = getStacksItems(workStub.items)
+//
+//  } yield StacksWork(workStub.id, items)
+}
 
 class SierraService(baseUrl: Option[String], username: String, password: String)(
   implicit
@@ -66,7 +113,8 @@ class SierraService(baseUrl: Option[String], username: String, password: String)
     new sierra.api.V5itemsApi(sierraApiClient)
   }
 
-  protected def patronsApi(): Future[V5patronsApi] = AuthToken.get().map { token =>
+  protected def patronsApi(): Future[V5patronsApi] =
+    AuthToken.get().map { token =>
     sierraApiClient.setAccessToken(token)
 
     new sierra.api.V5patronsApi(sierraApiClient)
