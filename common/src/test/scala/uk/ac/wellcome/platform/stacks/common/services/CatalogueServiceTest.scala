@@ -46,7 +46,7 @@ class CatalogueServiceTest
 
     describe("getStacksItem") {
       it("should get a StacksItem for a SierraItemIdentifier") {
-        withCatalogueServiceOld { catalogueService =>
+        withCatalogueService { catalogueService =>
           val itemIdentifier = SierraItemIdentifier(1292185)
 
           whenReady(
@@ -67,7 +67,7 @@ class CatalogueServiceTest
       }
 
       it("should get a StacksItem for a CatalogueItemIdentifier") {
-        withCatalogueServiceOld { catalogueService =>
+        withCatalogueService { catalogueService =>
           val itemIdentifier = CatalogueItemIdentifier("ys3ern6x")
 
           whenReady(
