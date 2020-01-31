@@ -1,61 +1,22 @@
 package uk.ac.wellcome.platform.stacks.common.services
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{HttpRequest, Uri}
-import akka.http.scaladsl.unmarshalling.Unmarshal
+import akka.http.scaladsl.model.Uri
 import akka.stream.ActorMaterializer
 import uk.ac.wellcome.platform.stacks.common.models.{StacksItem, _}
 
-import scala.concurrent.{ExecutionContextExecutor, Future}
+import scala.concurrent.Future
 
-object CatalogueService {
-
-  case class TypeStub(
-                       id: String,
-                       label: String
-                     )
-
-  case class LocationStub(
-                           locationType: TypeStub,
-                           label: Option[String],
-                           `type`: String
-                         )
-
-  case class IdentifiersStub(
-                              identifierType: TypeStub,
-                              value: String
-                            )
-
-  case class ItemStub(
-                       id: String,
-                       identifiers: List[IdentifiersStub],
-                       locations: List[LocationStub]
-                     )
-
-  case class WorkStub(
-                       id: String,
-                       items: List[ItemStub]
-                     )
-
-  case class WorkSearchResults(
-                                totalResults: Int,
-                                results: List[WorkStub]
-                              )
-
-}
-
-class CatalogueService(maybeBaseUri: Option[Uri])(
+class CatalogueService(val maybeBaseUri: Option[Uri])(
   implicit
     val system: ActorSystem,
     val mat: ActorMaterializer
-) {
+) extends AkkaClientServiceWrappper {
 
-  import CatalogueService._
   import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
   import io.circe.generic.auto._
+  import CatalogueService._
 
-  implicit val ec: ExecutionContextExecutor = system.dispatcher
 
   protected val defaultBaseUri = Uri(
     "https://api.wellcomecollection.org/catalogue/v2"
@@ -99,31 +60,23 @@ class CatalogueService(maybeBaseUri: Option[Uri])(
       )
   }
 
-  def getStacksWork(workId: StacksWorkIdentifier): Future[StacksWork[StacksItemWithOutStatus]] = {
-
-    val urlPath = s"works/${workId.value}"
-    val queryParams = "include=items%2Cidentifiers"
-    val baseUri = maybeBaseUri.getOrElse(defaultBaseUri)
-    val uri = s"${baseUri}/${urlPath}?${queryParams}"
-
+  def getStacksWork(workId: StacksWorkIdentifier): Future[StacksWork[StacksItemWithOutStatus]] =
     for {
-      response <- Http().singleRequest(HttpRequest(uri = uri))
-      workStub <- Unmarshal(response).to[WorkStub]
+      workStub <- query[WorkStub](
+        s"works/${workId.value}",
+        "include=items%2Cidentifiers"
+      )
 
       items = getStacksItems(workStub.items)
+
     } yield StacksWork(workStub.id, items)
-  }
 
-  def getStacksItem(identifier: Identifier[_]): Future[Option[StacksItem]] = {
-
-    val urlPath = s"works"
-    val queryParams = s"include=items%2Cidentifiers&query=${identifier.value}"
-    val baseUri = maybeBaseUri.getOrElse(defaultBaseUri)
-    val uri = s"${baseUri}/${urlPath}?${queryParams}"
-
+  def getStacksItem(identifier: Identifier[_]): Future[Option[StacksItem]] =
     for {
-      response <- Http().singleRequest(HttpRequest(uri = uri))
-      searchStub <- Unmarshal(response).to[WorkSearchResults]
+      searchStub <- query[SearchStub](
+        "works",
+        s"include=items%2Cidentifiers&query=${identifier.value}"
+      )
 
       items = searchStub.results
         .map(_.items)
@@ -133,5 +86,38 @@ class CatalogueService(maybeBaseUri: Option[Uri])(
       case List(item) => Some(item)
       case _ => None
     }
-  }
+}
+
+object CatalogueService {
+  case class TypeStub(
+                       id: String,
+                       label: String
+                     )
+
+  case class LocationStub(
+                           locationType: TypeStub,
+                           label: Option[String],
+                           `type`: String
+                         )
+
+  case class IdentifiersStub(
+                              identifierType: TypeStub,
+                              value: String
+                            )
+
+  case class ItemStub(
+                       id: String,
+                       identifiers: List[IdentifiersStub],
+                       locations: List[LocationStub]
+                     )
+
+  case class WorkStub(
+                       id: String,
+                       items: List[ItemStub]
+                     )
+
+  case class SearchStub(
+                         totalResults: Int,
+                         results: List[WorkStub]
+                       )
 }
