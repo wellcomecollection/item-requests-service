@@ -2,15 +2,13 @@ package uk.ac.wellcome.platform.stacks.common.services
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse, StatusCodes, Uri}
+import akka.http.scaladsl.model.{HttpRequest, Uri}
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.Source
 import cats.instances.future._
 import cats.instances.list._
 import cats.syntax.traverse._
 import com.google.gson.internal.LinkedTreeMap
-import io.circe.Json
 import uk.ac.wellcome.platform.catalogue
 import uk.ac.wellcome.platform.catalogue.models.{ItemIdentifiers, ResultListItems}
 import uk.ac.wellcome.platform.stacks.common.models._
@@ -18,9 +16,6 @@ import uk.ac.wellcome.platform.stacks.common.models._
 import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.util.Try
-
-import uk.ac.wellcome.json.JsonUtil._
-
 
 class CatalogueService2(maybeBaseUri: Option[Uri]) {
 
@@ -36,12 +31,16 @@ class CatalogueService2(maybeBaseUri: Option[Uri]) {
   )
 
   def getStacksWork(workId: StacksWorkIdentifier): Future[StacksWork[StacksItemWithOutStatus]] = {
+
     val urlPath = s"works/${workId.value}"
-    val queryParams = "include=items,identifiers"
+    val queryParams = "include=items%2Cidentifiers"
     val baseUri = maybeBaseUri.getOrElse(defaultBaseUri)
     val uri = s"${baseUri}/${urlPath}?${queryParams}"
 
-    case class TypeStub(id: String, label: String)
+    case class TypeStub(
+      id: String,
+      label: String
+    )
     case class LocationStub(
       locationType: TypeStub,
       label: Option[String],
@@ -56,40 +55,51 @@ class CatalogueService2(maybeBaseUri: Option[Uri]) {
       identifiers: List[IdentifiersStub],
       locations: List[LocationStub]
     )
-    case class WorkStub(id: String, items: List[ItemStub])
+    case class WorkStub(
+      id: String,
+      items: List[ItemStub]
+    )
 
-    def getSierraIdentifier(identifiers: List[IdentifiersStub]) =
-      identifiers filter(_.identifierType.id == "sierra-identifier") match {
+    def getIdentifier(
+                             identifiers: List[IdentifiersStub]
+                           ): Option[SierraItemIdentifier] = identifiers filter(
+        _.identifierType.id == "sierra-identifier"
+      ) match {
         case List(IdentifiersStub(_,value)) =>
           //TODO: This can fail!
           Some(SierraItemIdentifier(value.toLong))
         case _ =>  None
       }
 
+    def getLocations(
+                              locations: List[LocationStub]
+                            ): List[StacksLocation]  = locations collect {
+      case location@LocationStub(_, _, "PhysicalLocation") =>
+        StacksLocation(
+          location.locationType.id,
+          location.locationType.label
+        )
+    }
+
+
     for {
       response <- Http().singleRequest(HttpRequest(uri = uri))
       workStub <- Unmarshal(response).to[WorkStub]
 
-      items = workStub.items collect {
-        case ItemStub(id, identifiers, locations) => locations collectFirst {
-            case location@LocationStub(_, _, "PhysicalLocation") => {
-
-              // TODO: Extracting from an option!
-              val sierraIdentifier =
-                getSierraIdentifier(identifiers).get
-
-              StacksItemWithOutStatus(
-                StacksItemIdentifier(
-                  CatalogueItemIdentifier(id),
-                  sierraIdentifier
-                ),
-                StacksLocation(
-                  location.locationType.id,
-                  location.locationType.label)
-              )
-            }
-          }
-      } flatten
+      items = workStub.items map {
+        case ItemStub(id, identifiers, locations) =>
+          (
+            CatalogueItemIdentifier(id),
+            getIdentifier(identifiers),
+            getLocations(locations)
+          )
+      } map {
+        case (catId,Some(sierraId),List(location)) =>
+          StacksItemWithOutStatus(
+            StacksItemIdentifier(catId, sierraId),
+            location
+          )
+      }
     } yield StacksWork(workStub.id, items)
   }
 }
