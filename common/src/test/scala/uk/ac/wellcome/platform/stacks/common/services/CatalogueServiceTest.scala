@@ -12,30 +12,6 @@ class CatalogueServiceTest
     with IntegrationPatience
     with Matchers {
 
-  withCatalogueService2 { catalogueService =>
-    val stacksWorkIdentifier = StacksWorkIdentifier(
-      "cnkv77md"
-    )
-
-    whenReady(
-      catalogueService.getStacksWork(stacksWorkIdentifier)
-    ) { actualWork =>
-      val expectedWork = StacksWork(
-        id = "cnkv77md",
-        items = List(
-          StacksItemWithOutStatus(
-            id = StacksItemIdentifier(
-              catalogueId = CatalogueItemIdentifier("ys3ern6x"),
-              sierraId = SierraItemIdentifier(1292185)),
-            location = StacksLocation("sicon", "Closed stores Iconographic")
-          )
-        )
-      )
-
-      actualWork shouldBe expectedWork
-    }
-  }
-
   describe("CatalogueService") {
     describe("getStacksWork") {
       it("should return a StacksWork") {
@@ -70,7 +46,7 @@ class CatalogueServiceTest
 
     describe("getStacksItem") {
       it("should get a StacksItem for a SierraItemIdentifier") {
-        withCatalogueService { catalogueService =>
+        withCatalogueServiceOld { catalogueService =>
           val itemIdentifier = SierraItemIdentifier(1292185)
 
           whenReady(
@@ -91,7 +67,7 @@ class CatalogueServiceTest
       }
 
       it("should get a StacksItem for a CatalogueItemIdentifier") {
-        withCatalogueService { catalogueService =>
+        withCatalogueServiceOld { catalogueService =>
           val itemIdentifier = CatalogueItemIdentifier("ys3ern6x")
 
           whenReady(

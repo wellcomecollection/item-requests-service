@@ -13,7 +13,7 @@ trait ServicesFixture
     with SierraWireMockFixture
     with CatalogueWireMockFixture  {
   
-  def withCatalogueService[R](
+  def withCatalogueServiceOld[R](
                                testWith: TestWith[CatalogueService, R]
                              ): R = {
     withMockCatalogueServer { catalogueApiUrl: String =>
@@ -29,7 +29,7 @@ trait ServicesFixture
     }
   }
 
-  def withCatalogueService2[R](
+  def withCatalogueService[R](
                                testWith: TestWith[CatalogueService2, R]
                              ): R = {
     withMockCatalogueServer { catalogueApiUrl: String =>
@@ -37,8 +37,9 @@ trait ServicesFixture
         implicit val ec: ExecutionContextExecutor = as.dispatcher
 
         withMaterializer { implicit mat =>
-          testWith(new CatalogueService2(Some(Uri(catalogueApiUrl)))
-          )
+          testWith(new CatalogueService2(Some(Uri(
+            s"$catalogueApiUrl/catalogue/v2"
+          ))))
         }
       }
     }
@@ -70,7 +71,7 @@ trait ServicesFixture
   def withStacksService[R](
                             testWith: TestWith[(StacksService, WireMockServer), R]
                           ): R = {
-    withCatalogueService { catalogueService =>
+    withCatalogueServiceOld { catalogueService =>
       withSierraService { case (sierraService, sierraWireMockSerever) =>
         withActorSystem { implicit as =>
           implicit val ec: ExecutionContextExecutor = as.dispatcher
