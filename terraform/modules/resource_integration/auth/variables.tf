@@ -2,7 +2,7 @@ variable "api_id" {}
 variable "cognito_id" {}
 
 variable "auth_scopes" {
-  type = "list"
+  type = list(string)
 }
 
 variable "root_resource_id" {}

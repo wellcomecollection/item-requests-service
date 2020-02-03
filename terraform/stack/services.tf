@@ -2,7 +2,7 @@ module "items_api" {
   source = "./api"
   name   = "items"
 
-  cluster_id = "${aws_ecs_cluster.cluster.id}"
+  cluster_arn = aws_ecs_cluster.cluster.arn
 
   container_image = "${local.items_api_image}"
 
@@ -12,17 +12,13 @@ module "items_api" {
     metrics_namespace = "items_api"
   }
 
-  env_vars_length = 3
-
-  nlb_arn  = "${module.nlb.arn}"
+  nlb_arn  = aws_lb.network_load_balancer.arn
   nlb_port = "${local.items_listener_port}"
 
   secret_env_vars = {
     sierra_api_key    = "stacks/prod/sierra_api_key"
     sierra_api_secret = "stacks/prod/sierra_api_secret"
   }
-
-  secret_env_vars_length = "2"
 
   security_group_ids = "${local.api_security_groups}"
 
@@ -36,7 +32,7 @@ module "requests_api" {
   source = "./api"
   name   = "requests"
 
-  cluster_id = "${aws_ecs_cluster.cluster.id}"
+  cluster_arn = aws_ecs_cluster.cluster.arn
 
   container_image = "${local.requests_api_image}"
 
@@ -46,17 +42,13 @@ module "requests_api" {
     metrics_namespace = "requests_api"
   }
 
-  env_vars_length = 3
-
-  nlb_arn  = "${module.nlb.arn}"
+  nlb_arn  = aws_lb.network_load_balancer.arn
   nlb_port = "${local.requests_listener_port}"
 
   secret_env_vars = {
     sierra_api_key    = "stacks/prod/sierra_api_key"
     sierra_api_secret = "stacks/prod/sierra_api_secret"
   }
-
-  secret_env_vars_length = "2"
 
   security_group_ids = "${local.api_security_groups}"
 

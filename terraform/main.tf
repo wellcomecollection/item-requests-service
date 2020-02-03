@@ -1,5 +1,7 @@
 module "infra" {
   source = "./infra"
+
+  aws_region = var.aws_region
 }
 
 module "prod_stack" {

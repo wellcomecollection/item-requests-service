@@ -1,14 +1,14 @@
 output "integration_uris" {
   value = [
-    "${module.auth_subresource_integration.uri}",
-    "${module.auth_resource_integration.uri}",
+    local.subresource_uri,
+    local.resource_uri,
   ]
 }
 
 output "resource_id" {
-  value = "${module.auth_resource.resource_id}"
+  value = aws_api_gateway_resource.auth_resource.id
 }
 
 output "subresource_id" {
-  value = "${module.auth_subresource.resource_id}"
+  value = aws_api_gateway_resource.auth_subresource.id
 }

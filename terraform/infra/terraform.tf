@@ -1,7 +1,7 @@
 data "terraform_remote_state" "infra_shared" {
   backend = "s3"
 
-  config {
+  config = {
     role_arn = "arn:aws:iam::760097843905:role/platform-read_only"
 
     bucket = "wellcomecollection-platform-infra"
@@ -13,7 +13,7 @@ data "terraform_remote_state" "infra_shared" {
 data "terraform_remote_state" "infra_critical" {
   backend = "s3"
 
-  config {
+  config = {
     role_arn = "arn:aws:iam::760097843905:role/platform-read_only"
 
     bucket = "wellcomecollection-platform-infra"

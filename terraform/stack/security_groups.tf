@@ -36,7 +36,7 @@ resource "aws_security_group" "interservice_security_group" {
     self      = true
   }
 
-  tags {
+  tags = {
     Name = "${var.namespace}-interservice"
   }
 }

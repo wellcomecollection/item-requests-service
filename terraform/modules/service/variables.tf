@@ -2,7 +2,7 @@ variable "subnets" {
   type = "list"
 }
 
-variable "cluster_id" {}
+variable "cluster_arn" {}
 
 variable "namespace" {}
 variable "namespace_id" {}
@@ -54,6 +54,6 @@ variable "launch_type" {
   default = "FARGATE"
 }
 
-variable "task_desired_count" {
+variable "desired_task_count" {
   default = 3
 }

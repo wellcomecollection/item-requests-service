@@ -21,25 +21,3 @@ resource "aws_api_gateway_integration" "root_static_response" {
 
   credentials = aws_iam_role.static_resource_role.arn
 }
-
-resource "aws_api_gateway_method_response" "root_resource_http_200" {
-  rest_api_id = var.api_id
-  resource_id = aws_api_gateway_resource.resource.id
-  http_method = "GET"
-  status_code = "200"
-}
-
-resource "aws_api_gateway_integration_response" "root_resource_http_200" {
-  rest_api_id = var.api_id
-  resource_id = aws_api_gateway_resource.resource.id
-  http_method = "GET"
-  status_code = aws_api_gateway_method_response.root_resource_http_200.status_code
-}
-
-resource "aws_api_gateway_authorizer" "cognito" {
-  name          = "cognito"
-  type          = "COGNITO_USER_POOLS"
-  rest_api_id   = var.api_id
-  provider_arns = [var.cognito_user_pool_arn]
-}
-

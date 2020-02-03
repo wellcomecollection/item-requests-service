@@ -8,7 +8,7 @@ resource "aws_api_gateway_domain_name" "stage" {
 
   regional_certificate_arn = "${data.aws_acm_certificate.certificate.arn}"
 
-  endpoint_configuration = {
+  endpoint_configuration {
     types = ["REGIONAL"]
   }
 }

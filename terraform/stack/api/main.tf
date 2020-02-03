@@ -8,7 +8,7 @@ module "api" {
 
   namespace_id = "${var.service_discovery_namespace_id}"
 
-  cluster_id = "${var.cluster_id}"
+  cluster_arn = var.cluster_arn
 
   vpc_id = "${var.vpc_id}"
 
@@ -30,5 +30,5 @@ module "api" {
   app_cpu      = 1024
   app_memory   = 2048
 
-  task_desired_count = 3
+  desired_task_count = 3
 }

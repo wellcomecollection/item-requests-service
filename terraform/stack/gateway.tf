@@ -6,7 +6,7 @@ locals {
 resource "aws_api_gateway_rest_api" "api" {
   name = "Stacks API (${var.namespace})"
 
-  endpoint_configuration = {
+  endpoint_configuration {
     types = ["REGIONAL"]
   }
 }
@@ -40,7 +40,7 @@ module "responses" {
 
 resource "aws_api_gateway_deployment" "v1" {
   rest_api_id = aws_api_gateway_rest_api.api.id
-  stage_name  = local.stage_nam
+  stage_name  = local.stage_name
 
   variables = {
     requests_port = "${local.requests_listener_port}"
@@ -133,7 +133,7 @@ module "requests_subresource_cors" {
 
 resource "aws_api_gateway_vpc_link" "link" {
   name        = "${var.namespace}-api_vpc_link"
-  target_arns = ["${module.nlb.arn}"]
+  target_arns = [aws_lb.network_load_balancer.arn]
 }
 
 resource "aws_api_gateway_base_path_mapping" "stacks" {
