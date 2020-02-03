@@ -2,8 +2,9 @@ package uk.ac.wellcome.platform.stacks.common.services
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
+import akka.http.scaladsl.marshalling.{Marshal, Marshaller}
 import akka.http.scaladsl.model.headers.{Authorization, BasicHttpCredentials, OAuth2BearerToken}
-import akka.http.scaladsl.model.{HttpHeader, HttpMethods, HttpRequest, HttpResponse, Uri}
+import akka.http.scaladsl.model.{HttpEntity, HttpHeader, HttpMethods, HttpRequest, HttpResponse, RequestEntity, Uri}
 import akka.http.scaladsl.unmarshalling.{Unmarshal, Unmarshaller}
 import akka.stream.ActorMaterializer
 
@@ -20,22 +21,48 @@ trait AkkaClientService {
   protected val baseUri = maybeBaseUri.getOrElse(defaultBaseUri)
 }
 
-trait AkkaClientServiceQuery extends AkkaClientService {
-  protected def query[T](path: String, params: String = "", headers: List[HttpHeader] = Nil)(
-    implicit um: Unmarshaller[HttpResponse, T]
-  ): Future[T] = {
-    val paramString = if(!params.isEmpty) s"?${params}" else ""
+trait AkkaClientServiceGet extends AkkaClientService {
+  protected def get[Out](path: String, params: String = "", headers: List[HttpHeader] = Nil)(
+    implicit um: Unmarshaller[HttpResponse, Out]
+  ): Future[Out] = {
 
+    val paramString = if(!params.isEmpty) s"?${params}" else ""
     val uri = s"${baseUri}/${path}${paramString}"
 
     for {
-      response <- Http().singleRequest(HttpRequest(uri = uri, headers = headers))
-      t <- Unmarshal(response).to[T]
+      response <- Http().singleRequest(
+        HttpRequest(uri = uri, headers = headers)
+      )
+      t <- Unmarshal(response).to[Out]
     } yield t
   }
 }
 
-trait SierraTokenExchange extends AkkaClientService {
+trait AkkaClientServicePost extends AkkaClientService {
+  protected def post[In, Out](path: String, body: In, params: String = "", headers: List[HttpHeader] = Nil)(
+    implicit
+      um: Unmarshaller[HttpResponse, Out],
+      m: Marshaller[In, RequestEntity]
+  ): Future[Option[Out]] = {
+
+    val paramString = if(!params.isEmpty) s"?${params}" else ""
+    val uri = s"${baseUri}/${path}${paramString}"
+
+    for {
+      entity <- Marshal(body).to[RequestEntity]
+      response <- Http().singleRequest(
+        HttpRequest(HttpMethods.POST, uri = uri, headers = headers, entity = entity)
+      )
+
+      t <- response.entity match {
+        case foo if foo.isKnownEmpty() => Future.successful(None)
+        case _ => Unmarshal(response).to[Out].map(Some(_))
+      }
+    } yield t
+  }
+}
+
+trait AkkaClientTokenExchange extends AkkaClientService {
 
   import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
   import io.circe.generic.auto._

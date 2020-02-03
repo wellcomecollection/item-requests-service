@@ -64,7 +64,8 @@ class SierraServiceTest
 
     describe("placeHold") {
       it("should request a hold from the Sierra API") {
-        withSierraServiceOld { case (sierraService, wireMockServer) =>
+        withSierraService { case (sierraService, wireMockServer) =>
+
           val sierraItemIdentifier = SierraItemIdentifier(1292185)
           val stacksUserIdentifier = StacksUser("1234567")
           val stacksLocation = StacksLocation("sicon", "this value is ignored")

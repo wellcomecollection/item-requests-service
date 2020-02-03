@@ -27,8 +27,9 @@ class SierraService(val maybeBaseUri: Option[Uri], credentials: BasicHttpCredent
     val system: ActorSystem,
     val mat: ActorMaterializer
 ) extends AkkaClientService
-    with AkkaClientServiceQuery
-    with SierraTokenExchange {
+    with AkkaClientServiceGet
+    with AkkaClientServicePost
+    with AkkaClientTokenExchange {
 
   import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
   import io.circe.generic.auto._
@@ -39,10 +40,10 @@ class SierraService(val maybeBaseUri: Option[Uri], credentials: BasicHttpCredent
     "https://libsys.wellcomelibrary.org/iii/sierra-api"
   )
 
-  def getItemStatus(sierraId: SierraItemIdentifier) =
+  def getItemStatus(sierraId: SierraItemIdentifier): Future[StacksItemStatus] =
     for {
       token <- getToken(credentials)
-      item <- query[SierraItemStub](
+      item <- get[SierraItemStub](
         path = s"v5/items/$sierraId",
         headers = List(Authorization(token))
       )
@@ -55,13 +56,30 @@ class SierraService(val maybeBaseUri: Option[Uri], credentials: BasicHttpCredent
     itemLocation: StacksLocation
   ): Future[Unit] = {
 
-    Future((
+    val postBody = SierraHoldRequestPostBody(
+      recordType = "i",
+      recordNumber = sierraItemIdentifier.value,
+      pickupLocation = itemLocation.id
+    )
 
-    ))
+    for {
+      token <- getToken(credentials)
+      _ <- post[SierraHoldRequestPostBody, String](
+        path = s"v5/patrons/${userIdentifier.value}/holds/requests",
+        body = postBody,
+        headers = List(Authorization(token))
+      )
+    } yield ()
   }
 
   case class SierraItemStatusStub(code: String, display: String)
   case class SierraItemStub(id: String, status: SierraItemStatusStub)
+
+  case class SierraHoldRequestPostBody(
+                                        recordType: String,
+                                        recordNumber: Long,
+                                        pickupLocation: String
+                                      )
 }
 
 class SierraServiceOld(baseUrl: Option[String], username: String, password: String)(

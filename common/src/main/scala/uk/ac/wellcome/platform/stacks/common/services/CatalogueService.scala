@@ -11,12 +11,12 @@ class CatalogueService(val maybeBaseUri: Option[Uri])(
   implicit
     val system: ActorSystem,
     val mat: ActorMaterializer
-) extends AkkaClientService with AkkaClientServiceQuery {
+) extends AkkaClientService
+    with AkkaClientServiceGet {
 
   import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
   import io.circe.generic.auto._
   import CatalogueService._
-
 
   protected val defaultBaseUri = Uri(
     "https://api.wellcomecollection.org/catalogue/v2"
@@ -62,7 +62,7 @@ class CatalogueService(val maybeBaseUri: Option[Uri])(
 
   def getStacksWork(workId: StacksWorkIdentifier): Future[StacksWork[StacksItemWithOutStatus]] =
     for {
-      workStub <- query[WorkStub](
+      workStub <- get[WorkStub](
         s"works/${workId.value}",
         "include=items%2Cidentifiers"
       )
@@ -73,7 +73,7 @@ class CatalogueService(val maybeBaseUri: Option[Uri])(
 
   def getStacksItem(identifier: Identifier[_]): Future[Option[StacksItem]] =
     for {
-      searchStub <- query[SearchStub](
+      searchStub <- get[SearchStub](
         "works",
         s"include=items%2Cidentifiers&query=${identifier.value}"
       )
