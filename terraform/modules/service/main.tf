@@ -41,7 +41,7 @@ module "service" {
   security_group_ids = var.security_group_ids
 
   target_group_arn = aws_lb_target_group.tcp.arn
-  container_name   = "sidecar"
+  container_name   = "nginx"
   container_port   = var.nginx_container_port
 }
 

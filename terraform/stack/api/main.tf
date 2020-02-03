@@ -4,7 +4,7 @@ module "api" {
   namespace = "${var.name}-api"
 
   container_image = "${var.container_image}"
-  container_port  = "9001"
+  container_port  = 9001
 
   namespace_id = "${var.service_discovery_namespace_id}"
 
@@ -16,7 +16,7 @@ module "api" {
 
   subnets = "${var.subnets}"
 
-  nginx_container_port  = "9000"
+  nginx_container_port  = 9000
   nginx_container_image = "wellcome/nginx_api-gw:77d1ba9b060a184097a26bc685735be343b1a754"
 
   env_vars        = "${var.env_vars}"
