@@ -3,24 +3,12 @@ package uk.ac.wellcome.platform.stacks.common.services
 import java.time.Instant
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
+import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.model.headers.{Authorization, BasicHttpCredentials}
-import akka.http.scaladsl.model.{HttpMethods, HttpRequest, Uri}
-import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
-import cats.instances.future._
-import cats.instances.list._
-import cats.syntax.traverse._
-import io.circe.Json
-import uk.ac.wellcome.platform.sierra
-import uk.ac.wellcome.platform.sierra.ApiException
-import uk.ac.wellcome.platform.sierra.api.{V5itemsApi, V5patronsApi}
-import uk.ac.wellcome.platform.sierra.models.{Hold, PatronHoldPost}
 import uk.ac.wellcome.platform.stacks.common.models._
 
-import scala.collection.JavaConverters._
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
+import scala.concurrent.Future
 
 class SierraService(val maybeBaseUri: Option[Uri], credentials: BasicHttpCredentials)(
   implicit

@@ -1,6 +1,7 @@
 package uk.ac.wellcome.platform.stacks.common.services.config.builders
 
 import akka.actor.ActorSystem
+import akka.http.scaladsl.model.Uri
 import akka.stream.ActorMaterializer
 import com.typesafe.config.Config
 import uk.ac.wellcome.platform.stacks.common.config.TypesafeBuilder
@@ -19,5 +20,5 @@ class CatalogueServiceBuilder()(
     CatalogueServiceConfig(config.get("catalogue.api.baseUrl"))
 
   def buildT(config: CatalogueServiceConfig): CatalogueService =
-    new CatalogueService(config.baseUrl)
+    new CatalogueService(config.baseUrl.map(Uri(_)))
 }

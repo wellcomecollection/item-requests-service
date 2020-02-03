@@ -55,7 +55,7 @@ trait AkkaClientServicePost extends AkkaClientService {
       )
 
       t <- response.entity match {
-        case foo if foo.isKnownEmpty() => Future.successful(None)
+        case e if e.isKnownEmpty() => Future.successful(None)
         case _ => Unmarshal(response).to[Out].map(Some(_))
       }
     } yield t
