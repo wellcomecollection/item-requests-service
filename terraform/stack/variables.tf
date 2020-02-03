@@ -11,11 +11,11 @@ variable "aws_region" {
 variable "vpc_id" {}
 
 variable "auth_scopes" {
-  type = "list"
+  type = list(string)
 }
 
 variable "private_subnets" {
-  type = "list"
+  type = list(string)
 }
 
 variable "static_content_bucket_name" {}

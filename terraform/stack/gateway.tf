@@ -111,7 +111,7 @@ module "requests" {
   connection_id    = "${aws_api_gateway_vpc_link.link.id}"
 
   cognito_id  = "${aws_api_gateway_authorizer.cognito.id}"
-  auth_scopes = ["${var.auth_scopes}"]
+  auth_scopes = var.auth_scopes
 
   forward_port = "$${stageVariables.requests_port}"
   forward_path = "requests"
