@@ -45,11 +45,11 @@ class SierraService(val baseUri: Uri = Uri(
       token <- getToken(credentials)
       _ <- post[SierraHoldRequestPostBody, String](
         path = s"v5/patrons/${userIdentifier.value}/holds/requests",
-        body = SierraHoldRequestPostBody(
+        body = Some(SierraHoldRequestPostBody(
           recordType = "i",
           recordNumber = sierraItemIdentifier.value,
           pickupLocation = itemLocation.id
-        ),
+        )),
         headers = List(Authorization(token))
       )
     } yield ()
