@@ -14,7 +14,7 @@ case class SierraItemIdentifier(value: Long) extends Identifier[Long]
 
 object SierraItemIdentifier {
   def createFromString(id: String): SierraItemIdentifier = Try {
-    id.toLong
+    id.split("/").last.toLong
   } match {
     case Success(v) => SierraItemIdentifier(v)
     case Failure(e) => throw new Exception("Failed to create SierraItemIdentifier", e)

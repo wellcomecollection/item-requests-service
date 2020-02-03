@@ -33,7 +33,7 @@ class SierraServiceTest
 
     describe("getStacksUserHolds") {
       it("gets a StacksUserHolds") {
-        withSierraServiceOld { case (sierraService, _) =>
+        withSierraService { case (sierraService, _) =>
           val stacksUserIdentifier = StacksUser("1234567")
 
           whenReady(

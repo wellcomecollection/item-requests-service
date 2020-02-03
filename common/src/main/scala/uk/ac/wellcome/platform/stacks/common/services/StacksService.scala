@@ -11,7 +11,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class StacksService(
                      catalogueService: CatalogueService,
-                     sierraService: SierraServiceOld
+                     sierraService: SierraService
                    )(
                      implicit ec: ExecutionContext
                    ) extends Logging {
@@ -66,11 +66,9 @@ class StacksService(
       updatedUserHolds = (userHolds.holds zip stacksItems) map {
         case (hold, Some(stacksItem)) =>
           Some(hold.updateItemId[StacksItemIdentifier](stacksItem.id))
-        case (hold, None) => {
+        case (hold, None) =>
           error(f"Unable to map $hold to Catalogue Id!")
-
           None
-        }
       }
 
     } yield userHolds.updateHolds(updatedUserHolds.flatten)
