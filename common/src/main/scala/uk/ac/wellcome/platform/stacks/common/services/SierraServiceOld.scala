@@ -15,61 +15,56 @@ import io.circe.Json
 import uk.ac.wellcome.platform.sierra
 import uk.ac.wellcome.platform.sierra.ApiException
 import uk.ac.wellcome.platform.sierra.api.{V5itemsApi, V5patronsApi}
-import uk.ac.wellcome.platform.sierra.models.{ErrorCode, Hold, PatronHoldPost}
+import uk.ac.wellcome.platform.sierra.models.{Hold, PatronHoldPost}
 import uk.ac.wellcome.platform.stacks.common.models._
-import uk.ac.wellcome.platform.stacks.common.services.CatalogueService.WorkStub
 
 import scala.collection.JavaConverters._
-import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
-class SierraService2(val maybeBaseUri: Option[Uri])(
+class SierraService(val maybeBaseUri: Option[Uri], credentials: BasicHttpCredentials)(
   implicit
     val system: ActorSystem,
     val mat: ActorMaterializer
-) extends AkkaClientServiceWrappper {
+) extends AkkaClientService
+    with AkkaClientServiceQuery
+    with SierraTokenExchange {
 
   import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
   import io.circe.generic.auto._
 
+  override val tokenPath = "v5/token"
+
   protected val defaultBaseUri = Uri(
-    "https://api.wellcomecollection.org/catalogue/v2"
+    "https://libsys.wellcomelibrary.org/iii/sierra-api"
   )
 
+  def getItemStatus(sierraId: SierraItemIdentifier) =
+    for {
+      token <- getToken(credentials)
+      item <- query[SierraItemStub](
+        path = s"v5/items/$sierraId",
+        headers = List(Authorization(token))
+      )
 
+    } yield StacksItemStatus(item.status.code)
 
-//  def placeHold(
-//                 userIdentifier: StacksUser,
-//                 sierraItemIdentifier: SierraItemIdentifier,
-//                 itemLocation: StacksLocation
-//               ): Future[Unit] = for {
-//    patronsApi <- patronsApi()
-//
-//    patronHoldPost = createPatronHoldPost(
-//      sierraItemIdentifier,
-//      itemLocation
-//    )
-//
-//    result = Try {
-//      patronsApi.placeANewHoldRequest(patronHoldPost, userIdentifier.value.toInt)
-//    } match {
-//      case Success(_) => ()
-//      case Failure(e: ApiException) => ()
-//    }
-//
-//  } yield result
-//  for {
-//    workStub <- query[WorkStub](
-//      s"works/${workId.value}",
-//      "include=items%2Cidentifiers"
-//    )
-//
-//    items = getStacksItems(workStub.items)
-//
-//  } yield StacksWork(workStub.id, items)
+  def placeHold(
+    userIdentifier: StacksUser,
+    sierraItemIdentifier: SierraItemIdentifier,
+    itemLocation: StacksLocation
+  ): Future[Unit] = {
+
+    Future((
+
+    ))
+  }
+
+  case class SierraItemStatusStub(code: String, display: String)
+  case class SierraItemStub(id: String, status: SierraItemStatusStub)
 }
 
-class SierraService(baseUrl: Option[String], username: String, password: String)(
+class SierraServiceOld(baseUrl: Option[String], username: String, password: String)(
   implicit
   as: ActorSystem,
   am: ActorMaterializer,
@@ -89,7 +84,10 @@ class SierraService(baseUrl: Option[String], username: String, password: String)
     import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
 
     val tokenPath = "v5/token"
-    val authHeader = Authorization(BasicHttpCredentials(username, password))
+
+    val authHeader = Authorization(
+      BasicHttpCredentials(username, password)
+    )
 
     val tokenRequest = HttpRequest(
       method = HttpMethods.POST,
@@ -105,6 +103,7 @@ class SierraService(baseUrl: Option[String], username: String, password: String)
         case Right(token) => Future.successful(token)
       }
     } yield accessToken
+
   }
 
   protected def itemsApi(): Future[V5itemsApi] = AuthToken.get().map { token =>
@@ -120,12 +119,15 @@ class SierraService(baseUrl: Option[String], username: String, password: String)
     new sierra.api.V5patronsApi(sierraApiClient)
   }
 
-  protected def getHoldResultSet(userIdentity: StacksUser): Future[List[Hold]] = for {
+  protected def getHoldResultSet(
+                                  userIdentity: StacksUser
+                                ): Future[List[Hold]] = for {
     patronsApi <- patronsApi()
     holdResultSet = patronsApi.getTheHoldsDataForASinglePatronRecord(
       userIdentity.value, 100, 0,
       List.empty[String].asJava
     )
+
   } yield holdResultSet.getEntries.asScala.toList
 
   protected def getStacksPickupFromHold(hold: Hold): StacksPickup = {

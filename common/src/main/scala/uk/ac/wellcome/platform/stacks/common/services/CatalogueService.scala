@@ -11,7 +11,7 @@ class CatalogueService(val maybeBaseUri: Option[Uri])(
   implicit
     val system: ActorSystem,
     val mat: ActorMaterializer
-) extends AkkaClientServiceWrappper {
+) extends AkkaClientService with AkkaClientServiceQuery {
 
   import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
   import io.circe.generic.auto._

@@ -6,6 +6,8 @@ import scala.util.{Failure, Success, Try}
 
 sealed trait Identifier[T] {
   val value: T
+
+  override def toString: String = value.toString
 }
 
 case class SierraItemIdentifier(value: Long) extends Identifier[Long]
