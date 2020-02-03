@@ -14,7 +14,7 @@ resource "aws_route53_record" "route53_record_prod" {
 
 provider "aws" {
   region  = "eu-west-1"
-  version = "1.60.0"
+  version = "~> 2.47.0"
   alias   = "routermaster"
 
   assume_role {
