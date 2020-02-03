@@ -11,7 +11,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class StacksService(
                      catalogueService: CatalogueService,
-                     sierraService: SierraService
+                     sierraService: SierraServiceOld
                    )(
                      implicit ec: ExecutionContext
                    ) extends Logging {

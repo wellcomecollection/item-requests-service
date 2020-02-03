@@ -1,10 +1,11 @@
 package uk.ac.wellcome.platform.stacks.common.fixtures
 
 import akka.http.scaladsl.model.Uri
+import akka.http.scaladsl.model.headers.BasicHttpCredentials
 import com.github.tomakehurst.wiremock.WireMockServer
 import uk.ac.wellcome.akka.fixtures.Akka
 import uk.ac.wellcome.fixtures.TestWith
-import uk.ac.wellcome.platform.stacks.common.services.{CatalogueService, SierraService, StacksService}
+import uk.ac.wellcome.platform.stacks.common.services.{CatalogueService, SierraServiceOld, SierraService, StacksService}
 
 import scala.concurrent.ExecutionContextExecutor
 
@@ -28,8 +29,8 @@ trait ServicesFixture
   }
 
   def withSierraService[R](
-                               testWith: TestWith[(SierraService, WireMockServer), R]
-                             ): R = {
+                            testWith: TestWith[(SierraService, WireMockServer), R]
+                          ): R = {
     withMockSierraServer { case (sierraApiUrl, wireMockServer) =>
       withActorSystem { implicit as =>
         implicit val ec: ExecutionContextExecutor = as.dispatcher
@@ -38,6 +39,28 @@ trait ServicesFixture
           testWith(
             (
               new SierraService(
+                maybeBaseUri = Some(Uri(f"$sierraApiUrl/iii/sierra-api")),
+                credentials = BasicHttpCredentials("username", "password")
+              ),
+              wireMockServer
+            )
+          )
+        }
+      }
+    }
+  }
+
+  def withSierraServiceOld[R](
+                               testWith: TestWith[(SierraServiceOld, WireMockServer), R]
+                             ): R = {
+    withMockSierraServer { case (sierraApiUrl, wireMockServer) =>
+      withActorSystem { implicit as =>
+        implicit val ec: ExecutionContextExecutor = as.dispatcher
+
+        withMaterializer { implicit mat =>
+          testWith(
+            (
+              new SierraServiceOld(
                 baseUrl = Some(f"$sierraApiUrl/iii/sierra-api"),
                 username = "username",
                 password = "password"
@@ -54,7 +77,7 @@ trait ServicesFixture
                             testWith: TestWith[(StacksService, WireMockServer), R]
                           ): R = {
     withCatalogueService { catalogueService =>
-      withSierraService { case (sierraService, sierraWireMockSerever) =>
+      withSierraServiceOld { case (sierraService, sierraWireMockSerever) =>
         withActorSystem { implicit as =>
           implicit val ec: ExecutionContextExecutor = as.dispatcher
 
