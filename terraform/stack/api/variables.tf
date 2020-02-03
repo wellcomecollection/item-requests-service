@@ -6,19 +6,19 @@ variable "cluster_arn" {}
 variable "vpc_id" {}
 
 variable "security_group_ids" {
-  type = "list"
+  type = list(string)
 }
 
 variable "subnets" {
-  type = "list"
+  type = list(string)
 }
 
 variable "env_vars" {
-  type = "map"
+  type = map(string)
 }
 
 variable "secret_env_vars" {
-  type = "map"
+  type = map(string)
 }
 
 variable "nlb_arn" {}

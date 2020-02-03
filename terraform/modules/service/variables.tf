@@ -1,5 +1,5 @@
 variable "subnets" {
-  type = "list"
+  type = list(string)
 }
 
 variable "cluster_arn" {}
@@ -20,15 +20,15 @@ variable "nginx_container_port" {
 }
 
 variable "security_group_ids" {
-  type = "list"
+  type = list(string)
 }
 
 variable "env_vars" {
-  type = "map"
+  type = map(string)
 }
 
 variable "secret_env_vars" {
-  type = "map"
+  type = map(string)
 }
 
 variable "lb_arn" {}
@@ -38,18 +38,22 @@ variable "listener_port" {
 
 variable "nginx_cpu" {
   default = 512
+  type    = number
 }
 
 variable "nginx_memory" {
   default = 1024
+  type    = number
 }
 
 variable "app_cpu" {
   default = 512
+  type    = number
 }
 
 variable "app_memory" {
   default = 1024
+  type    = number
 }
 
 variable "aws_region" {

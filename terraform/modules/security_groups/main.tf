@@ -2,6 +2,8 @@ resource "aws_security_group" "ssh_controlled_ingress" {
   vpc_id      = var.vpc_id
   name        = "${var.name}_ssh_controlled_ingress_${random_id.sg_append.hex}"
 
+  description = "controls direct access to application instances"
+
   ingress {
     protocol  = "tcp"
     from_port = 22
@@ -19,6 +21,8 @@ resource "aws_security_group" "ssh_controlled_ingress" {
 resource "aws_security_group" "full_egress" {
   vpc_id = var.vpc_id
   name   = "${var.name}_full_egress_${random_id.sg_append.hex}"
+
+  description = "controls direct access to application instances"
 
   egress {
     from_port   = 0
