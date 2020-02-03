@@ -1,9 +1,9 @@
 module "infra" {
-  source = "infra"
+  source = "./infra"
 }
 
 module "prod_stack" {
-  source = "stack"
+  source = "./stack"
 
   namespace     = "prod"
   release_label = "prod"

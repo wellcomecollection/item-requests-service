@@ -1,5 +1,5 @@
 module "items_api" {
-  source = "api"
+  source = "./api"
   name   = "items"
 
   cluster_id = "${aws_ecs_cluster.cluster.id}"
@@ -33,7 +33,7 @@ module "items_api" {
 }
 
 module "requests_api" {
-  source = "api"
+  source = "./api"
   name   = "requests"
 
   cluster_id = "${aws_ecs_cluster.cluster.id}"
