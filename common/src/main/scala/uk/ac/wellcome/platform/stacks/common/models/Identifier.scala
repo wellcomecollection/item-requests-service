@@ -1,7 +1,5 @@
 package uk.ac.wellcome.platform.stacks.common.models
 
-import uk.ac.wellcome.platform.sierra.models.Hold
-
 import scala.util.{Failure, Success, Try}
 
 sealed trait Identifier[T] {
@@ -19,11 +17,6 @@ object SierraItemIdentifier {
     case Success(v) => SierraItemIdentifier(v)
     case Failure(e) => throw new Exception("Failed to create SierraItemIdentifier", e)
   }
-
-  def createFromHold(hold: Hold): SierraItemIdentifier =
-    createFromString(
-      hold.getRecord.split("/").last
-    )
 }
 
 case class CatalogueItemIdentifier(value: String) extends Identifier[String]

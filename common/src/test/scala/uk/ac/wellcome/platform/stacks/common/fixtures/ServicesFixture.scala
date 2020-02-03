@@ -20,9 +20,9 @@ trait ServicesFixture
     withMockCatalogueServer { catalogueApiUrl: String =>
       withActorSystem { implicit as =>
         withMaterializer { implicit mat =>
-          testWith(new CatalogueService(Some(Uri(
+          testWith(new CatalogueService(Uri(
             s"$catalogueApiUrl/catalogue/v2"
-          ))))
+          )))
         }
       }
     }
@@ -39,7 +39,7 @@ trait ServicesFixture
           testWith(
             (
               new SierraService(
-                maybeBaseUri = Some(Uri(f"$sierraApiUrl/iii/sierra-api")),
+                baseUri = Uri(f"$sierraApiUrl/iii/sierra-api"),
                 credentials = BasicHttpCredentials("username", "password")
               ),
               wireMockServer

@@ -40,7 +40,7 @@ trait RequestsApiFixture
         )
 
         val sierraServiceConfig = SierraServiceConfig(
-          baseUrl = Some(f"$sierraApiUrl/iii/sierra-api"),
+          baseUrl = f"$sierraApiUrl/iii/sierra-api",
           username = "username",
           password = "password"
         )

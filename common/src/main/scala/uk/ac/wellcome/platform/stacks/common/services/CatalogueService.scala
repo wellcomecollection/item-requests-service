@@ -7,7 +7,9 @@ import uk.ac.wellcome.platform.stacks.common.models.{StacksItem, _}
 
 import scala.concurrent.Future
 
-class CatalogueService(val maybeBaseUri: Option[Uri])(
+class CatalogueService(val baseUri: Uri = Uri(
+  "https://api.wellcomecollection.org/catalogue/v2"
+))(
   implicit
     val system: ActorSystem,
     val mat: ActorMaterializer
@@ -17,10 +19,6 @@ class CatalogueService(val maybeBaseUri: Option[Uri])(
   import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
   import io.circe.generic.auto._
   import CatalogueService._
-
-  protected val defaultBaseUri = Uri(
-    "https://api.wellcomecollection.org/catalogue/v2"
-  )
 
   protected def getIdentifier(
                                identifiers: List[IdentifiersStub]
@@ -64,7 +62,9 @@ class CatalogueService(val maybeBaseUri: Option[Uri])(
     for {
       workStub <- get[WorkStub](
         s"works/${workId.value}",
-        "include=items%2Cidentifiers"
+        Map(
+          ("include","items,identifiers")
+        )
       )
 
       items = getStacksItems(workStub.items)
@@ -74,8 +74,11 @@ class CatalogueService(val maybeBaseUri: Option[Uri])(
   def getStacksItem(identifier: Identifier[_]): Future[Option[StacksItem]] =
     for {
       searchStub <- get[SearchStub](
-        "works",
-        s"include=items%2Cidentifiers&query=${identifier.value}"
+        path = "works",
+          params = Map(
+          ("include", "items,identifiers"),
+          ("query", identifier.value.toString)
+        )
       )
 
       items = searchStub.results

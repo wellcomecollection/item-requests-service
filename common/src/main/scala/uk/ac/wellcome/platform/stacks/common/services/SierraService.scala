@@ -10,7 +10,9 @@ import uk.ac.wellcome.platform.stacks.common.models._
 
 import scala.concurrent.Future
 
-class SierraService(val maybeBaseUri: Option[Uri], credentials: BasicHttpCredentials)(
+class SierraService(val baseUri: Uri = Uri(
+  "https://libsys.wellcomelibrary.org/iii/sierra-api"
+), credentials: BasicHttpCredentials)(
   implicit
     val system: ActorSystem,
     val mat: ActorMaterializer
@@ -23,10 +25,6 @@ class SierraService(val maybeBaseUri: Option[Uri], credentials: BasicHttpCredent
   import io.circe.generic.auto._
 
   override val tokenPath = "v5/token"
-
-  protected val defaultBaseUri = Uri(
-    "https://libsys.wellcomelibrary.org/iii/sierra-api"
-  )
 
   def getItemStatus(sierraId: SierraItemIdentifier): Future[StacksItemStatus] =
     for {
@@ -84,7 +82,11 @@ class SierraService(val maybeBaseUri: Option[Uri], credentials: BasicHttpCredent
       token <- getToken(credentials)
 
       item <- get[SierraUserHoldsStub](
-        path = s"v5/patrons/${userId.value}/holds?limit=100&offset=0",
+        path = s"v5/patrons/${userId.value}/holds",
+        params = Map(
+          ("limit", "100"),
+          ("offset", "0")
+        ),
         headers = List(Authorization(token))
       )
 

@@ -17,8 +17,8 @@ class CatalogueServiceBuilder()(
 ) extends TypesafeBuilder[CatalogueService, CatalogueServiceConfig]{
 
   def buildConfig(config: Config): CatalogueServiceConfig =
-    CatalogueServiceConfig(config.get("catalogue.api.baseUrl"))
+    CatalogueServiceConfig(config.required("catalogue.api.baseUrl"))
 
   def buildT(config: CatalogueServiceConfig): CatalogueService =
-    new CatalogueService(config.baseUrl.map(Uri(_)))
+    new CatalogueService(Uri(config.baseUrl))
 }
