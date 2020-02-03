@@ -1,14 +1,14 @@
 resource "aws_api_gateway_resource" "resource" {
-  rest_api_id = "${var.api_id}"
-  parent_id   = "${var.api_root_resource_id}"
+  rest_api_id = var.api_id
+  parent_id   = var.api_root_resource_id
   path_part   = "context.json"
 }
 
 resource "aws_s3_bucket_object" "context" {
-  bucket  = "${var.static_content_bucket_name}"
+  bucket  = var.static_content_bucket_name
   key     = "static/context.json"
-  content = "${file("${path.module}/context.json")}"
-  etag    = "${md5(file("${path.module}/context.json"))}"
+  content = file("${path.module}/context.json")
+  etag    = md5(file("${path.module}/context.json"))
 }
 
 resource "aws_api_gateway_method" "no_auth" {
