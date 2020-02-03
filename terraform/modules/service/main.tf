@@ -21,37 +21,30 @@ module "service" {
 }
 
 module "task" {
-  source = "git::https://github.com/wellcometrust/terraform.git//ecs/modules/task/prebuilt/container_with_sidecar?ref=v19.6.0"
+  source = "github.com/wellcomecollection/terraform-aws-ecs-service.git//task_definition/container_with_sidecar?ref=v1.1.1"
 
-  task_name = "${var.namespace}"
+  task_name = var.namespace
 
-  app_container_image = "${var.container_image}"
-  app_container_port  = "${var.container_port}"
+  cpu    = var.app_cpu + var.sidecar_cpu
+  memory = var.app_memory + var.sidecar_memory
 
-  sidecar_container_image = "${var.nginx_container_image}"
-  sidecar_container_port  = "${var.nginx_container_port}"
+  app_container_image = var.container_image
+  app_container_port  = var.container_port
+  app_cpu             = var.app_cpu
+  app_memory          = var.app_memory
 
-  app_env_vars        = "${var.env_vars}"
-  app_env_vars_length = "${var.env_vars_length}"
+  app_env_vars        = var.env_vars
+  secret_app_env_vars = var.secret_env_vars
 
-  secret_app_env_vars        = "${var.secret_env_vars}"
-  secret_app_env_vars_length = "${var.secret_env_vars_length}"
+  sidecar_container_image = var.nginx_container_image
+  sidecar_container_port  = var.nginx_container_port
+  sidecar_cpu             = var.nginx_cpu
+  sidecar_memory          = var.nginx_memory
 
   sidecar_env_vars = {
     APP_HOST = "localhost"
-    APP_PORT = "${var.container_port}"
+    APP_PORT = var.container_port
   }
 
-  sidecar_env_vars_length = "2"
-
-  cpu    = "${var.cpu}"
-  memory = "${var.memory}"
-
-  sidecar_cpu    = "${var.sidecar_cpu}"
-  sidecar_memory = "${var.sidecar_memory}"
-
-  app_cpu    = "${var.app_cpu}"
-  app_memory = "${var.app_memory}"
-
-  aws_region = "${var.aws_region}"
+  aws_region = var.aws_region
 }

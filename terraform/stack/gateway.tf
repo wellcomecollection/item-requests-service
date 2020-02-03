@@ -38,22 +38,29 @@ module "responses" {
 
 # Stages
 
-module "v1" {
-  source = "git::https://github.com/wellcometrust/terraform.git//api_gateway/modules/stage?ref=v18.2.3"
-
-  stage_name = "${local.stage_name}"
-
-  api_id = "${aws_api_gateway_rest_api.api.id}"
+resource "aws_api_gateway_deployment" "v1" {
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  stage_name  = local.stage_nam
 
   variables = {
     requests_port = "${local.requests_listener_port}"
     items_port    = "${local.items_listener_port}"
   }
 
-  # This forces a new deployment (which is necessary) when Gateway config changes
-  depends_on = [
-    "${filemd5("${path.module}/gateway.tf")}",
-  ]
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_api_gateway_stage" "v1" {
+  stage_name    = "v1"
+  rest_api_id   = aws_api_gateway_rest_api.api.id
+  deployment_id = aws_api_gateway_deployment.v1.id
+
+  variables = {
+    requests_port = "${local.requests_listener_port}"
+    items_port    = "${local.items_listener_port}"
+  }
 }
 
 # Resources

@@ -11,15 +11,35 @@ resource "aws_s3_bucket_object" "context" {
   etag    = "${md5(file("${path.module}/context.json"))}"
 }
 
-module "root_resource_method_static" {
-  source = "git::https://github.com/wellcometrust/terraform.git//api_gateway/prebuilt/method/static?ref=v18.2.3"
+resource "aws_api_gateway_integration" "root_static_response" {
+  rest_api_id             = var.api_id
+  resource_id             = aws_api_gateway_resource.resource.id
+  http_method             = "GET"
+  integration_http_method = "GET"
+  type                    = "AWS"
+  uri                     = "arn:aws:apigateway:${var.aws_region}:s3:path//${aws_s3_bucket_object.context.bucket}/${aws_s3_bucket_object.context.key}"
 
-  api_id      = "${var.api_id}"
-  resource_id = "${aws_api_gateway_resource.resource.id}"
-
-  aws_region  = "${var.aws_region}"
-  bucket_name = "${aws_s3_bucket_object.context.bucket}"
-  s3_key      = "${aws_s3_bucket_object.context.key}"
-
-  static_resource_role_arn = "${aws_iam_role.static_resource_role.arn}"
+  credentials = aws_iam_role.static_resource_role.arn
 }
+
+resource "aws_api_gateway_method_response" "root_resource_http_200" {
+  rest_api_id = var.api_id
+  resource_id = aws_api_gateway_resource.resource.id
+  http_method = "GET"
+  status_code = "200"
+}
+
+resource "aws_api_gateway_integration_response" "root_resource_http_200" {
+  rest_api_id = var.api_id
+  resource_id = aws_api_gateway_resource.resource.id
+  http_method = "GET"
+  status_code = aws_api_gateway_method_response.root_resource_http_200.status_code
+}
+
+resource "aws_api_gateway_authorizer" "cognito" {
+  name          = "cognito"
+  type          = "COGNITO_USER_POOLS"
+  rest_api_id   = var.api_id
+  provider_arns = [var.cognito_user_pool_arn]
+}
+

@@ -1,5 +1,5 @@
 output "integration_uris" {
   value = [
-    "${module.root_resource_method_static.integration_id}",
+    aws_api_gateway_integration.root_static_response.id,
   ]
 }
