@@ -27,10 +27,8 @@ def get_token(username, password):
     token = f'Basic {encoded.decode("utf-8")}'
 
     response = requests.post(
-        'https://libsys.wellcomelibrary.org/iii/sierra-api/v5/token',
-        headers={
-            'Authorization': f'Basic {encoded.decode("utf-8")}'
-        },
+        "https://libsys.wellcomelibrary.org/iii/sierra-api/v5/token",
+        headers={"Authorization": token},
     )
 
     json_content = json.loads(response.content.decode("utf-8"))
@@ -57,13 +55,13 @@ def find_user(token, email):
 
     loaded_response = json.loads(response.content)
 
-    if not 'varFields' in loaded_response:
-        return None
+    try:
+        varFields = loaded_response["varFields"]
+    except KeyError:
+        return
 
-    varFields = loaded_response['varFields']
-
-    username = _get_field(varFields, 's')
-    email = _get_field(varFields, 'z')
+    username = _get_field(varFields, "s")
+    email = _get_field(varFields, "z")
 
     return {
         'patronId': loaded_response['id'],

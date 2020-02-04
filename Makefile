@@ -12,7 +12,7 @@ SBT_NO_DOCKER_APPS = requests_api \
                      items_api
 
 SBT_DOCKER_LIBRARIES    =
-SBT_NO_DOCKER_LIBRARIES =
+SBT_NO_DOCKER_LIBRARIES = common
 
 PYTHON_APPS =
 LAMBDAS 	=
