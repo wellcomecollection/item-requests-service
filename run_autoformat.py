@@ -11,6 +11,9 @@ import subprocess
 import sys
 
 
+REPO_URL = "git@github.com:wellcomecollection/stacks-service.git"
+
+
 def branch_name():
     """Return the name of the branch under test."""
     # See https://graysonkoonce.com/getting-the-current-branch-name-during-a-pull-request-in-travis-ci/
@@ -73,12 +76,7 @@ if __name__ == "__main__":
         git("config", "user.email", "wellcomedigitalplatform@wellcome.ac.uk")
         git("config", "core.sshCommand", "ssh -i id_rsa")
 
-        git(
-            "remote",
-            "add",
-            "ssh-origin",
-            "git@github.com:wellcometrust/storage-service.git",
-        )
+        git("remote", "add", "ssh-origin", REPO_URL,)
 
         # We checkout the branch before we add the commit, so we don't
         # include the merge commit that Travis makes.
