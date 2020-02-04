@@ -1,20 +1,20 @@
 resource "aws_route53_record" "route53_record_prod" {
-  name    = "${module.domain.domain_name}"
+  name    = module.domain.domain_name
   type    = "A"
-  zone_id = "${local.routermaster_router53_zone_id}"
+  zone_id = local.routermaster_router53_zone_id
 
   alias {
     evaluate_target_health = true
-    name                   = "${module.domain.regional_domain_name}"
-    zone_id                = "${module.domain.regional_zone_id}"
+    name                   = module.domain.regional_domain_name
+    zone_id                = module.domain.regional_zone_id
   }
 
-  provider = "aws.routermaster"
+  provider = aws.routermaster
 }
 
 provider "aws" {
   region  = "eu-west-1"
-  version = "1.60.0"
+  version = "~> 2.47.0"
   alias   = "routermaster"
 
   assume_role {

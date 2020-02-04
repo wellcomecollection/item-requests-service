@@ -4,5 +4,5 @@ resource "aws_ecs_cluster" "cluster" {
 
 resource "aws_service_discovery_private_dns_namespace" "namespace" {
   name = "${var.namespace}-stacks"
-  vpc  = "${var.vpc_id}"
+  vpc  = var.vpc_id
 }

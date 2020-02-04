@@ -1,33 +1,38 @@
 module "auth_resource" {
   source = "../../resource"
 
-  api_id = "${var.api_id}"
+  api_id = var.api_id
 
-  parent_id        = "${var.root_resource_id}"
-  path_part        = "${var.path_part}"
+  parent_id        = var.root_resource_id
+  path_part        = var.path_part
   api_key_required = true
 }
 
-module "auth_resource_integration" {
-  source = "git::https://github.com/wellcometrust/terraform.git//api_gateway/modules/integration/proxy?ref=v16.1.8"
+locals {
+  resource_domain = "${var.hostname}:${var.forward_port}"
+  resource_uri    = "http://${local.resource_domain}/${var.forward_path}"
+}
 
-  api_id        = "${var.api_id}"
-  resource_id   = "${module.auth_resource.resource_id}"
-  connection_id = "${var.connection_id}"
+resource "aws_api_gateway_integration" "auth_resource" {
+  rest_api_id = var.api_id
+  resource_id = module.auth_resource.resource_id
+  http_method = module.auth_resource.http_method
 
-  hostname    = "${var.hostname}"
-  http_method = "${module.auth_resource.http_method}"
+  integration_http_method = "ANY"
+  type                    = "HTTP_PROXY"
+  connection_type         = "VPC_LINK"
+  connection_id           = var.connection_id
+  uri                     = local.resource_uri
 
-  forward_port = "${var.forward_port}"
-  forward_path = "${var.forward_path}"
+  request_parameters = {}
 }
 
 module "auth_subresource" {
   source = "../../resource"
 
-  api_id = "${var.api_id}"
+  api_id = var.api_id
 
-  parent_id = "${module.auth_resource.resource_id}"
+  parent_id = module.auth_resource.resource_id
   path_part = "{proxy+}"
 
   request_parameters = {
@@ -37,21 +42,24 @@ module "auth_subresource" {
   api_key_required = true
 }
 
-module "auth_subresource_integration" {
-  source = "git::https://github.com/wellcometrust/terraform.git//api_gateway/modules/integration/proxy?ref=v16.1.8"
+locals {
+  subresource_domain = "${var.hostname}:${var.forward_port}"
+  subresource_uri    = "http://${local.subresource_domain}/{proxy}"
+}
 
-  api_id        = "${var.api_id}"
-  resource_id   = "${module.auth_subresource.resource_id}"
-  connection_id = "${var.connection_id}"
+resource "aws_api_gateway_integration" "auth_subresource" {
+  rest_api_id = var.api_id
+  resource_id = module.auth_subresource.resource_id
+  http_method = module.auth_subresource.http_method
 
-  hostname    = "${var.hostname}"
-  http_method = "${module.auth_subresource.http_method}"
-
-  forward_port = "${var.forward_port}"
-  forward_path = "{proxy}"
+  integration_http_method = "ANY"
+  type                    = "HTTP_PROXY"
+  connection_type         = "VPC_LINK"
+  connection_id           = var.connection_id
+  uri                     = local.subresource_uri
 
   request_parameters = {
-    integration.request.path.proxy              = "method.request.path.proxy"
-    integration.request.header.X-SierraPatronId = "context.authorizer.claims.custom:patronId"
+    "integration.request.path.proxy"              = "method.request.path.proxy"
+    "integration.request.header.X-SierraPatronId" = "context.authorizer.claims.custom:patronId"
   }
 }

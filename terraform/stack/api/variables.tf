@@ -2,27 +2,24 @@ variable "name" {}
 variable "container_image" {}
 
 variable "service_discovery_namespace_id" {}
-variable "cluster_id" {}
+variable "cluster_arn" {}
 variable "vpc_id" {}
 
 variable "security_group_ids" {
-  type = "list"
+  type = list(string)
 }
 
 variable "subnets" {
-  type = "list"
+  type = list(string)
 }
 
 variable "env_vars" {
-  type = "map"
+  type = map(string)
 }
 
 variable "secret_env_vars" {
-  type = "map"
+  type = map(string)
 }
-
-variable "env_vars_length" {}
-variable "secret_env_vars_length" {}
 
 variable "nlb_arn" {}
 variable "nlb_port" {}

@@ -5,7 +5,7 @@ variable "http_method" {
 }
 
 variable "request_parameters" {
-  type    = "map"
+  type    = map(string)
   default = {}
 }
 
@@ -18,7 +18,7 @@ variable "authorizer_id" {
 }
 
 variable "auth_scopes" {
-  type    = "list"
+  type    = list(string)
   default = []
 }
 

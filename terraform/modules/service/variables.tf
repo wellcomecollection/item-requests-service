@@ -1,8 +1,8 @@
 variable "subnets" {
-  type = "list"
+  type = list(string)
 }
 
-variable "cluster_id" {}
+variable "cluster_arn" {}
 
 variable "namespace" {}
 variable "namespace_id" {}
@@ -10,52 +10,50 @@ variable "namespace_id" {}
 variable "vpc_id" {}
 
 variable "container_image" {}
-variable "container_port" {}
+variable "container_port" {
+  type = number
+}
 
 variable "nginx_container_image" {}
-variable "nginx_container_port" {}
+variable "nginx_container_port" {
+  type = number
+}
 
 variable "security_group_ids" {
-  type = "list"
+  type = list(string)
 }
-
-variable "env_vars_length" {}
 
 variable "env_vars" {
-  type = "map"
+  type = map(string)
 }
 
-variable "secret_env_vars_length" {}
-
 variable "secret_env_vars" {
-  type = "map"
+  type = map(string)
 }
 
 variable "lb_arn" {}
-variable "listener_port" {}
+variable "listener_port" {
+  type = number
+}
 
-variable "cpu" {
+variable "nginx_cpu" {
+  default = 512
+  type    = number
+}
+
+variable "nginx_memory" {
   default = 1024
-}
-
-variable "memory" {
-  default = 2048
-}
-
-variable "sidecar_cpu" {
-  default = "512"
-}
-
-variable "sidecar_memory" {
-  default = "1024"
+  type    = number
 }
 
 variable "app_cpu" {
-  default = "512"
+  default = 512
+  type    = number
 }
 
 variable "app_memory" {
-  default = "1024"
+  default = 1024
+  type    = number
 }
 
 variable "aws_region" {
@@ -66,6 +64,6 @@ variable "launch_type" {
   default = "FARGATE"
 }
 
-variable "task_desired_count" {
-  default = "3"
+variable "desired_task_count" {
+  default = 3
 }

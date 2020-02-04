@@ -9,4 +9,3 @@ module "aws_ecr_repository_items_api" {
   id        = "items_api"
   namespace = "uk.ac.wellcome"
 }
-

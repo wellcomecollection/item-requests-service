@@ -1,11 +1,16 @@
-module "images" {
-  source = "git::https://github.com/wellcometrust/terraform.git//ecs/modules/images?ref=v19.8.0"
-
-  label   = "${var.release_label}"
-  project = "stacks"
-
+locals {
   services = [
     "items_api",
     "requests_api",
   ]
+}
+
+data "aws_ssm_parameter" "image_ids" {
+  count = length(local.services)
+
+  name = "/stacks/images/${var.release_label}/${local.services[count.index]}"
+}
+
+locals {
+  image_ids = zipmap(local.services, data.aws_ssm_parameter.image_ids.*.value)
 }
