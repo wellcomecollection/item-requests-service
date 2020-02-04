@@ -7,6 +7,7 @@ import akka.stream.ActorMaterializer
 import uk.ac.wellcome.platform.stacks.common.models.{StacksItem, _}
 
 import scala.concurrent.Future
+import scala.util.{Failure, Success, Try}
 
 class CatalogueService(val baseUri: Uri = Uri(
   "https://api.wellcomecollection.org/catalogue/v2"
@@ -23,14 +24,18 @@ class CatalogueService(val baseUri: Uri = Uri(
 
   protected def getIdentifier(
                                identifiers: List[IdentifiersStub]
-                             ): Option[SierraItemIdentifier] = identifiers filter (
-    _.identifierType.id == "sierra-identifier"
-    ) match {
-    case List(IdentifiersStub(_, value)) =>
-      //TODO: This can fail!
-      Some(SierraItemIdentifier(value.toLong))
-    case _ => None
-  }
+                             ): Option[SierraItemIdentifier] =
+    identifiers filter (_.identifierType.id == "sierra-identifier") match {
+
+      case List(IdentifiersStub(_, value)) => Try(value.toLong) match {
+        case Success(l) => Some(SierraItemIdentifier(l))
+        case Failure(_) => throw new Exception(
+          s"Unable to convert $value to Long!"
+        )
+      }
+
+      case _ => None
+    }
 
   protected def getLocations(
                               locations: List[LocationStub]
