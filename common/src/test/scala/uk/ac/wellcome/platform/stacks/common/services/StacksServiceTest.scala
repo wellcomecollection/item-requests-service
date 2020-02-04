@@ -19,7 +19,7 @@ class StacksServiceTest
     describe("requestHoldOnItem") {
       it("should request a hold from the Sierra API") {
         withStacksService { case (stacksService, wireMockServer) =>
-          val stacksUserIdentifier = StacksUser("1234567")
+          val stacksUserIdentifier = StacksUserIdentifier("1234567")
           val catalogueItemIdentifier = CatalogueItemIdentifier("ys3ern6x")
 
           whenReady(
@@ -82,7 +82,7 @@ class StacksServiceTest
     describe("getStacksUserHoldsWithStacksItemIdentifier") {
       it("gets a StacksUserHolds[StacksItemIdentifier]") {
         withStacksService { case (stacksService, _) =>
-          val stacksUserIdentifier = StacksUser("1234567")
+          val stacksUserIdentifier = StacksUserIdentifier("1234567")
 
           whenReady(
             stacksService.getStacksUserHolds(

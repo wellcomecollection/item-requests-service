@@ -3,7 +3,7 @@ package uk.ac.wellcome.platform.stacks.common.services
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshalling.{Marshal, Marshaller}
-import akka.http.scaladsl.model.Uri.Query
+import akka.http.scaladsl.model.Uri.{Path, Query}
 import akka.http.scaladsl.model.headers.{Authorization, BasicHttpCredentials, OAuth2BearerToken}
 import akka.http.scaladsl.model.{HttpEntity, HttpHeader, HttpMethods, HttpRequest, HttpResponse, RequestEntity, Uri}
 import akka.http.scaladsl.unmarshalling.{Unmarshal, Unmarshaller}
@@ -19,14 +19,16 @@ trait AkkaClientService {
 
   protected val baseUri: Uri
 
-  protected def buildUri(path: String, params: Map[String, String] = Map.empty): Uri =
+  import Path._
+
+  protected def buildUri(path: Path, params: Map[String, String] = Map.empty): Uri =
     baseUri
-      .copy(path = baseUri.path + "/" + path)
+      .withPath(baseUri.path ++ Slash(path))
       .withQuery(Query(params))
 }
 
 trait AkkaClientServiceGet extends AkkaClientService {
-  protected def get[Out](path: String, params: Map[String, String] = Map.empty, headers: List[HttpHeader] = Nil)(
+  protected def get[Out](path: Path, params: Map[String, String] = Map.empty, headers: List[HttpHeader] = Nil)(
     implicit um: Unmarshaller[HttpResponse, Out]
   ): Future[Out] =
     for {
@@ -36,12 +38,12 @@ trait AkkaClientServiceGet extends AkkaClientService {
           headers = headers
         )
       )
-      t <- Unmarshal(response).to[Out]
-    } yield t
+      out <- Unmarshal(response).to[Out]
+    } yield out
 }
 
 trait AkkaClientServicePost extends AkkaClientService {
-  protected def post[In, Out](path: String, body: Option[In] = None, params: Map[String, String] = Map.empty, headers: List[HttpHeader] = Nil)(
+  protected def post[In, Out](path: Path, body: Option[In] = None, params: Map[String, String] = Map.empty, headers: List[HttpHeader] = Nil)(
     implicit
       um: Unmarshaller[HttpResponse, Out],
       m: Marshaller[In, RequestEntity]
@@ -75,7 +77,7 @@ trait AkkaClientTokenExchange extends AkkaClientServicePost {
 
   case class AccessToken(access_token: String)
 
-  val tokenPath: String
+  val tokenPath: Path
 
   protected def getToken(credentials: BasicHttpCredentials): Future[OAuth2BearerToken] = {
     for {

@@ -4,6 +4,7 @@ import java.time.Instant
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.Uri
+import akka.http.scaladsl.model.Uri.Path
 import akka.http.scaladsl.model.headers.{Authorization, BasicHttpCredentials}
 import akka.stream.ActorMaterializer
 import uk.ac.wellcome.platform.stacks.common.models._
@@ -24,27 +25,29 @@ class SierraService(val baseUri: Uri = Uri(
   import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
   import io.circe.generic.auto._
 
-  override val tokenPath = "v5/token"
+  override val tokenPath = Path("v5/token")
 
+  // See https://sandbox.iii.com/iii/sierra-api/swagger/index.html#!/items
   def getItemStatus(sierraId: SierraItemIdentifier): Future[StacksItemStatus] =
     for {
       token <- getToken(credentials)
       item <- get[SierraItemStub](
-        path = s"v5/items/$sierraId",
+        path = Path(s"v5/items/$sierraId"),
         headers = List(Authorization(token))
       )
 
     } yield StacksItemStatus(item.status.code)
 
+  // See https://sandbox.iii.com/iii/sierra-api/swagger/index.html#!/patrons
   def placeHold(
-    userIdentifier: StacksUser,
-    sierraItemIdentifier: SierraItemIdentifier,
-    itemLocation: StacksLocation
+                 userIdentifier: StacksUserIdentifier,
+                 sierraItemIdentifier: SierraItemIdentifier,
+                 itemLocation: StacksLocation
   ): Future[Unit] =
     for {
       token <- getToken(credentials)
       _ <- post[SierraHoldRequestPostBody, String](
-        path = s"v5/patrons/${userIdentifier.value}/holds/requests",
+        path = Path(s"v5/patrons/${userIdentifier.value}/holds/requests"),
         body = Some(SierraHoldRequestPostBody(
           recordType = "i",
           recordNumber = sierraItemIdentifier.value,
@@ -57,7 +60,7 @@ class SierraService(val baseUri: Uri = Uri(
   protected def buildStacksHold(entry: SierraUserHoldsEntryStub): StacksHold[SierraItemIdentifier] = {
 
     val itemId = SierraItemIdentifier
-      .createFromString(entry.record)
+      .createFromSierraId(entry.record)
 
     val pickupLocation = StacksLocation(
       id = entry.pickupLocation.code,
@@ -77,12 +80,13 @@ class SierraService(val baseUri: Uri = Uri(
     StacksHold(itemId, pickup, status)
   }
 
-  def getStacksUserHolds(userId: StacksUser): Future[StacksUserHolds[SierraItemIdentifier]] = {
+  // See https://sandbox.iii.com/iii/sierra-api/swagger/index.html#!/patrons
+  def getStacksUserHolds(userId: StacksUserIdentifier): Future[StacksUserHolds[SierraItemIdentifier]] = {
     for {
       token <- getToken(credentials)
 
       item <- get[SierraUserHoldsStub](
-        path = s"v5/patrons/${userId.value}/holds",
+        path = Path(s"v5/patrons/${userId.value}/holds"),
         params = Map(
           ("limit", "100"),
           ("offset", "0")

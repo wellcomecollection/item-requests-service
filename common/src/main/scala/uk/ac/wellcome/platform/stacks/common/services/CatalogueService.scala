@@ -2,6 +2,7 @@ package uk.ac.wellcome.platform.stacks.common.services
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.Uri
+import akka.http.scaladsl.model.Uri.Path
 import akka.stream.ActorMaterializer
 import uk.ac.wellcome.platform.stacks.common.models.{StacksItem, _}
 
@@ -58,11 +59,12 @@ class CatalogueService(val baseUri: Uri = Uri(
       )
   }
 
+  // See https://developers.wellcomecollection.org/catalogue/v2/works/getwork
   def getStacksWork(workId: StacksWorkIdentifier): Future[StacksWork[StacksItemWithOutStatus]] =
     for {
       workStub <- get[WorkStub](
-        s"works/${workId.value}",
-        Map(
+        path = Path(s"works/${workId.value}"),
+        params = Map(
           ("include","items,identifiers")
         )
       )
@@ -71,11 +73,12 @@ class CatalogueService(val baseUri: Uri = Uri(
 
     } yield StacksWork(workStub.id, items)
 
+  // See https://developers.wellcomecollection.org/catalogue/v2/works/getworks
   def getStacksItem(identifier: Identifier[_]): Future[Option[StacksItem]] =
     for {
       searchStub <- get[SearchStub](
-        path = "works",
-          params = Map(
+        path = Path("works"),
+        params = Map(
           ("include", "items,identifiers"),
           ("query", identifier.value.toString)
         )
