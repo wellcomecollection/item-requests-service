@@ -2,6 +2,8 @@
 
 APIs for interacting  with the physical library.
 
+[![Build Status](https://travis-ci.org/wellcomecollection/stacks-service.svg?branch=master)](https://travis-ci.org/wellcomecollection/stacks-service)
+
 ## APIs
 
 ### /requests
