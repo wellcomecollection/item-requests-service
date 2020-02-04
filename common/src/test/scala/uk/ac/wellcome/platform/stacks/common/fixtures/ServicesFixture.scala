@@ -1,5 +1,7 @@
 package uk.ac.wellcome.platform.stacks.common.fixtures
 
+import akka.http.scaladsl.model.Uri
+import akka.http.scaladsl.model.headers.BasicHttpCredentials
 import com.github.tomakehurst.wiremock.WireMockServer
 import uk.ac.wellcome.akka.fixtures.Akka
 import uk.ac.wellcome.fixtures.TestWith
@@ -11,26 +13,24 @@ trait ServicesFixture
   extends Akka
     with SierraWireMockFixture
     with CatalogueWireMockFixture  {
-  
+
   def withCatalogueService[R](
                                testWith: TestWith[CatalogueService, R]
                              ): R = {
     withMockCatalogueServer { catalogueApiUrl: String =>
       withActorSystem { implicit as =>
-        implicit val ec: ExecutionContextExecutor = as.dispatcher
-
         withMaterializer { implicit mat =>
-          testWith(new CatalogueService(
-            Some(s"$catalogueApiUrl/catalogue/v2"))
-          )
+          testWith(new CatalogueService(Uri(
+            s"$catalogueApiUrl/catalogue/v2"
+          )))
         }
       }
     }
   }
 
   def withSierraService[R](
-                               testWith: TestWith[(SierraService, WireMockServer), R]
-                             ): R = {
+                            testWith: TestWith[(SierraService, WireMockServer), R]
+                          ): R = {
     withMockSierraServer { case (sierraApiUrl, wireMockServer) =>
       withActorSystem { implicit as =>
         implicit val ec: ExecutionContextExecutor = as.dispatcher
@@ -39,9 +39,8 @@ trait ServicesFixture
           testWith(
             (
               new SierraService(
-                baseUrl = Some(f"$sierraApiUrl/iii/sierra-api"),
-                username = "username",
-                password = "password"
+                baseUri = Uri(f"$sierraApiUrl/iii/sierra-api"),
+                credentials = BasicHttpCredentials("username", "password")
               ),
               wireMockServer
             )

@@ -3,7 +3,7 @@ package uk.ac.wellcome.platform.stacks.requests.api
 import akka.http.scaladsl.server.Route
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import grizzled.slf4j.Logging
-import uk.ac.wellcome.platform.stacks.common.models.{CatalogueItemIdentifier, StacksHoldRequest, StacksUser}
+import uk.ac.wellcome.platform.stacks.common.models.{CatalogueItemIdentifier, StacksHoldRequest, StacksUserIdentifier}
 import uk.ac.wellcome.platform.stacks.common.services.StacksService
 import uk.ac.wellcome.platform.stacks.requests.api.models.RequestItemHold
 
@@ -22,7 +22,7 @@ trait RequestsApi extends Logging with FailFastCirceSupport {
   val routes: Route = concat(
     pathPrefix("requests") {
       headerValueByName("Weco-Sierra-Patron-Id") { sierraPatronId =>
-        val userIdentifier = StacksUser(sierraPatronId)
+        val userIdentifier = StacksUserIdentifier(sierraPatronId)
 
         post {
           entity(as[RequestItemHold]) { requestItemHold: RequestItemHold =>
@@ -42,7 +42,7 @@ trait RequestsApi extends Logging with FailFastCirceSupport {
         } ~ get {
 
           val result = stacksWorkService.getStacksUserHolds(
-            StacksUser(sierraPatronId)
+            StacksUserIdentifier(sierraPatronId)
           )
 
           onComplete(result) {

@@ -1,30 +1,29 @@
 package uk.ac.wellcome.platform.stacks.common.models
 
-import uk.ac.wellcome.platform.sierra.models.Hold
-
 import scala.util.{Failure, Success, Try}
 
 sealed trait Identifier[T] {
   val value: T
+
+  override def toString: String = value.toString
 }
 
+
+case class CatalogueItemIdentifier(value: String) extends Identifier[String]
 case class SierraItemIdentifier(value: Long) extends Identifier[Long]
+case class StacksWorkIdentifier(value: String) extends Identifier[String]
+case class StacksUserIdentifier(value: String) extends Identifier[String]
 
 object SierraItemIdentifier {
-  def createFromString(id: String): SierraItemIdentifier = Try {
-    id.toLong
+  def createFromSierraId(id: String): SierraItemIdentifier = Try {
+    // This value looks like a URI when provided by Sierra
+    // https://libsys.wellcomelibrary.org/iii/sierra-api/v5/patrons/holds/145730
+    id.split("/").last.toLong
   } match {
     case Success(v) => SierraItemIdentifier(v)
     case Failure(e) => throw new Exception("Failed to create SierraItemIdentifier", e)
   }
-
-  def createFromHold(hold: Hold): SierraItemIdentifier =
-    createFromString(
-      hold.getRecord.split("/").last
-    )
 }
-
-case class CatalogueItemIdentifier(value: String) extends Identifier[String]
 
 case class StacksItemIdentifier(
                                  catalogueId: CatalogueItemIdentifier,
@@ -33,4 +32,4 @@ case class StacksItemIdentifier(
   override val value: String = catalogueId.value
 }
 
-case class StacksWorkIdentifier(value: String) extends Identifier[String]
+

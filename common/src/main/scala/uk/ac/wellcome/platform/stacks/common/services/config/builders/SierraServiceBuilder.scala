@@ -1,6 +1,8 @@
 package uk.ac.wellcome.platform.stacks.common.services.config.builders
 
 import akka.actor.ActorSystem
+import akka.http.scaladsl.model.Uri
+import akka.http.scaladsl.model.headers.BasicHttpCredentials
 import akka.stream.ActorMaterializer
 import com.typesafe.config.Config
 import uk.ac.wellcome.platform.stacks.common.config.TypesafeBuilder
@@ -17,15 +19,17 @@ class SierraServiceBuilder()(
   def buildConfig(config: Config): SierraServiceConfig = {
     val username = config.required[String]("sierra.api.key")
     val password = config.required[String]("sierra.api.secret")
-    val baseUrl = config.get[String]("sierra.api.baseUrl")
+    val baseUrl = config.required[String]("sierra.api.baseUrl")
 
     SierraServiceConfig(baseUrl, username, password)
   }
 
   def buildT(config: SierraServiceConfig): SierraService = new SierraService(
-      baseUrl = config.baseUrl,
-      username = config.username,
-      password = config.password
+      baseUri = Uri(config.baseUrl),
+      credentials = BasicHttpCredentials(
+        username = config.username,
+        password = config.password
+      )
     )
 }
 

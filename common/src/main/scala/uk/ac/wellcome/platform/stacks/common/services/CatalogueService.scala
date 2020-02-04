@@ -1,158 +1,129 @@
 package uk.ac.wellcome.platform.stacks.common.services
 
-import cats.instances.future._
-import cats.instances.list._
-import cats.syntax.traverse._
-import com.google.gson.internal.LinkedTreeMap
-import uk.ac.wellcome.platform.catalogue
-import uk.ac.wellcome.platform.catalogue.models.{ItemIdentifiers, ResultListItems}
-import uk.ac.wellcome.platform.stacks.common.models._
+import akka.actor.ActorSystem
+import akka.http.scaladsl.model.Uri
+import akka.http.scaladsl.model.Uri.Path
+import akka.stream.ActorMaterializer
+import uk.ac.wellcome.platform.stacks.common.models.{StacksItem, _}
 
-import scala.collection.JavaConverters._
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
+import scala.concurrent.Future
 
-class CatalogueService(baseUrl: Option[String])(
+class CatalogueService(val baseUri: Uri = Uri(
+  "https://api.wellcomecollection.org/catalogue/v2"
+))(
   implicit
-  ec: ExecutionContext
-) {
-  protected val apiClient = new catalogue.ApiClient()
+    val system: ActorSystem,
+    val mat: ActorMaterializer
+) extends AkkaClientService
+    with AkkaClientServiceGet {
 
-  baseUrl.foreach { apiClient.setBasePath }
+  import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
+  import io.circe.generic.auto._
+  import CatalogueService._
 
-  val worksApi = new catalogue.api.WorksApi(apiClient)
-
-  type LTM[T] = LinkedTreeMap[String, T]
-
-  implicit class LinkedTreeMapExtractor(ltm: LTM[Any]) {
-    def safeGet[T](key: String): Option[T] =
-      Option(ltm.get(key)).flatMap(o => Try(o.asInstanceOf[T]).toOption)
+  protected def getIdentifier(
+                               identifiers: List[IdentifiersStub]
+                             ): Option[SierraItemIdentifier] = identifiers filter (
+    _.identifierType.id == "sierra-identifier"
+    ) match {
+    case List(IdentifiersStub(_, value)) =>
+      //TODO: This can fail!
+      Some(SierraItemIdentifier(value.toLong))
+    case _ => None
   }
 
-  protected def getItemIdentifiersFrom(item: ResultListItems): List[ItemIdentifiers] =
-    Option(item.getIdentifiers)
-      .map(_.asScala.toList)
-      .getOrElse(Nil)
-
-  protected def getStacksItemIdentifierFrom(item: ResultListItems): Future[Option[StacksItemIdentifier]] = {
-    val identifier = getItemIdentifiersFrom(item)
-      .filter { _.getIdentifierType.getId == "sierra-identifier" }
-      .map { _.getValue }
-
-    identifier match {
-      case List(sierraItemId) => {
-        val catalogueId = CatalogueItemIdentifier(item.getId)
-        val sierraId = SierraItemIdentifier
-          .createFromString(sierraItemId)
-
-        Future.successful(
-          Some(StacksItemIdentifier(catalogueId, sierraId))
-        )
-      }
-      case Nil => Future.successful(None)
-      case _ => Future.failed(new Throwable(
-        f"Ambiguous identifier! ($identifier)"
-      ))
-    }
+  protected def getLocations(
+                              locations: List[LocationStub]
+                            ): List[StacksLocation] = locations collect {
+    case location@LocationStub(_, _, "PhysicalLocation") =>
+      StacksLocation(
+        location.locationType.id,
+        location.locationType.label
+      )
   }
 
-  protected def getStacksLocationFrom(item: ResultListItems): Future[Option[StacksLocation]] = {
-    val itemLocations = item.getLocations.asScala.toList
-
-    val physicalLocation = itemLocations
-      .map(_.asInstanceOf[LTM[Any]])
-      .map { l =>
-        (
-          l.safeGet[LTM[String]]("locationType").map(_.get("id")),
-          l.safeGet[String]("type"),
-          l.safeGet[String]("label")
-        )
-      }
-      .collect {
-        case (Some(id), Some("PhysicalLocation"), Some(label)) =>
-          StacksLocation(id, label)
-      }
-
-    physicalLocation match {
-      case List(location) => Future.successful(Some(location))
-      case Nil => Future.successful(None)
-      case _ => Future.failed(new Throwable(
-        f"Ambiguous location! ($itemLocations)"
-      ))
-    }
+  protected def getStacksItems(
+                                itemStubs: List[ItemStub]
+                              ): List[StacksItemWithOutStatus] = itemStubs map {
+    case ItemStub(id, identifiers, locations) =>
+      (
+        CatalogueItemIdentifier(id),
+        getIdentifier(identifiers),
+        getLocations(locations)
+      )
+  } map {
+    case (catId, Some(sierraId), List(location)) =>
+      StacksItemWithOutStatus(
+        StacksItemIdentifier(catId, sierraId),
+        location
+      )
   }
 
-  private def getItems(identifier: Identifier[_]): Future[List[StacksItemWithOutStatus]] = {
+  // See https://developers.wellcomecollection.org/catalogue/v2/works/getwork
+  def getStacksWork(workId: StacksWorkIdentifier): Future[StacksWork[StacksItemWithOutStatus]] =
     for {
-      items <- identifier match {
-        case StacksWorkIdentifier(workId) => Future {
-          val work = worksApi.getWork(workId, "items,identifiers")
-          work.getItems.asScala.toList
-        }
-        case _ => Future {
-          worksApi.getWorks(
-            "items,identifiers",
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            identifier.value.toString,
-            null,
-            null
-          ).getResults
-            .asScala.toList
-            .flatMap(_.getItems.asScala.toList)
-        }
-      }
+      workStub <- get[WorkStub](
+        path = Path(s"works/${workId.value}"),
+        params = Map(
+          ("include","items,identifiers")
+        )
+      )
 
-      itemIdentifiers <- items.traverse(getStacksItemIdentifierFrom)
-      itemLocations <- items.traverse(getStacksLocationFrom)
+      items = getStacksItems(workStub.items)
 
-      stacksItems = (itemIdentifiers zip itemLocations) flatMap {
-        case (Some(identifier), Some(location)) =>
-          Some(StacksItemWithOutStatus(identifier, location))
-        case _ => None
-      }
+    } yield StacksWork(workStub.id, items)
 
-    } yield identifier match {
-
-      case StacksWorkIdentifier(_) =>
-        stacksItems
-
-      case id@SierraItemIdentifier(_) =>
-        stacksItems.filter(_.id.sierraId == id)
-
-      case id@CatalogueItemIdentifier(_) =>
-        stacksItems.filter(_.id.catalogueId == id)
-
-      case id@StacksItemIdentifier(_,_) =>
-        stacksItems.filter(_.id == id)
-
-    }
-  }
-
-  def getStacksWork(workId: StacksWorkIdentifier): Future[StacksWork[StacksItemWithOutStatus]] = for {
-    items <- getItems(workId)
-  } yield StacksWork(
-    id = workId.value,
-    items = items
-  )
-
-  def getStacksItem(identifier: Identifier[_]): Future[Option[StacksItem]] = {
+  // See https://developers.wellcomecollection.org/catalogue/v2/works/getworks
+  def getStacksItem(identifier: Identifier[_]): Future[Option[StacksItem]] =
     for {
-      items <- getItems(identifier)
+      searchStub <- get[SearchStub](
+        path = Path("works"),
+        params = Map(
+          ("include", "items,identifiers"),
+          ("query", identifier.value.toString)
+        )
+      )
+
+      items = searchStub.results
+        .map(_.items)
+        .flatMap(getStacksItems)
+
     } yield items match {
       case List(item) => Some(item)
-      case Nil => None
-      case default => throw new Exception(
-        f"Ambiguous item results found for: $identifier ($default)"
-      )
+      case _ => None
     }
-  }
+}
+
+object CatalogueService {
+  case class TypeStub(
+                       id: String,
+                       label: String
+                     )
+
+  case class LocationStub(
+                           locationType: TypeStub,
+                           label: Option[String],
+                           `type`: String
+                         )
+
+  case class IdentifiersStub(
+                              identifierType: TypeStub,
+                              value: String
+                            )
+
+  case class ItemStub(
+                       id: String,
+                       identifiers: List[IdentifiersStub],
+                       locations: List[LocationStub]
+                     )
+
+  case class WorkStub(
+                       id: String,
+                       items: List[ItemStub]
+                     )
+
+  case class SearchStub(
+                         totalResults: Int,
+                         results: List[WorkStub]
+                       )
 }

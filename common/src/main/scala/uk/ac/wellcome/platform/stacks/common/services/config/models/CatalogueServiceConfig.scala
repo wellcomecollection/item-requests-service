@@ -1,8 +1,5 @@
 package uk.ac.wellcome.platform.stacks.common.services.config.models
 
-case class CatalogueServiceConfig(baseUrl: Option[String])
+import akka.http.scaladsl.model.Uri
 
-object CatalogueServiceConfig {
-  def apply(baseUrl: String): CatalogueServiceConfig =
-    CatalogueServiceConfig(Some(baseUrl))
-}
+case class CatalogueServiceConfig(baseUrl: String)

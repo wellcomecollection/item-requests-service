@@ -17,7 +17,7 @@ class StacksService(
                    ) extends Logging {
 
   def requestHoldOnItem(
-                         userIdentifier: StacksUser,
+                         userIdentifier: StacksUserIdentifier,
                          catalogueItemId: CatalogueItemIdentifier
                        ): Future[StacksHoldRequest] = for {
     stacksItem <- catalogueService.getStacksItem(catalogueItemId)
@@ -55,7 +55,7 @@ class StacksService(
       .updateItems(stacksItemsWithStatuses)
 
   def getStacksUserHolds(
-                                                  userId: StacksUser
+                                                  userId: StacksUserIdentifier
                                                 ): Future[StacksUserHolds[StacksItemIdentifier]] =
     for {
       userHolds <- sierraService.getStacksUserHolds(userId)
@@ -66,11 +66,9 @@ class StacksService(
       updatedUserHolds = (userHolds.holds zip stacksItems) map {
         case (hold, Some(stacksItem)) =>
           Some(hold.updateItemId[StacksItemIdentifier](stacksItem.id))
-        case (hold, None) => {
+        case (hold, None) =>
           error(f"Unable to map $hold to Catalogue Id!")
-
           None
-        }
       }
 
     } yield userHolds.updateHolds(updatedUserHolds.flatten)

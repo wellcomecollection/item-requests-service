@@ -1,7 +1,7 @@
 {
   "id" : "39cb0933-b56b-33db-8639-d6303d32842b",
   "request" : {
-    "url" : "/catalogue/v2/works?include=items%2Cidentifiers&query=ys3ern6x",
+    "url" : "/catalogue/v2/works?include=items,identifiers&query=ys3ern6x",
     "method" : "GET"
   },
   "response" : {
