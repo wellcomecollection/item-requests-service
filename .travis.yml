@@ -1,7 +1,8 @@
 jobs:
   include:
-    - stage: preflight
-      env: TASK=travis-format
+    # TODO: Uncomment these tasks!
+    # - stage: preflight
+    #   env: TASK=travis-format
 
     - stage: libraries
       env: SBT_PROJECT=common
@@ -26,7 +27,7 @@ cache:
     - requests_api/target
 
 stages:
-  - preflight
+  # - preflight
   - libraries
   - services
 
