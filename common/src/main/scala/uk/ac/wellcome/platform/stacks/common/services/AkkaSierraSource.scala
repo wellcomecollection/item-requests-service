@@ -41,7 +41,6 @@ class AkkaSierraSource(
   // See https://sandbox.iii.com/iii/sierra-api/swagger/index.html#!/patrons
   def getSierraUserHoldsStub(userId: StacksUserIdentifier): Future[SierraUserHoldsStub] =  for {
     token <- getToken(credentials)
-
     holds <- get[SierraUserHoldsStub](
       path = Path(s"v5/patrons/${userId.value}/holds"),
       params = Map(
