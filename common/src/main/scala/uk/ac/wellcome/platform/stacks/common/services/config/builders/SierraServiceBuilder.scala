@@ -6,7 +6,7 @@ import akka.http.scaladsl.model.headers.BasicHttpCredentials
 import akka.stream.ActorMaterializer
 import com.typesafe.config.Config
 import uk.ac.wellcome.platform.stacks.common.config.TypesafeBuilder
-import uk.ac.wellcome.platform.stacks.common.services.SierraService
+import uk.ac.wellcome.platform.stacks.common.services.{AkkaSierraSource, SierraService}
 import uk.ac.wellcome.platform.stacks.common.services.config.models.SierraServiceConfig
 import uk.ac.wellcome.typesafe.config.builders.EnrichConfig._
 
@@ -27,10 +27,12 @@ class SierraServiceBuilder()(
   }
 
   def buildT(config: SierraServiceConfig): SierraService = new SierraService(
-    baseUri = Uri(config.baseUrl),
-    credentials = BasicHttpCredentials(
-      username = config.username,
-      password = config.password
+    new AkkaSierraSource(
+      baseUri = Uri(config.baseUrl),
+      credentials = BasicHttpCredentials(
+        username = config.username,
+        password = config.password
+      )
     )
   )
 }
