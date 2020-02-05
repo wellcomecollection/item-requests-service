@@ -1,7 +1,7 @@
 jobs:
   include:
-     - stage: preflight
-       env: TASK=travis-format
+    - stage: preflight
+      env: TASK=travis-format
 
     - stage: libraries
       env: SBT_PROJECT=common
