@@ -5,8 +5,18 @@ import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.{FunSpec, Matchers}
 import uk.ac.wellcome.platform.stacks.common.fixtures.ServicesFixture
 import uk.ac.wellcome.platform.stacks.common.models._
-import uk.ac.wellcome.platform.stacks.common.services.source.CatalogueSource.{IdentifiersStub, ItemStub, LocationStub, SearchStub, TypeStub, WorkStub}
-import uk.ac.wellcome.platform.stacks.common.services.source.{AkkaCatalogueSource, CatalogueSource}
+import uk.ac.wellcome.platform.stacks.common.services.source.CatalogueSource.{
+  IdentifiersStub,
+  ItemStub,
+  LocationStub,
+  SearchStub,
+  TypeStub,
+  WorkStub
+}
+import uk.ac.wellcome.platform.stacks.common.services.source.{
+  AkkaCatalogueSource,
+  CatalogueSource
+}
 import uk.ac.wellcome.storage.generators.RandomThings
 
 import scala.concurrent.Future
@@ -73,7 +83,9 @@ class CatalogueServiceTest
               def getWorkStub(id: StacksWorkIdentifier): Future[WorkStub] =
                 Future.failed(new NotImplementedError())
 
-              def getSearchStub(identifier: Identifier[_]): Future[SearchStub] = {
+              def getSearchStub(
+                  identifier: Identifier[_]
+              ): Future[SearchStub] = {
                 def createItem(catId: String, sierraId: Long) = ItemStub(
                   id = catId,
                   identifiers = List(
