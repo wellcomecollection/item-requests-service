@@ -71,7 +71,15 @@ class CatalogueService(
         .map(_.items)
         .flatMap(getStacksItems)
 
-    } yield items match {
+      // Ensure we are only matching items that match the passed id!
+      filteredItems = identifier match {
+        case CatalogueItemIdentifier(id) =>
+          items.filter(_.id.catalogueId.value == id)
+        case SierraItemIdentifier(id) =>
+          items.filter(_.id.sierraId.value == id)
+      }
+
+    } yield filteredItems match {
       case List(item) => Some(item)
       case _          => None
     }
