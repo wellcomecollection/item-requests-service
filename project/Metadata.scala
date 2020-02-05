@@ -6,9 +6,9 @@ import io.circe.syntax._
 
 object Metadata {
   def write(
-    project: Project,
-    folder: String,
-    localDependencies: Seq[Project] = Seq()
+      project: Project,
+      folder: String,
+      localDependencies: Seq[Project] = Seq()
   ) = {
     // Here we write a bit of metadata about the project, and the other
     // local projects it depends on.  This can be used to determine whether
@@ -20,9 +20,9 @@ object Metadata {
     }.toList
 
     case class ProjectMetadata(
-      id: String,
-      folder: String,
-      dependencyIds: List[String]
+        id: String,
+        folder: String,
+        dependencyIds: List[String]
     )
 
     val metadata = ProjectMetadata(

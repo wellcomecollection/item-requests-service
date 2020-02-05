@@ -4,10 +4,10 @@ import java.util.UUID
 import com.amazonaws.auth.STSAssumeRoleSessionCredentialsProvider
 
 def setupProject(
-  project: Project,
-  folder: String,
-  localDependencies: Seq[Project] = Seq(),
-  externalDependencies: Seq[ModuleID] = Seq()
+    project: Project,
+    folder: String,
+    localDependencies: Seq[Project] = Seq(),
+    externalDependencies: Seq[ModuleID] = Seq()
 ): Project = {
 
   Metadata.write(project, folder, localDependencies)
@@ -29,9 +29,6 @@ def setupProject(
     .dependsOn(dependsOn: _*)
     .settings(libraryDependencies ++= externalDependencies)
 }
-
-// Temporarily commented out until https://github.com/wellcometrust/platform/issues/3806
-// In order to access our libraries in S3 we need to set the following:
 
 s3CredentialsProvider := { _ =>
   val builder = new STSAssumeRoleSessionCredentialsProvider.Builder(

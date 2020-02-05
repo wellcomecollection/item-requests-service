@@ -4,12 +4,14 @@ import akka.http.scaladsl.model.StatusCodes
 import org.scalatest.concurrent.IntegrationPatience
 import org.scalatest.{FunSpec, Matchers}
 import uk.ac.wellcome.json.utils.JsonAssertions
-import uk.ac.wellcome.platform.stacks.common.fixtures.{CatalogueWireMockFixture, SierraWireMockFixture}
+import uk.ac.wellcome.platform.stacks.common.fixtures.{
+  CatalogueWireMockFixture,
+  SierraWireMockFixture
+}
 import uk.ac.wellcome.platform.stacks.items.api.fixtures.ItemsApiFixture
 
-
 class ItemsApiFeatureTest
-  extends FunSpec
+    extends FunSpec
     with Matchers
     with ItemsApiFixture
     with JsonAssertions
@@ -20,14 +22,14 @@ class ItemsApiFeatureTest
   describe("items") {
     it("shows a user the items on a work") {
       withMockCatalogueServer { catalogueApiUrl: String =>
-        withMockSierraServer { case (sierraApiUrl, _) =>
-          withConfiguredApp(catalogueApiUrl, sierraApiUrl) {
-            case (_, _) =>
+        withMockSierraServer {
+          case (sierraApiUrl, _) =>
+            withConfiguredApp(catalogueApiUrl, sierraApiUrl) {
+              case (_, _) =>
+                val path = "/works/cnkv77md"
 
-              val path = "/works/cnkv77md"
-
-              val expectedJson =
-                s"""
+                val expectedJson =
+                  s"""
                    |{
                    |  "id" : "cnkv77md",
                    |  "items" : [
@@ -43,17 +45,16 @@ class ItemsApiFeatureTest
                    |      }
                    |    }
                    |  ]
-                   |}"""
-                  .stripMargin
+                   |}""".stripMargin
 
-              whenGetRequestReady(path) { response =>
-                response.status shouldBe StatusCodes.OK
+                whenGetRequestReady(path) { response =>
+                  response.status shouldBe StatusCodes.OK
 
-                withStringEntity(response.entity) { actualJson =>
-                  assertJsonStringsAreEqual(actualJson, expectedJson)
+                  withStringEntity(response.entity) { actualJson =>
+                    assertJsonStringsAreEqual(actualJson, expectedJson)
+                  }
                 }
-              }
-          }
+            }
         }
       }
     }

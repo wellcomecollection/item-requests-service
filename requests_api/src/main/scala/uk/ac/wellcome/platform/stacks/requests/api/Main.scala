@@ -9,7 +9,10 @@ import uk.ac.wellcome.monitoring.typesafe.MetricsBuilder
 import uk.ac.wellcome.platform.stacks.common.http.config.builders.HTTPServerBuilder
 import uk.ac.wellcome.platform.stacks.common.http.{HttpMetrics, WellcomeHttpApp}
 import uk.ac.wellcome.platform.stacks.common.services.StacksService
-import uk.ac.wellcome.platform.stacks.common.services.config.builders.{SierraServiceBuilder, StacksServiceBuilder}
+import uk.ac.wellcome.platform.stacks.common.services.config.builders.{
+  SierraServiceBuilder,
+  StacksServiceBuilder
+}
 import uk.ac.wellcome.typesafe.WellcomeTypesafeApp
 import uk.ac.wellcome.typesafe.config.builders.AkkaBuilder
 
@@ -43,8 +46,8 @@ object Main extends WellcomeTypesafeApp {
         metrics = MetricsBuilder.buildMetricsSender(config)
       ),
       httpServerConfig = HTTPServerBuilder.buildHTTPServerConfig(config),
-      contextURL = new URL(
-        "https://api.wellcomecollection.org/stacks/v1/context.json"),
+      contextURL =
+        new URL("https://api.wellcomecollection.org/stacks/v1/context.json"),
       appName = appName
     )
   }

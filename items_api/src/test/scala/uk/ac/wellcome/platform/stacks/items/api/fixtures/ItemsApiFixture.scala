@@ -10,14 +10,18 @@ import uk.ac.wellcome.platform.stacks.common.fixtures.HttpFixtures
 import uk.ac.wellcome.platform.stacks.common.http.{HttpMetrics, WellcomeHttpApp}
 import uk.ac.wellcome.platform.stacks.common.services.StacksService
 import uk.ac.wellcome.platform.stacks.common.services.config.builders.StacksServiceBuilder
-import uk.ac.wellcome.platform.stacks.common.services.config.models.{CatalogueServiceConfig, SierraServiceConfig, StacksServiceConfig}
+import uk.ac.wellcome.platform.stacks.common.services.config.models.{
+  CatalogueServiceConfig,
+  SierraServiceConfig,
+  StacksServiceConfig
+}
 import uk.ac.wellcome.platform.stacks.items.api.ItemsApi
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
 
 trait ItemsApiFixture
-  extends ScalaFutures
+    extends ScalaFutures
     with HttpFixtures
     with MetricsSenderFixture {
 
@@ -28,13 +32,12 @@ trait ItemsApiFixture
   )
 
   private def withApp[R](
-                          catalogueApiUrl: String,
-                          sierraApiUrl: String,
-                          metrics: MemoryMetrics[Unit]
-                        )(testWith: TestWith[WellcomeHttpApp, R]): R =
+      catalogueApiUrl: String,
+      sierraApiUrl: String,
+      metrics: MemoryMetrics[Unit]
+  )(testWith: TestWith[WellcomeHttpApp, R]): R =
     withActorSystem { implicit actorSystem =>
       withMaterializer(actorSystem) { implicit mat =>
-
         val httpMetrics = new HttpMetrics(
           name = metricsName,
           metrics = metrics
@@ -77,11 +80,11 @@ trait ItemsApiFixture
     }
 
   def withConfiguredApp[R](
-                            catalogueApiUrl: String,
-                            sierraApiUrl: String
-                          )(
-                            testWith: TestWith[(MemoryMetrics[Unit], String), R]
-                          ): R = {
+      catalogueApiUrl: String,
+      sierraApiUrl: String
+  )(
+      testWith: TestWith[(MemoryMetrics[Unit], String), R]
+  ): R = {
     val metrics = new MemoryMetrics[Unit]()
 
     withApp(catalogueApiUrl, sierraApiUrl, metrics) { _ =>

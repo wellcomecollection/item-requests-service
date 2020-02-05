@@ -5,11 +5,18 @@ import java.net.URL
 import akka.http.scaladsl.marshalling.Marshal
 import akka.http.scaladsl.model.StatusCodes.BadRequest
 import akka.http.scaladsl.model._
-import akka.http.scaladsl.server.{MalformedRequestContentRejection, RejectionHandler, StandardRoute}
+import akka.http.scaladsl.server.{
+  MalformedRequestContentRejection,
+  RejectionHandler,
+  StandardRoute
+}
 import akka.stream.scaladsl.Flow
 import akka.util.ByteString
 import io.circe.CursorOp
-import uk.ac.wellcome.platform.stacks.common.http.models.{InternalServerErrorResponse, UserErrorResponse}
+import uk.ac.wellcome.platform.stacks.common.http.models.{
+  InternalServerErrorResponse,
+  UserErrorResponse
+}
 
 import scala.concurrent.ExecutionContext
 
@@ -50,7 +57,7 @@ trait WellcomeRejectionHandler {
       }
 
   private def handleDecodingFailures(
-    causes: DecodingFailures
+      causes: DecodingFailures
   ): StandardRoute = {
     val message = causes.failures.map { cause =>
       val path = CursorOp.opsToPath(cause.history)
@@ -84,8 +91,8 @@ trait WellcomeRejectionHandler {
   }
 
   private def transformToJsonErrorResponse(
-    statusCode: StatusCode,
-    response: HttpResponse
+      statusCode: StatusCode,
+      response: HttpResponse
   ): HttpResponse = {
 
     val errorResponseMarshallingFlow = Flow[ByteString]

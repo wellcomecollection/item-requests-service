@@ -6,8 +6,8 @@ import uk.ac.wellcome.fixtures.TestWith
 
 trait SierraWireMockFixture {
   def withMockSierraServer[R](
-                                  testWith: TestWith[(String, WireMockServer), R]
-                                ): R = {
+      testWith: TestWith[(String, WireMockServer), R]
+  ): R = {
 
     val wireMockServer = new WireMockServer(
       WireMockConfiguration
@@ -18,7 +18,8 @@ trait SierraWireMockFixture {
 
     wireMockServer.start()
 
-    val urlAndServer = (s"http://localhost:${wireMockServer.port()}", wireMockServer)
+    val urlAndServer =
+      (s"http://localhost:${wireMockServer.port()}", wireMockServer)
     val result = testWith(urlAndServer)
 
     wireMockServer.shutdown()

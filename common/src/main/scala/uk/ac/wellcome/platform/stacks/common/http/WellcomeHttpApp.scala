@@ -16,16 +16,16 @@ import uk.ac.wellcome.typesafe.Runnable
 import scala.concurrent.{ExecutionContext, Future}
 
 class WellcomeHttpApp(
-  routes: Route,
-  httpServerConfig: HTTPServerConfig,
-  val httpMetrics: HttpMetrics,
-  val contextURL: URL,
-  val appName: String
+    routes: Route,
+    httpServerConfig: HTTPServerConfig,
+    val httpMetrics: HttpMetrics,
+    val contextURL: URL,
+    val appName: String
 )(
-  implicit
-  val as: ActorSystem,
-  val ec: ExecutionContext,
-  mt: ActorMaterializer
+    implicit
+    val as: ActorSystem,
+    val ec: ExecutionContext,
+    mt: ActorMaterializer
 ) extends Runnable
     with WellcomeExceptionHandler
     with WellcomeRejectionHandler

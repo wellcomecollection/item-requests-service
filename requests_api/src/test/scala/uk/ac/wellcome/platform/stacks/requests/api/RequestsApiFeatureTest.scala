@@ -2,15 +2,22 @@ package uk.ac.wellcome.platform.stacks.requests.api
 
 import akka.http.scaladsl.model.HttpHeader.ParsingResult
 import akka.http.scaladsl.model.{HttpHeader, StatusCodes}
-import com.github.tomakehurst.wiremock.client.WireMock.{equalToJson, postRequestedFor, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock.{
+  equalToJson,
+  postRequestedFor,
+  urlEqualTo
+}
 import org.scalatest.concurrent.IntegrationPatience
 import org.scalatest.{FunSpec, Matchers}
 import uk.ac.wellcome.json.utils.JsonAssertions
-import uk.ac.wellcome.platform.stacks.common.fixtures.{CatalogueWireMockFixture, SierraWireMockFixture}
+import uk.ac.wellcome.platform.stacks.common.fixtures.{
+  CatalogueWireMockFixture,
+  SierraWireMockFixture
+}
 import uk.ac.wellcome.platform.stacks.requests.api.fixtures.RequestsApiFixture
 
 class RequestsApiFeatureTest
-  extends FunSpec
+    extends FunSpec
     with Matchers
     with RequestsApiFixture
     with JsonAssertions
@@ -21,93 +28,111 @@ class RequestsApiFeatureTest
   describe("requests") {
     it("responds to requests containing an Weco-Sierra-Patron-Id header") {
       withMockCatalogueServer { catalogueApiUrl: String =>
-        withMockSierraServer { case (sierraApiUrl, _) =>
-          withConfiguredApp(catalogueApiUrl, sierraApiUrl) { case (_, _) =>
-            val path = "/requests"
+        withMockSierraServer {
+          case (sierraApiUrl, _) =>
+            withConfiguredApp(catalogueApiUrl, sierraApiUrl) {
+              case (_, _) =>
+                val path = "/requests"
 
-            val headers = List(
-              HttpHeader.parse(
-                name = "Weco-Sierra-Patron-Id",
-                value = "1234567"
-              ).asInstanceOf[ParsingResult.Ok].header
-            )
+                val headers = List(
+                  HttpHeader
+                    .parse(
+                      name = "Weco-Sierra-Patron-Id",
+                      value = "1234567"
+                    )
+                    .asInstanceOf[ParsingResult.Ok]
+                    .header
+                )
 
-            whenGetRequestReady(path, headers) { response =>
-              response.status shouldBe StatusCodes.OK
+                whenGetRequestReady(path, headers) { response =>
+                  response.status shouldBe StatusCodes.OK
+                }
             }
-          }
         }
       }
     }
 
     it("accepts requests to place a hold on an item") {
       withMockCatalogueServer { catalogueApiUrl: String =>
-        withMockSierraServer { case (sierraApiUrl, wireMockServer) =>
-          withConfiguredApp(catalogueApiUrl, sierraApiUrl) { case (_, _) =>
-            val path = "/requests"
+        withMockSierraServer {
+          case (sierraApiUrl, wireMockServer) =>
+            withConfiguredApp(catalogueApiUrl, sierraApiUrl) {
+              case (_, _) =>
+                val path = "/requests"
 
-            val headers = List(
-              HttpHeader.parse(
-                name = "Weco-Sierra-Patron-Id",
-                value = "1234567"
-              ).asInstanceOf[ParsingResult.Ok].header
-            )
+                val headers = List(
+                  HttpHeader
+                    .parse(
+                      name = "Weco-Sierra-Patron-Id",
+                      value = "1234567"
+                    )
+                    .asInstanceOf[ParsingResult.Ok]
+                    .header
+                )
 
-            val entity = createJsonHttpEntityWith(
-              """
+                val entity = createJsonHttpEntityWith(
+                  """
                 |{
                 |   "itemId": "ys3ern6x"
                 |}
                 |""".stripMargin
-            )
+                )
 
-            val expectedJson =
-              """
+                val expectedJson =
+                  """
                 |{
                 |  "itemId" : "ys3ern6x",
                 |  "userId" : "1234567"
                 |}
                 |""".stripMargin
 
-            whenPostRequestReady(path, entity, headers) { response =>
-              response.status shouldBe StatusCodes.OK
+                whenPostRequestReady(path, entity, headers) { response =>
+                  response.status shouldBe StatusCodes.OK
 
-              wireMockServer.verify(1, postRequestedFor(
-                urlEqualTo("/iii/sierra-api/v5/patrons/1234567/holds/requests")
-              ).withRequestBody(equalToJson(
-                """
+                  wireMockServer.verify(
+                    1,
+                    postRequestedFor(
+                      urlEqualTo(
+                        "/iii/sierra-api/v5/patrons/1234567/holds/requests"
+                      )
+                    ).withRequestBody(equalToJson("""
                   |{
                   |  "recordType" : "i",
                   |  "recordNumber" : 1292185,
                   |  "pickupLocation" : "sicon"
                   |}
-                  |""".stripMargin)
-              ))
+                  |""".stripMargin))
+                  )
 
-              withStringEntity(response.entity) { actualJson =>
-                assertJsonStringsAreEqual(actualJson, expectedJson)
-              }
+                  withStringEntity(response.entity) { actualJson =>
+                    assertJsonStringsAreEqual(actualJson, expectedJson)
+                  }
+                }
             }
-          }
         }
       }
     }
 
     it("provides information about a users' holds") {
       withMockCatalogueServer { catalogueApiUrl: String =>
-        withMockSierraServer { case (sierraApiUrl, _) =>
-          withConfiguredApp(catalogueApiUrl, sierraApiUrl) { case (_, _) =>
-            val path = "/requests"
+        withMockSierraServer {
+          case (sierraApiUrl, _) =>
+            withConfiguredApp(catalogueApiUrl, sierraApiUrl) {
+              case (_, _) =>
+                val path = "/requests"
 
-            val headers = List(
-              HttpHeader.parse(
-                name = "Weco-Sierra-Patron-Id",
-                value = "1234567"
-              ).asInstanceOf[ParsingResult.Ok].header
-            )
+                val headers = List(
+                  HttpHeader
+                    .parse(
+                      name = "Weco-Sierra-Patron-Id",
+                      value = "1234567"
+                    )
+                    .asInstanceOf[ParsingResult.Ok]
+                    .header
+                )
 
-            val expectedJson =
-              s"""
+                val expectedJson =
+                  s"""
                  |{
                  |  "userId" : "1234567",
                  |  "holds" : [
@@ -133,17 +158,16 @@ class RequestsApiFeatureTest
                  |      }
                  |    }
                  |  ]
-                 |}"""
-                .stripMargin
+                 |}""".stripMargin
 
-            whenGetRequestReady(path, headers) { response =>
-              response.status shouldBe StatusCodes.OK
+                whenGetRequestReady(path, headers) { response =>
+                  response.status shouldBe StatusCodes.OK
 
-              withStringEntity(response.entity) { actualJson =>
-                assertJsonStringsAreEqual(actualJson, expectedJson)
-              }
+                  withStringEntity(response.entity) { actualJson =>
+                    assertJsonStringsAreEqual(actualJson, expectedJson)
+                  }
+                }
             }
-          }
         }
       }
     }

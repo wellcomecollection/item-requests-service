@@ -6,15 +6,15 @@ sealed trait StacksItem {
 }
 
 case class StacksItemWithStatus(
-                       id: StacksItemIdentifier,
-                       location: StacksLocation,
-                       status: StacksItemStatus
-                     ) extends StacksItem
+    id: StacksItemIdentifier,
+    location: StacksLocation,
+    status: StacksItemStatus
+) extends StacksItem
 
 case class StacksItemWithOutStatus(
-                                 id: StacksItemIdentifier,
-                                 location: StacksLocation
-                               ) extends StacksItem {
+    id: StacksItemIdentifier,
+    location: StacksLocation
+) extends StacksItem {
   def addStatus(stacksItemStatus: StacksItemStatus) =
     StacksItemWithStatus(
       id = this.id,
