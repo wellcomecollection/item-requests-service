@@ -12,8 +12,8 @@ import uk.ac.wellcome.typesafe.config.builders.EnrichConfig._
 
 class CatalogueServiceBuilder()(
     implicit
-      val system: ActorSystem,
-      val mat: ActorMaterializer
+    val system: ActorSystem,
+    val mat: ActorMaterializer
 ) extends TypesafeBuilder[CatalogueService, CatalogueServiceConfig] {
 
   implicit val ec = system.dispatcher

@@ -5,7 +5,10 @@ import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.model.Uri.Path
 import akka.stream.ActorMaterializer
 import uk.ac.wellcome.platform.stacks.common.http.AkkaClientGet
-import uk.ac.wellcome.platform.stacks.common.models.{Identifier, StacksWorkIdentifier}
+import uk.ac.wellcome.platform.stacks.common.models.{
+  Identifier,
+  StacksWorkIdentifier
+}
 
 import scala.concurrent.Future
 
@@ -18,48 +21,47 @@ trait CatalogueSource {
 
 object CatalogueSource {
   case class TypeStub(
-                       id: String,
-                       label: String
-                     )
+      id: String,
+      label: String
+  )
 
   case class LocationStub(
-                           locationType: TypeStub,
-                           label: Option[String],
-                           `type`: String
-                         )
+      locationType: TypeStub,
+      label: Option[String],
+      `type`: String
+  )
 
   case class IdentifiersStub(
-                              identifierType: TypeStub,
-                              value: String
-                            )
+      identifierType: TypeStub,
+      value: String
+  )
 
   case class ItemStub(
-                       id: String,
-                       identifiers: List[IdentifiersStub],
-                       locations: List[LocationStub]
-                     )
+      id: String,
+      identifiers: List[IdentifiersStub],
+      locations: List[LocationStub]
+  )
 
   case class WorkStub(
-                       id: String,
-                       items: List[ItemStub]
-                     )
+      id: String,
+      items: List[ItemStub]
+  )
 
   case class SearchStub(
-                         totalResults: Int,
-                         results: List[WorkStub]
-                       )
+      totalResults: Int,
+      results: List[WorkStub]
+  )
 }
 
 class AkkaCatalogueSource(
-                           val baseUri: Uri = Uri(
-                             "https://api.wellcomecollection.org/catalogue/v2"
-                           )
-                         )(
-                           implicit
-                           val system: ActorSystem,
-                           val mat: ActorMaterializer
-                         )
-  extends CatalogueSource
+    val baseUri: Uri = Uri(
+      "https://api.wellcomecollection.org/catalogue/v2"
+    )
+)(
+    implicit
+    val system: ActorSystem,
+    val mat: ActorMaterializer
+) extends CatalogueSource
     with AkkaClientGet {
 
   import CatalogueSource._
@@ -85,4 +87,3 @@ class AkkaCatalogueSource(
       )
     )
 }
-

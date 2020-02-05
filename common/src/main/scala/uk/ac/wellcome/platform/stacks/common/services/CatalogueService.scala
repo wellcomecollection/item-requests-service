@@ -57,7 +57,8 @@ class CatalogueService(
 
   def getStacksWork(
       workId: StacksWorkIdentifier
-  ): Future[StacksWork[StacksItemWithOutStatus]] = for {
+  ): Future[StacksWork[StacksItemWithOutStatus]] =
+    for {
       workStub <- catalogueSource.getWorkStub(workId)
       items = getStacksItems(workStub.items)
     } yield StacksWork(workStub.id, items)
