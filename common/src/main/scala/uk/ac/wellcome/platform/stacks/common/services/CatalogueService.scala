@@ -77,6 +77,7 @@ class CatalogueService(
           items.filter(_.id.catalogueId.value == id)
         case SierraItemIdentifier(id) =>
           items.filter(_.id.sierraId.value == id)
+        case _ => items
       }
 
     } yield filteredItems match {
