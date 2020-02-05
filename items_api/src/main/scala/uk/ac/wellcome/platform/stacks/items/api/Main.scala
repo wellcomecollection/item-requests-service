@@ -15,7 +15,6 @@ import uk.ac.wellcome.typesafe.config.builders.AkkaBuilder
 
 import scala.concurrent.ExecutionContext
 
-
 object Main extends WellcomeTypesafeApp {
   runWithConfig { config: Config =>
     implicit val asMain: ActorSystem =
@@ -44,8 +43,8 @@ object Main extends WellcomeTypesafeApp {
         metrics = MetricsBuilder.buildMetricsSender(config)
       ),
       httpServerConfig = HTTPServerBuilder.buildHTTPServerConfig(config),
-      contextURL = new URL(
-        "https://api.wellcomecollection.org/stacks/v1/context.json"),
+      contextURL =
+        new URL("https://api.wellcomecollection.org/stacks/v1/context.json"),
       appName = appName
     )
   }

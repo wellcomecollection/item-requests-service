@@ -9,12 +9,11 @@ import uk.ac.wellcome.platform.stacks.common.services.CatalogueService
 import uk.ac.wellcome.platform.stacks.common.services.config.models.CatalogueServiceConfig
 import uk.ac.wellcome.typesafe.config.builders.EnrichConfig._
 
-
 class CatalogueServiceBuilder()(
-  implicit
+    implicit
     val system: ActorSystem,
-    val mat: ActorMaterializer,
-) extends TypesafeBuilder[CatalogueService, CatalogueServiceConfig]{
+    val mat: ActorMaterializer
+) extends TypesafeBuilder[CatalogueService, CatalogueServiceConfig] {
 
   def buildConfig(config: Config): CatalogueServiceConfig =
     CatalogueServiceConfig(config.required("catalogue.api.baseUrl"))

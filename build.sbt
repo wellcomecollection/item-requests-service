@@ -4,10 +4,10 @@ import java.util.UUID
 import com.amazonaws.auth.STSAssumeRoleSessionCredentialsProvider
 
 def setupProject(
-  project: Project,
-  folder: String,
-  localDependencies: Seq[Project] = Seq(),
-  externalDependencies: Seq[ModuleID] = Seq()
+    project: Project,
+    folder: String,
+    localDependencies: Seq[Project] = Seq(),
+    externalDependencies: Seq[ModuleID] = Seq()
 ): Project = {
 
   Metadata.write(project, folder, localDependencies)

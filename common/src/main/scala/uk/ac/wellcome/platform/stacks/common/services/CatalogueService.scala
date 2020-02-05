@@ -9,10 +9,12 @@ import uk.ac.wellcome.platform.stacks.common.models.{StacksItem, _}
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
-class CatalogueService(val baseUri: Uri = Uri(
-  "https://api.wellcomecollection.org/catalogue/v2"
-))(
-  implicit
+class CatalogueService(
+    val baseUri: Uri = Uri(
+      "https://api.wellcomecollection.org/catalogue/v2"
+    )
+)(
+    implicit
     val system: ActorSystem,
     val mat: ActorMaterializer
 ) extends AkkaClientService
@@ -23,24 +25,26 @@ class CatalogueService(val baseUri: Uri = Uri(
   import CatalogueService._
 
   protected def getIdentifier(
-                               identifiers: List[IdentifiersStub]
-                             ): Option[SierraItemIdentifier] =
+      identifiers: List[IdentifiersStub]
+  ): Option[SierraItemIdentifier] =
     identifiers filter (_.identifierType.id == "sierra-identifier") match {
 
-      case List(IdentifiersStub(_, value)) => Try(value.toLong) match {
-        case Success(l) => Some(SierraItemIdentifier(l))
-        case Failure(_) => throw new Exception(
-          s"Unable to convert $value to Long!"
-        )
-      }
+      case List(IdentifiersStub(_, value)) =>
+        Try(value.toLong) match {
+          case Success(l) => Some(SierraItemIdentifier(l))
+          case Failure(_) =>
+            throw new Exception(
+              s"Unable to convert $value to Long!"
+            )
+        }
 
       case _ => None
     }
 
   protected def getLocations(
-                              locations: List[LocationStub]
-                            ): List[StacksLocation] = locations collect {
-    case location@LocationStub(_, _, "PhysicalLocation") =>
+      locations: List[LocationStub]
+  ): List[StacksLocation] = locations collect {
+    case location @ LocationStub(_, _, "PhysicalLocation") =>
       StacksLocation(
         location.locationType.id,
         location.locationType.label
@@ -48,29 +52,32 @@ class CatalogueService(val baseUri: Uri = Uri(
   }
 
   protected def getStacksItems(
-                                itemStubs: List[ItemStub]
-                              ): List[StacksItemWithOutStatus] = itemStubs map {
-    case ItemStub(id, identifiers, locations) =>
-      (
-        CatalogueItemIdentifier(id),
-        getIdentifier(identifiers),
-        getLocations(locations)
-      )
-  } map {
-    case (catId, Some(sierraId), List(location)) =>
-      StacksItemWithOutStatus(
-        StacksItemIdentifier(catId, sierraId),
-        location
-      )
-  }
+      itemStubs: List[ItemStub]
+  ): List[StacksItemWithOutStatus] =
+    itemStubs map {
+      case ItemStub(id, identifiers, locations) =>
+        (
+          CatalogueItemIdentifier(id),
+          getIdentifier(identifiers),
+          getLocations(locations)
+        )
+    } map {
+      case (catId, Some(sierraId), List(location)) =>
+        StacksItemWithOutStatus(
+          StacksItemIdentifier(catId, sierraId),
+          location
+        )
+    }
 
   // See https://developers.wellcomecollection.org/catalogue/v2/works/getwork
-  def getStacksWork(workId: StacksWorkIdentifier): Future[StacksWork[StacksItemWithOutStatus]] =
+  def getStacksWork(
+      workId: StacksWorkIdentifier
+  ): Future[StacksWork[StacksItemWithOutStatus]] =
     for {
       workStub <- get[WorkStub](
         path = Path(s"works/${workId.value}"),
         params = Map(
-          ("include","items,identifiers")
+          ("include", "items,identifiers")
         )
       )
 
@@ -95,40 +102,40 @@ class CatalogueService(val baseUri: Uri = Uri(
 
     } yield items match {
       case List(item) => Some(item)
-      case _ => None
+      case _          => None
     }
 }
 
 object CatalogueService {
   case class TypeStub(
-                       id: String,
-                       label: String
-                     )
+      id: String,
+      label: String
+  )
 
   case class LocationStub(
-                           locationType: TypeStub,
-                           label: Option[String],
-                           `type`: String
-                         )
+      locationType: TypeStub,
+      label: Option[String],
+      `type`: String
+  )
 
   case class IdentifiersStub(
-                              identifierType: TypeStub,
-                              value: String
-                            )
+      identifierType: TypeStub,
+      value: String
+  )
 
   case class ItemStub(
-                       id: String,
-                       identifiers: List[IdentifiersStub],
-                       locations: List[LocationStub]
-                     )
+      id: String,
+      identifiers: List[IdentifiersStub],
+      locations: List[LocationStub]
+  )
 
   case class WorkStub(
-                       id: String,
-                       items: List[ItemStub]
-                     )
+      id: String,
+      items: List[ItemStub]
+  )
 
   case class SearchStub(
-                         totalResults: Int,
-                         results: List[WorkStub]
-                       )
+      totalResults: Int,
+      results: List[WorkStub]
+  )
 }

@@ -10,13 +10,16 @@ import uk.ac.wellcome.platform.stacks.common.services.config.models.StacksServic
 import scala.concurrent.ExecutionContext
 
 class StacksServiceBuilder()(
-  implicit am: ActorMaterializer, as: ActorSystem, ec: ExecutionContext
+    implicit am: ActorMaterializer,
+    as: ActorSystem,
+    ec: ExecutionContext
 ) extends TypesafeBuilder[StacksService, StacksServiceConfig] {
 
-  override def buildConfig(config: Config): StacksServiceConfig = StacksServiceConfig(
-    new CatalogueServiceBuilder().buildConfig(config),
-    new SierraServiceBuilder().buildConfig(config)
-  )
+  override def buildConfig(config: Config): StacksServiceConfig =
+    StacksServiceConfig(
+      new CatalogueServiceBuilder().buildConfig(config),
+      new SierraServiceBuilder().buildConfig(config)
+    )
 
   override def buildT(wellcomeConfig: StacksServiceConfig): StacksService = {
     new StacksService(

@@ -8,55 +8,56 @@ import uk.ac.wellcome.platform.stacks.common.models._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-
 class StacksService(
-                     catalogueService: CatalogueService,
-                     sierraService: SierraService
-                   )(
-                     implicit ec: ExecutionContext
-                   ) extends Logging {
+    catalogueService: CatalogueService,
+    sierraService: SierraService
+)(
+    implicit ec: ExecutionContext
+) extends Logging {
 
   def requestHoldOnItem(
-                         userIdentifier: StacksUserIdentifier,
-                         catalogueItemId: CatalogueItemIdentifier
-                       ): Future[StacksHoldRequest] = for {
-    stacksItem <- catalogueService.getStacksItem(catalogueItemId)
+      userIdentifier: StacksUserIdentifier,
+      catalogueItemId: CatalogueItemIdentifier
+  ): Future[StacksHoldRequest] =
+    for {
+      stacksItem <- catalogueService.getStacksItem(catalogueItemId)
 
-    _ <- stacksItem match {
-      case Some(item) => sierraService.placeHold(
-        userIdentifier = userIdentifier,
-        sierraItemIdentifier = item.id.sierraId,
-        itemLocation = item.location
-      )
-      case None => Future.failed(
-        new Exception(f"Could not locate item $catalogueItemId!")
-      )
-  }
+      _ <- stacksItem match {
+        case Some(item) =>
+          sierraService.placeHold(
+            userIdentifier = userIdentifier,
+            sierraItemIdentifier = item.id.sierraId,
+            itemLocation = item.location
+          )
+        case None =>
+          Future.failed(
+            new Exception(f"Could not locate item $catalogueItemId!")
+          )
+      }
 
-  } yield StacksHoldRequest(
-    itemId = catalogueItemId.value,
-    userId = userIdentifier.value
-  )
+    } yield StacksHoldRequest(
+      itemId = catalogueItemId.value,
+      userId = userIdentifier.value
+    )
 
   def getStacksWorkWithItemStatuses(
-                                     workId: StacksWorkIdentifier
-                                   ): Future[StacksWork[StacksItemWithStatus]] =
+      workId: StacksWorkIdentifier
+  ): Future[StacksWork[StacksItemWithStatus]] =
     for {
       stacksWorkWithoutItemStatuses <- catalogueService.getStacksWork(workId)
       itemStatuses <- stacksWorkWithoutItemStatuses.items
         .map(_.id.sierraId)
         .traverse(sierraService.getItemStatus)
 
-      stacksItemsWithStatuses =
-      (stacksWorkWithoutItemStatuses.items zip itemStatuses) map {
+      stacksItemsWithStatuses = (stacksWorkWithoutItemStatuses.items zip itemStatuses) map {
         case (item, status) => item.addStatus(status)
       }
     } yield stacksWorkWithoutItemStatuses
       .updateItems(stacksItemsWithStatuses)
 
   def getStacksUserHolds(
-                                                  userId: StacksUserIdentifier
-                                                ): Future[StacksUserHolds[StacksItemIdentifier]] =
+      userId: StacksUserIdentifier
+  ): Future[StacksUserHolds[StacksItemIdentifier]] =
     for {
       userHolds <- sierraService.getStacksUserHolds(userId)
       stacksItems <- userHolds.holds

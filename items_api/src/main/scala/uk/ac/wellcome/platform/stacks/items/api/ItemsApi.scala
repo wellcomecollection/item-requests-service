@@ -10,7 +10,6 @@ import uk.ac.wellcome.platform.stacks.items.api.display.models.DisplayStacksWork
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
-
 trait ItemsApi extends Logging with FailFastCirceSupport {
 
   import akka.http.scaladsl.server.Directives._
@@ -29,7 +28,7 @@ trait ItemsApi extends Logging with FailFastCirceSupport {
 
           onComplete(result) {
             case Success(value) => complete(DisplayStacksWork(value))
-            case Failure(err) => failWith(err)
+            case Failure(err)   => failWith(err)
           }
         }
       }
