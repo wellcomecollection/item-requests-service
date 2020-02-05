@@ -5,7 +5,8 @@ import akka.http.scaladsl.model.headers.BasicHttpCredentials
 import com.github.tomakehurst.wiremock.WireMockServer
 import uk.ac.wellcome.akka.fixtures.Akka
 import uk.ac.wellcome.fixtures.TestWith
-import uk.ac.wellcome.platform.stacks.common.services.{AkkaCatalogueSource, AkkaSierraSource, CatalogueService, SierraService, StacksService}
+import uk.ac.wellcome.platform.stacks.common.services.source.{AkkaCatalogueSource, AkkaSierraSource}
+import uk.ac.wellcome.platform.stacks.common.services.{CatalogueService, SierraService, StacksService}
 
 import scala.concurrent.ExecutionContextExecutor
 

@@ -5,8 +5,9 @@ import akka.http.scaladsl.model.Uri
 import akka.stream.ActorMaterializer
 import com.typesafe.config.Config
 import uk.ac.wellcome.platform.stacks.common.config.TypesafeBuilder
-import uk.ac.wellcome.platform.stacks.common.services.{AkkaCatalogueSource, CatalogueService}
+import uk.ac.wellcome.platform.stacks.common.services.CatalogueService
 import uk.ac.wellcome.platform.stacks.common.services.config.models.CatalogueServiceConfig
+import uk.ac.wellcome.platform.stacks.common.services.source.AkkaCatalogueSource
 import uk.ac.wellcome.typesafe.config.builders.EnrichConfig._
 
 class CatalogueServiceBuilder()(

@@ -1,5 +1,6 @@
 package uk.ac.wellcome.platform.stacks.common.services
 import uk.ac.wellcome.platform.stacks.common.models.{StacksItem, _}
+import uk.ac.wellcome.platform.stacks.common.services.source.CatalogueSource
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}

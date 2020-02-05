@@ -1,6 +1,7 @@
 package uk.ac.wellcome.platform.stacks.common.services
 
 import uk.ac.wellcome.platform.stacks.common.models._
+import uk.ac.wellcome.platform.stacks.common.services.source.SierraSource
 
 import scala.concurrent.{ExecutionContext, Future}
 

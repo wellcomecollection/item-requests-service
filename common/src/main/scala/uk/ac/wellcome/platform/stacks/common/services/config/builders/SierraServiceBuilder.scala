@@ -6,8 +6,9 @@ import akka.http.scaladsl.model.headers.BasicHttpCredentials
 import akka.stream.ActorMaterializer
 import com.typesafe.config.Config
 import uk.ac.wellcome.platform.stacks.common.config.TypesafeBuilder
-import uk.ac.wellcome.platform.stacks.common.services.{AkkaSierraSource, SierraService}
+import uk.ac.wellcome.platform.stacks.common.services.SierraService
 import uk.ac.wellcome.platform.stacks.common.services.config.models.SierraServiceConfig
+import uk.ac.wellcome.platform.stacks.common.services.source.AkkaSierraSource
 import uk.ac.wellcome.typesafe.config.builders.EnrichConfig._
 
 import scala.concurrent.ExecutionContext
