@@ -1,34 +1,20 @@
 package uk.ac.wellcome.platform.stacks.common.services
-
-import akka.actor.ActorSystem
-import akka.http.scaladsl.model.Uri
-import akka.http.scaladsl.model.Uri.Path
-import akka.stream.ActorMaterializer
 import uk.ac.wellcome.platform.stacks.common.models.{StacksItem, _}
+import uk.ac.wellcome.platform.stacks.common.services.source.CatalogueSource
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
 class CatalogueService(
-    val baseUri: Uri = Uri(
-      "https://api.wellcomecollection.org/catalogue/v2"
-    )
-)(
-    implicit
-    val system: ActorSystem,
-    val mat: ActorMaterializer
-) extends AkkaClientService
-    with AkkaClientServiceGet {
+    val catalogueSource: CatalogueSource
+)(implicit ec: ExecutionContext) {
 
-  import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
-  import io.circe.generic.auto._
-  import CatalogueService._
+  import CatalogueSource._
 
   protected def getIdentifier(
       identifiers: List[IdentifiersStub]
   ): Option[SierraItemIdentifier] =
     identifiers filter (_.identifierType.id == "sierra-identifier") match {
-
       case List(IdentifiersStub(_, value)) =>
         Try(value.toLong) match {
           case Success(l) => Some(SierraItemIdentifier(l))
@@ -69,32 +55,17 @@ class CatalogueService(
         )
     }
 
-  // See https://developers.wellcomecollection.org/catalogue/v2/works/getwork
   def getStacksWork(
       workId: StacksWorkIdentifier
   ): Future[StacksWork[StacksItemWithOutStatus]] =
     for {
-      workStub <- get[WorkStub](
-        path = Path(s"works/${workId.value}"),
-        params = Map(
-          ("include", "items,identifiers")
-        )
-      )
-
+      workStub <- catalogueSource.getWorkStub(workId)
       items = getStacksItems(workStub.items)
-
     } yield StacksWork(workStub.id, items)
 
-  // See https://developers.wellcomecollection.org/catalogue/v2/works/getworks
   def getStacksItem(identifier: Identifier[_]): Future[Option[StacksItem]] =
     for {
-      searchStub <- get[SearchStub](
-        path = Path("works"),
-        params = Map(
-          ("include", "items,identifiers"),
-          ("query", identifier.value.toString)
-        )
-      )
+      searchStub <- catalogueSource.getSearchStub(identifier)
 
       items = searchStub.results
         .map(_.items)
@@ -104,38 +75,4 @@ class CatalogueService(
       case List(item) => Some(item)
       case _          => None
     }
-}
-
-object CatalogueService {
-  case class TypeStub(
-      id: String,
-      label: String
-  )
-
-  case class LocationStub(
-      locationType: TypeStub,
-      label: Option[String],
-      `type`: String
-  )
-
-  case class IdentifiersStub(
-      identifierType: TypeStub,
-      value: String
-  )
-
-  case class ItemStub(
-      id: String,
-      identifiers: List[IdentifiersStub],
-      locations: List[LocationStub]
-  )
-
-  case class WorkStub(
-      id: String,
-      items: List[ItemStub]
-  )
-
-  case class SearchStub(
-      totalResults: Int,
-      results: List[WorkStub]
-  )
 }

@@ -9,10 +9,7 @@ import uk.ac.wellcome.monitoring.typesafe.MetricsBuilder
 import uk.ac.wellcome.platform.stacks.common.http.config.builders.HTTPServerBuilder
 import uk.ac.wellcome.platform.stacks.common.http.{HttpMetrics, WellcomeHttpApp}
 import uk.ac.wellcome.platform.stacks.common.services.StacksService
-import uk.ac.wellcome.platform.stacks.common.services.config.builders.{
-  SierraServiceBuilder,
-  StacksServiceBuilder
-}
+import uk.ac.wellcome.platform.stacks.common.services.config.builders.StacksServiceBuilder
 import uk.ac.wellcome.typesafe.WellcomeTypesafeApp
 import uk.ac.wellcome.typesafe.config.builders.AkkaBuilder
 

@@ -5,6 +5,10 @@ import akka.http.scaladsl.model.headers.BasicHttpCredentials
 import com.github.tomakehurst.wiremock.WireMockServer
 import uk.ac.wellcome.akka.fixtures.Akka
 import uk.ac.wellcome.fixtures.TestWith
+import uk.ac.wellcome.platform.stacks.common.services.source.{
+  AkkaCatalogueSource,
+  AkkaSierraSource
+}
 import uk.ac.wellcome.platform.stacks.common.services.{
   CatalogueService,
   SierraService,
@@ -24,10 +28,14 @@ trait ServicesFixture
     withMockCatalogueServer { catalogueApiUrl: String =>
       withActorSystem { implicit as =>
         withMaterializer { implicit mat =>
+          implicit val ec: ExecutionContextExecutor = as.dispatcher
+
           testWith(
             new CatalogueService(
-              Uri(
-                s"$catalogueApiUrl/catalogue/v2"
+              new AkkaCatalogueSource(
+                Uri(
+                  s"$catalogueApiUrl/catalogue/v2"
+                )
               )
             )
           )
@@ -48,8 +56,10 @@ trait ServicesFixture
             testWith(
               (
                 new SierraService(
-                  baseUri = Uri(f"$sierraApiUrl/iii/sierra-api"),
-                  credentials = BasicHttpCredentials("username", "password")
+                  new AkkaSierraSource(
+                    baseUri = Uri(f"$sierraApiUrl/iii/sierra-api"),
+                    credentials = BasicHttpCredentials("username", "password")
+                  )
                 ),
                 wireMockServer
               )

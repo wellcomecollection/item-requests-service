@@ -1,29 +1,21 @@
-package uk.ac.wellcome.platform.stacks.common.services
+package uk.ac.wellcome.platform.stacks.common.http
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshalling.{Marshal, Marshaller}
 import akka.http.scaladsl.model.Uri.{Path, Query}
+import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.{
   Authorization,
   BasicHttpCredentials,
   OAuth2BearerToken
-}
-import akka.http.scaladsl.model.{
-  HttpEntity,
-  HttpHeader,
-  HttpMethods,
-  HttpRequest,
-  HttpResponse,
-  RequestEntity,
-  Uri
 }
 import akka.http.scaladsl.unmarshalling.{Unmarshal, Unmarshaller}
 import akka.stream.ActorMaterializer
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
 
-trait AkkaClientService {
+trait AkkaClient {
   implicit val system: ActorSystem
   implicit val mat: ActorMaterializer
 
@@ -42,7 +34,7 @@ trait AkkaClientService {
       .withQuery(Query(params))
 }
 
-trait AkkaClientServiceGet extends AkkaClientService {
+trait AkkaClientGet extends AkkaClient {
   protected def get[Out](
       path: Path,
       params: Map[String, String] = Map.empty,
@@ -61,7 +53,7 @@ trait AkkaClientServiceGet extends AkkaClientService {
     } yield out
 }
 
-trait AkkaClientServicePost extends AkkaClientService {
+trait AkkaClientPost extends AkkaClient {
   protected def post[In, Out](
       path: Path,
       body: Option[In] = None,
@@ -94,7 +86,7 @@ trait AkkaClientServicePost extends AkkaClientService {
     } yield result
 }
 
-trait AkkaClientTokenExchange extends AkkaClientServicePost {
+trait AkkaClientTokenExchange extends AkkaClientPost {
 
   import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
   import io.circe.generic.auto._
