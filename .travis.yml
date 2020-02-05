@@ -26,7 +26,7 @@ cache:
     - requests_api/target
 
 stages:
-  # - preflight
+  - preflight
   - libraries
   - services
 
