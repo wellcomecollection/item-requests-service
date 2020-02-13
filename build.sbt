@@ -9,9 +9,6 @@ def setupProject(
     localDependencies: Seq[Project] = Seq(),
     externalDependencies: Seq[ModuleID] = Seq()
 ): Project = {
-
-  Metadata.write(project, folder, localDependencies)
-
   val dependsOn = localDependencies
     .map { project: Project =>
       ClasspathDependency(
@@ -23,20 +20,9 @@ def setupProject(
   project
     .in(new File(folder))
     .settings(Common.settings: _*)
-    .settings(DockerCompose.settings: _*)
-    .enablePlugins(DockerComposePlugin)
     .enablePlugins(JavaAppPackaging)
     .dependsOn(dependsOn: _*)
     .settings(libraryDependencies ++= externalDependencies)
-}
-
-s3CredentialsProvider := { _ =>
-  val builder = new STSAssumeRoleSessionCredentialsProvider.Builder(
-    "arn:aws:iam::760097843905:role/platform-read_only",
-    UUID.randomUUID().toString
-  )
-
-  builder.build()
 }
 
 lazy val common = setupProject(
