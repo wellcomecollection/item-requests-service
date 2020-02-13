@@ -28,7 +28,6 @@ object WellcomeDependencies {
     version = versions.typesafe
   ) ++ fixturesLibrary
 
-
   val monitoringTypesafeLibrary: Seq[ModuleID] = library(
     name = "monitoring_typesafe",
     version = versions.monitoring
