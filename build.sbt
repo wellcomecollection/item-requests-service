@@ -25,15 +25,6 @@ def setupProject(
     .settings(libraryDependencies ++= externalDependencies)
 }
 
-s3CredentialsProvider := { _ =>
-  val builder = new STSAssumeRoleSessionCredentialsProvider.Builder(
-    "arn:aws:iam::760097843905:role/platform-read_only",
-    UUID.randomUUID().toString
-  )
-
-  builder.build()
-}
-
 lazy val common = setupProject(
   project = project,
   folder = "common",
