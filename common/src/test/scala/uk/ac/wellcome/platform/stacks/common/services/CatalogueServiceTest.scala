@@ -3,20 +3,10 @@ package uk.ac.wellcome.platform.stacks.common.services
 import akka.http.scaladsl.model.Uri
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.{FunSpec, Matchers}
-import uk.ac.wellcome.platform.stacks.common.fixtures.ServicesFixture
+import uk.ac.wellcome.platform.stacks.common.fixtures.{CatalogueServiceFixtures, ServicesFixture}
 import uk.ac.wellcome.platform.stacks.common.models._
-import uk.ac.wellcome.platform.stacks.common.services.source.CatalogueSource.{
-  IdentifiersStub,
-  ItemStub,
-  LocationStub,
-  SearchStub,
-  TypeStub,
-  WorkStub
-}
-import uk.ac.wellcome.platform.stacks.common.services.source.{
-  AkkaCatalogueSource,
-  CatalogueSource
-}
+import uk.ac.wellcome.platform.stacks.common.services.source.CatalogueSource.{IdentifiersStub, ItemStub, LocationStub, SearchStub, TypeStub, WorkStub}
+import uk.ac.wellcome.platform.stacks.common.services.source.{AkkaCatalogueSource, CatalogueSource}
 import uk.ac.wellcome.storage.generators.RandomThings
 
 import scala.concurrent.Future
@@ -24,6 +14,7 @@ import scala.concurrent.Future
 class CatalogueServiceTest
     extends FunSpec
     with ServicesFixture
+    with CatalogueServiceFixtures
     with ScalaFutures
     with IntegrationPatience
     with RandomThings
@@ -67,15 +58,20 @@ class CatalogueServiceTest
         withActorSystem { implicit as =>
           implicit val ec = as.dispatcher
 
-          val interestingCatalogueId = randomAlphanumeric
-          val interestingSierraId = randomInt(1, 1000).toLong
-          val interestingLocation = LocationStub(
-            locationType = TypeStub(
-              id = "sicon",
-              label = "Closed stores Iconographic"
+          val location = createPhysicalLocation(
+            id = "sicon",
+            label = "Closed stores Iconographic"
+          )
+          val catalogueId = randomAlphanumeric
+          val sierraId = randomInt(1, 1000).toLong
+
+          val items = List(
+            createItem(
+              catId = catalogueId,
+              sierraId = sierraId,
+              locations = List(location)
             ),
-            label = Some("Closed stores Iconographic"),
-            `type` = "PhysicalLocation"
+            createItem()
           )
 
           val catalogueService = new CatalogueService(
@@ -83,28 +79,7 @@ class CatalogueServiceTest
               def getWorkStub(id: StacksWorkIdentifier): Future[WorkStub] =
                 Future.failed(new NotImplementedError())
 
-              def getSearchStub(
-                  identifier: Identifier[_]
-              ): Future[SearchStub] = {
-                def createItem(catId: String, sierraId: Long) = ItemStub(
-                  id = catId,
-                  identifiers = List(
-                    IdentifiersStub(
-                      identifierType = TypeStub(
-                        id = "sierra-identifier",
-                        label = "Sierra identifier"
-                      ),
-                      value = sierraId.toString
-                    )
-                  ),
-                  locations = List(interestingLocation)
-                )
-
-                val items = List(
-                  createItem(interestingCatalogueId, interestingSierraId),
-                  createItem(randomAlphanumeric, randomInt(1, 1000).toLong)
-                )
-
+              def getSearchStub(identifier: Identifier[_]): Future[SearchStub] =
                 Future {
                   SearchStub(
                     totalResults = items.size,
@@ -116,12 +91,11 @@ class CatalogueServiceTest
                     )
                   )
                 }
-              }
             }
           )
 
           val eventuallyStacksItem = catalogueService.getStacksItem(
-            StacksWorkIdentifier(interestingCatalogueId)
+            StacksWorkIdentifier(catalogueId)
           )
 
           whenReady(eventuallyStacksItem) { maybeStacksItem =>
@@ -130,15 +104,15 @@ class CatalogueServiceTest
             stacksItem shouldBe StacksItemWithOutStatus(
               id = StacksItemIdentifier(
                 CatalogueItemIdentifier(
-                  interestingCatalogueId
+                  catalogueId
                 ),
                 SierraItemIdentifier(
-                  interestingSierraId
+                  sierraId
                 )
               ),
               location = StacksLocation(
-                id = interestingLocation.locationType.id,
-                label = interestingLocation.locationType.label
+                id = location.locationType.id,
+                label = location.locationType.label
               )
             )
           }
