@@ -35,10 +35,11 @@ class StacksService(
           )
       }
 
-    } yield StacksHoldRequest(
-      itemId = catalogueItemId.value,
-      userId = userIdentifier.value
-    )
+    } yield
+      StacksHoldRequest(
+        itemId = catalogueItemId.value,
+        userId = userIdentifier.value
+      )
 
   def getStacksWorkWithItemStatuses(
       workId: StacksWorkIdentifier
@@ -52,8 +53,9 @@ class StacksService(
       stacksItemsWithStatuses = (stacksWorkWithoutItemStatuses.items zip itemStatuses) map {
         case (item, status) => item.addStatus(status)
       }
-    } yield stacksWorkWithoutItemStatuses
-      .updateItems(stacksItemsWithStatuses)
+    } yield
+      stacksWorkWithoutItemStatuses
+        .updateItems(stacksItemsWithStatuses)
 
   def getStacksUserHolds(
       userId: StacksUserIdentifier
