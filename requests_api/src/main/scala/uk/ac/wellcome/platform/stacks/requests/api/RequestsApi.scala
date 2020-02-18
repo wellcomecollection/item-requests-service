@@ -43,7 +43,7 @@ trait RequestsApi extends Logging with FailFastCirceSupport {
             }
           } ~ get {
 
-            val result: Future[StacksUserHolds[StacksItemIdentifier]] = stacksWorkService.getStacksUserHolds(
+            val result = stacksWorkService.getStacksUserHolds(
               StacksUserIdentifier(sierraPatronId)
             )
 
