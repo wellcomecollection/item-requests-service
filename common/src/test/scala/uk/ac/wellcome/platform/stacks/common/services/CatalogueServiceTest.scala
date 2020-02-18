@@ -3,26 +3,14 @@ package uk.ac.wellcome.platform.stacks.common.services
 import akka.http.scaladsl.model.Uri
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.{FunSpec, Matchers}
-import uk.ac.wellcome.platform.stacks.common.fixtures.{
-  CatalogueServiceFixtures,
-  ServicesFixture
-}
+import uk.ac.wellcome.platform.stacks.common.fixtures.{CatalogueServiceFixtures, ServicesFixture}
 import uk.ac.wellcome.platform.stacks.common.models._
-import uk.ac.wellcome.platform.stacks.common.services.source.CatalogueSource.{
-  IdentifiersStub,
-  ItemStub,
-  LocationStub,
-  SearchStub,
-  TypeStub,
-  WorkStub
-}
-import uk.ac.wellcome.platform.stacks.common.services.source.{
-  AkkaCatalogueSource,
-  CatalogueSource
-}
+import uk.ac.wellcome.platform.stacks.common.services.source.CatalogueSource.{IdentifiersStub, ItemStub, LocationStub, SearchStub, TypeStub, WorkStub}
+import uk.ac.wellcome.platform.stacks.common.services.source.{AkkaCatalogueSource, CatalogueSource}
 import uk.ac.wellcome.storage.generators.RandomThings
 
 import scala.concurrent.Future
+import scala.util.Random
 
 class CatalogueServiceTest
     extends FunSpec
@@ -30,7 +18,6 @@ class CatalogueServiceTest
     with CatalogueServiceFixtures
     with ScalaFutures
     with IntegrationPatience
-    with RandomThings
     with Matchers {
 
   describe("CatalogueService") {
@@ -75,8 +62,8 @@ class CatalogueServiceTest
             id = "sicon",
             label = "Closed stores Iconographic"
           )
-          val catalogueId = randomAlphanumeric
-          val sierraId = randomInt(1, 1000).toLong
+          val catalogueId = Random.nextString(10)
+          val sierraId = Random.nextLong()
 
           val items = List(
             createItem(
@@ -98,7 +85,7 @@ class CatalogueServiceTest
                     totalResults = items.size,
                     results = List(
                       WorkStub(
-                        id = randomAlphanumeric,
+                        id = Random.nextString(10),
                         items = items
                       )
                     )
