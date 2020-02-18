@@ -2,10 +2,16 @@ package uk.ac.wellcome.platform.stacks.common.services
 
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.{FunSpec, Matchers}
-import uk.ac.wellcome.platform.stacks.common.fixtures.{CatalogueServiceFixtures, ServicesFixture}
+import uk.ac.wellcome.platform.stacks.common.fixtures.{
+  CatalogueServiceFixtures,
+  ServicesFixture
+}
 import uk.ac.wellcome.platform.stacks.common.models._
 import uk.ac.wellcome.platform.stacks.common.services.source.CatalogueSource
-import uk.ac.wellcome.platform.stacks.common.services.source.CatalogueSource.{SearchStub, WorkStub}
+import uk.ac.wellcome.platform.stacks.common.services.source.CatalogueSource.{
+  SearchStub,
+  WorkStub
+}
 
 import scala.concurrent.Future
 import scala.util.Random
