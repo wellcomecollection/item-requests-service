@@ -35,16 +35,15 @@ class ItemsApiFeatureTest
                    |  "items" : [
                    |    {
                    |      "id" : "ys3ern6x",
-                   |      "location" : {
-                   |        "id" : "sicon",
-                   |        "label" : "Closed stores Iconographic"
-                   |      },
                    |      "status" : {
                    |        "id" : "available",
-                   |        "label" : "Available"
-                   |      }
+                   |        "label" : "Available",
+                   |        "type": "ItemStatus"
+                   |      },
+                   |      "type": "Item"
                    |    }
-                   |  ]
+                   |  ],
+                   |  "type": "Work"
                    |}""".stripMargin
 
                 whenGetRequestReady(path) { response =>
