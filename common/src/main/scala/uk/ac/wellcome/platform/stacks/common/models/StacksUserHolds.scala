@@ -13,7 +13,6 @@ case class StacksUserHolds[ItemId <: Identifier[_]](
       userId = this.userId,
       holds = holds
     )
-
 }
 
 case class StacksHold[ItemId <: Identifier[_]](

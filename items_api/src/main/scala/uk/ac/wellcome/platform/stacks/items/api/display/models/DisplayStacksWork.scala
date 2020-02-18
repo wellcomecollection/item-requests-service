@@ -12,10 +12,6 @@ object DisplayStacksWork {
       items = stacksWork.items.map { stacksItem =>
         DisplayStacksItem(
           id = stacksItem.id.value,
-          location = DisplayStacksLocation(
-            id = stacksItem.location.id,
-            label = stacksItem.location.label
-          ),
           status = DisplayStacksItemStatus(
             id = stacksItem.status.id,
             label = stacksItem.status.label
@@ -25,11 +21,18 @@ object DisplayStacksWork {
     )
 }
 
-case class DisplayStacksLocation(id: String, label: String)
-case class DisplayStacksItemStatus(id: String, label: String)
-case class DisplayStacksItem(
-    id: String,
-    location: DisplayStacksLocation,
-    status: DisplayStacksItemStatus
+case class DisplayStacksItemStatus(
+  id: String,
+  label: String,
+  `type`: String = "ItemStatus"
 )
-case class DisplayStacksWork(id: String, items: List[DisplayStacksItem])
+case class DisplayStacksItem(
+  id: String,
+  status: DisplayStacksItemStatus,
+  `type`: String = "Item"
+)
+case class DisplayStacksWork(
+  id: String,
+  items: List[DisplayStacksItem],
+  `type`: String = "Work"
+)

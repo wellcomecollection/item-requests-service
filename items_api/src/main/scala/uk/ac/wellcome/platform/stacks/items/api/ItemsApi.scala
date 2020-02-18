@@ -3,11 +3,11 @@ package uk.ac.wellcome.platform.stacks.items.api
 import akka.http.scaladsl.server.Route
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import grizzled.slf4j.Logging
-import uk.ac.wellcome.platform.stacks.common.models.StacksWorkIdentifier
+import uk.ac.wellcome.platform.stacks.common.models.{StacksItemWithStatus, StacksWork, StacksWorkIdentifier}
 import uk.ac.wellcome.platform.stacks.common.services.StacksService
 import uk.ac.wellcome.platform.stacks.items.api.display.models.DisplayStacksWork
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 trait ItemsApi extends Logging with FailFastCirceSupport {
@@ -22,7 +22,7 @@ trait ItemsApi extends Logging with FailFastCirceSupport {
     pathPrefix("works") {
       path(Segment) { id: String =>
         get {
-          val result = stacksWorkService.getStacksWorkWithItemStatuses(
+          val result: Future[StacksWork[StacksItemWithStatus]] = stacksWorkService.getStacksWorkWithItemStatuses(
             StacksWorkIdentifier(id)
           )
 
