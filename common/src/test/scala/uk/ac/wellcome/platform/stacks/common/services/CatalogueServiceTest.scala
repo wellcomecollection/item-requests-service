@@ -3,10 +3,23 @@ package uk.ac.wellcome.platform.stacks.common.services
 import akka.http.scaladsl.model.Uri
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.{FunSpec, Matchers}
-import uk.ac.wellcome.platform.stacks.common.fixtures.{CatalogueServiceFixtures, ServicesFixture}
+import uk.ac.wellcome.platform.stacks.common.fixtures.{
+  CatalogueServiceFixtures,
+  ServicesFixture
+}
 import uk.ac.wellcome.platform.stacks.common.models._
-import uk.ac.wellcome.platform.stacks.common.services.source.CatalogueSource.{IdentifiersStub, ItemStub, LocationStub, SearchStub, TypeStub, WorkStub}
-import uk.ac.wellcome.platform.stacks.common.services.source.{AkkaCatalogueSource, CatalogueSource}
+import uk.ac.wellcome.platform.stacks.common.services.source.CatalogueSource.{
+  IdentifiersStub,
+  ItemStub,
+  LocationStub,
+  SearchStub,
+  TypeStub,
+  WorkStub
+}
+import uk.ac.wellcome.platform.stacks.common.services.source.{
+  AkkaCatalogueSource,
+  CatalogueSource
+}
 import uk.ac.wellcome.storage.generators.RandomThings
 
 import scala.concurrent.Future

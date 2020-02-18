@@ -82,9 +82,8 @@ class CatalogueService(
         case _ => items
       }
 
-    } yield
-      filteredItems match {
-        case List(item) => Some(item)
-        case _          => None
-      }
+    } yield filteredItems match {
+      case List(item) => Some(item)
+      case _          => None
+    }
 }
