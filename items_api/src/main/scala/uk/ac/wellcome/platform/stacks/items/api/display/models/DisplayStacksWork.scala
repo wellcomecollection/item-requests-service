@@ -22,17 +22,17 @@ object DisplayStacksWork {
 }
 
 case class DisplayStacksItemStatus(
-  id: String,
-  label: String,
-  `type`: String = "ItemStatus"
+    id: String,
+    label: String,
+    `type`: String = "ItemStatus"
 )
 case class DisplayStacksItem(
-  id: String,
-  status: DisplayStacksItemStatus,
-  `type`: String = "Item"
+    id: String,
+    status: DisplayStacksItemStatus,
+    `type`: String = "Item"
 )
 case class DisplayStacksWork(
-  id: String,
-  items: List[DisplayStacksItem],
-  `type`: String = "Work"
+    id: String,
+    items: List[DisplayStacksItem],
+    `type`: String = "Work"
 )
