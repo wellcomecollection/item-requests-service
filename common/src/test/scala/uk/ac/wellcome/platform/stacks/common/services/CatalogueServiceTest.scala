@@ -2,12 +2,24 @@ package uk.ac.wellcome.platform.stacks.common.services
 
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.{FunSpec, Matchers}
-import uk.ac.wellcome.platform.stacks.common.fixtures.ServicesFixture
+import uk.ac.wellcome.platform.stacks.common.fixtures.{
+  CatalogueServiceFixtures,
+  ServicesFixture
+}
 import uk.ac.wellcome.platform.stacks.common.models._
+import uk.ac.wellcome.platform.stacks.common.services.source.CatalogueSource
+import uk.ac.wellcome.platform.stacks.common.services.source.CatalogueSource.{
+  SearchStub,
+  WorkStub
+}
+
+import scala.concurrent.Future
+import scala.util.Random
 
 class CatalogueServiceTest
     extends FunSpec
     with ServicesFixture
+    with CatalogueServiceFixtures
     with ScalaFutures
     with IntegrationPatience
     with Matchers {
@@ -45,6 +57,72 @@ class CatalogueServiceTest
     }
 
     describe("getStacksItem") {
+
+      it("should filter non-matching items from the source") {
+        withActorSystem { implicit as =>
+          implicit val ec = as.dispatcher
+
+          val location = createPhysicalLocation(
+            id = "sicon",
+            label = "Closed stores Iconographic"
+          )
+          val catalogueId = Random.nextString(10)
+          val sierraId = Random.nextLong()
+
+          val items = List(
+            createItem(
+              catId = catalogueId,
+              sierraId = sierraId,
+              locations = List(location)
+            ),
+            createItem()
+          )
+
+          val catalogueService = new CatalogueService(
+            new CatalogueSource() {
+              def getWorkStub(id: StacksWorkIdentifier): Future[WorkStub] =
+                Future.failed(new NotImplementedError())
+
+              def getSearchStub(identifier: Identifier[_]): Future[SearchStub] =
+                Future {
+                  SearchStub(
+                    totalResults = items.size,
+                    results = List(
+                      WorkStub(
+                        id = Random.nextString(10),
+                        items = items
+                      )
+                    )
+                  )
+                }
+            }
+          )
+
+          val eventuallyStacksItem = catalogueService.getStacksItem(
+            StacksWorkIdentifier(catalogueId)
+          )
+
+          whenReady(eventuallyStacksItem) { maybeStacksItem =>
+            val stacksItem = maybeStacksItem.get
+
+            stacksItem shouldBe StacksItemWithOutStatus(
+              id = StacksItemIdentifier(
+                CatalogueItemIdentifier(
+                  catalogueId
+                ),
+                SierraItemIdentifier(
+                  sierraId
+                )
+              ),
+              location = StacksLocation(
+                id = location.locationType.id,
+                label = location.locationType.label
+              )
+            )
+          }
+        }
+      }
+
       it("should get a StacksItem for a SierraItemIdentifier") {
         withCatalogueService { catalogueService =>
           val itemIdentifier = SierraItemIdentifier(1292185)
