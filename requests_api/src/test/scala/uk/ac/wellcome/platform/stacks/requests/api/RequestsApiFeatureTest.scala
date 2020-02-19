@@ -134,30 +134,29 @@ class RequestsApiFeatureTest
                 val expectedJson =
                   s"""
                  |{
-                 |  "userId" : "1234567",
-                 |  "holds" : [
+                 |  "results" : [
                  |    {
-                 |      "itemId" : {
-                 |        "catalogueId" : {
-                 |          "value" : "ys3ern6x"
-                 |        },
-                 |        "sierraId" : {
-                 |          "value" : 1292185
-                 |        }
+                 |      "item" : {
+                 |        "id" : "ys3ern6x",
+                 |        "status" : null,
+                 |        "type" : "Item"
                  |      },
-                 |      "pickup" : {
-                 |        "location" : {
-                 |          "id" : "sepbb",
-                 |          "label" : "Rare Materials Room"
-                 |        },
-                 |        "pickUpBy" : "2019-12-03T04:00:00Z"
+                 |      "pickupDate" : "2019-12-03T04:00:00Z",
+                 |      "pickupLocation" : {
+                 |        "id" : "sepbb",
+                 |        "label" : "Rare Materials Room",
+                 |        "type" : "LocationDescription"
                  |      },
                  |      "status" : {
                  |        "id" : "i",
-                 |        "label" : "item hold ready for pickup."
-                 |      }
+                 |        "label" : "item hold ready for pickup.",
+                 |        "type" : "RequestStatus"
+                 |      },
+                 |      "type" : "Request"
                  |    }
-                 |  ]
+                 |  ],
+                 |  "totalResults" : 1,
+                 |  "type" : "ResultList"
                  |}""".stripMargin
 
                 whenGetRequestReady(path, headers) { response =>

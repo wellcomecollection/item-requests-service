@@ -3,6 +3,7 @@ package uk.ac.wellcome.platform.stacks.requests.api
 import akka.http.scaladsl.server.Route
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import grizzled.slf4j.Logging
+import uk.ac.wellcome.platform.stacks.common.models.display.DisplayResultsList
 import uk.ac.wellcome.platform.stacks.common.models.{
   CatalogueItemIdentifier,
   StacksHoldRequest,
@@ -41,10 +42,9 @@ trait RequestsApi extends Logging with FailFastCirceSupport {
                   catalogueItemId = catalogueItemId
                 )
 
-                // TODO: Return an updated view on users holds
                 onComplete(result) {
-                  case Success(value: StacksHoldRequest) => complete(value)
-                  case Failure(err)                      => failWith(err)
+                  case Success(value) => complete(value)
+                  case Failure(err)   => failWith(err)
                 }
             }
           } ~ get {
@@ -54,7 +54,7 @@ trait RequestsApi extends Logging with FailFastCirceSupport {
             )
 
             onComplete(result) {
-              case Success(value) => complete(value)
+              case Success(value) => complete(DisplayResultsList(value))
               case Failure(err)   => failWith(err)
             }
           }
