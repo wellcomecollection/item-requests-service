@@ -1,20 +1,15 @@
 package uk.ac.wellcome.platform.stacks.requests.api
 
+import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import grizzled.slf4j.Logging
 import uk.ac.wellcome.platform.stacks.common.models.display.DisplayResultsList
-import uk.ac.wellcome.platform.stacks.common.models.{
-  CatalogueItemIdentifier,
-  StacksHoldRequest,
-  StacksItemIdentifier,
-  StacksUserHolds,
-  StacksUserIdentifier
-}
+import uk.ac.wellcome.platform.stacks.common.models.{CatalogueItemIdentifier, StacksUserIdentifier}
 import uk.ac.wellcome.platform.stacks.common.services.StacksService
-import uk.ac.wellcome.platform.stacks.requests.api.models.RequestItemHold
+import uk.ac.wellcome.platform.stacks.requests.api.models.Request
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
 trait RequestsApi extends Logging with FailFastCirceSupport {
@@ -32,10 +27,10 @@ trait RequestsApi extends Logging with FailFastCirceSupport {
           val userIdentifier = StacksUserIdentifier(sierraPatronId)
 
           post {
-            entity(as[RequestItemHold]) {
-              requestItemHold: RequestItemHold =>
+            entity(as[Request]) {
+              requestItemHold: Request =>
                 val catalogueItemId =
-                  CatalogueItemIdentifier(requestItemHold.itemId)
+                  CatalogueItemIdentifier(requestItemHold.item.id)
 
                 val result = stacksWorkService.requestHoldOnItem(
                   userIdentifier = userIdentifier,
@@ -43,7 +38,7 @@ trait RequestsApi extends Logging with FailFastCirceSupport {
                 )
 
                 onComplete(result) {
-                  case Success(value) => complete(value)
+                  case Success(_) => complete(StatusCodes.Accepted)
                   case Failure(err)   => failWith(err)
                 }
             }
