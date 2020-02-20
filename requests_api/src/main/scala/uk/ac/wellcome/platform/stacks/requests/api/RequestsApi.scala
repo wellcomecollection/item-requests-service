@@ -7,7 +7,10 @@ import akka.http.scaladsl.server.Route
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import grizzled.slf4j.Logging
 import uk.ac.wellcome.platform.stacks.common.models.display.DisplayResultsList
-import uk.ac.wellcome.platform.stacks.common.models.{CatalogueItemIdentifier, StacksUserIdentifier}
+import uk.ac.wellcome.platform.stacks.common.models.{
+  CatalogueItemIdentifier,
+  StacksUserIdentifier
+}
 import uk.ac.wellcome.platform.stacks.common.services.StacksService
 import uk.ac.wellcome.platform.stacks.requests.api.models.Request
 

@@ -9,9 +9,20 @@ import akka.http.scaladsl.model.Uri.Path
 import akka.http.scaladsl.model.headers.{Authorization, BasicHttpCredentials}
 import akka.stream.ActorMaterializer
 import io.circe.Encoder
-import uk.ac.wellcome.platform.stacks.common.http.{AkkaClientGet, AkkaClientPost, AkkaClientTokenExchange}
-import uk.ac.wellcome.platform.stacks.common.models.{SierraItemIdentifier, StacksUserIdentifier}
-import uk.ac.wellcome.platform.stacks.common.services.source.SierraSource.{SierraHoldRequestPostBody, SierraItemStub, SierraUserHoldsStub}
+import uk.ac.wellcome.platform.stacks.common.http.{
+  AkkaClientGet,
+  AkkaClientPost,
+  AkkaClientTokenExchange
+}
+import uk.ac.wellcome.platform.stacks.common.models.{
+  SierraItemIdentifier,
+  StacksUserIdentifier
+}
+import uk.ac.wellcome.platform.stacks.common.services.source.SierraSource.{
+  SierraHoldRequestPostBody,
+  SierraItemStub,
+  SierraUserHoldsStub
+}
 
 import scala.concurrent.Future
 
@@ -111,7 +122,6 @@ class AkkaSierraSource(
         headers = List(Authorization(token))
       )
     } yield holds
-
 
   private val dateTimeFormatter = DateTimeFormatter
     .ofPattern("yyyy-MM-dd")

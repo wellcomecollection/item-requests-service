@@ -37,7 +37,6 @@ class StacksServiceTest
                 neededBy = neededBy
               )
             ) { stacksHoldRequest =>
-
               stacksHoldRequest shouldBe StacksHoldRequest(
                 itemId = "ys3ern6x",
                 userId = "1234567"
@@ -49,14 +48,16 @@ class StacksServiceTest
                   urlEqualTo(
                     "/iii/sierra-api/v5/patrons/1234567/holds/requests"
                   )
-                ).withRequestBody(equalToJson("""
+                ).withRequestBody(
+                  equalToJson("""
                 |{
                 |  "recordType" : "i",
                 |  "recordNumber" : 1292185,
                 |  "pickupLocation" : "unspecified",
                 |  "neededBy" : "2020-01-01"
                 |}
-                |""".stripMargin))
+                |""".stripMargin)
+                )
               )
             }
         }

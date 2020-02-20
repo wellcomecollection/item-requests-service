@@ -90,14 +90,16 @@ class SierraServiceTest
                   urlEqualTo(
                     "/iii/sierra-api/v5/patrons/1234567/holds/requests"
                   )
-                ).withRequestBody(equalToJson("""
+                ).withRequestBody(
+                  equalToJson("""
                 |{
                 |  "recordType" : "i",
                 |  "recordNumber" : 1292185,
                 |  "pickupLocation" : "unspecified",
                 |  "neededBy" : "2020-01-01"
                 |}
-                |""".stripMargin))
+                |""".stripMargin)
+                )
               )
             }
         }
