@@ -33,6 +33,7 @@ class StacksServiceTest
                 catalogueItemId = catalogueItemIdentifier
               )
             ) { stacksHoldRequest =>
+              
               stacksHoldRequest shouldBe StacksHoldRequest(
                 itemId = "ys3ern6x",
                 userId = "1234567"
