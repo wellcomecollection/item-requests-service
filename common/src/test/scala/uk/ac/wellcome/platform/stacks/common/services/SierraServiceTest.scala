@@ -73,14 +73,15 @@ class SierraServiceTest
           case (sierraService, wireMockServer) =>
             val sierraItemIdentifier = SierraItemIdentifier(1292185)
             val stacksUserIdentifier = StacksUserIdentifier("1234567")
-            val stacksLocation =
-              StacksLocation("sicon", "this value is ignored")
+            val neededBy = Some(
+              Instant.parse("2020-01-01T00:00:00.00Z")
+            )
 
             whenReady(
               sierraService.placeHold(
                 userIdentifier = stacksUserIdentifier,
                 sierraItemIdentifier = sierraItemIdentifier,
-                itemLocation = stacksLocation
+                neededBy = neededBy
               )
             ) { _ =>
               wireMockServer.verify(
@@ -93,7 +94,8 @@ class SierraServiceTest
                 |{
                 |  "recordType" : "i",
                 |  "recordNumber" : 1292185,
-                |  "pickupLocation" : "sicon"
+                |  "pickupLocation" : "unspecified",
+                |  "neededBy" : "2020-01-01"
                 |}
                 |""".stripMargin))
               )

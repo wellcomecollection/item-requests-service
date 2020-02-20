@@ -1,5 +1,7 @@
 package uk.ac.wellcome.platform.stacks.common.services
 
+import java.time.Instant
+
 import cats.instances.future._
 import cats.instances.list._
 import cats.syntax.traverse._
@@ -17,7 +19,8 @@ class StacksService(
 
   def requestHoldOnItem(
       userIdentifier: StacksUserIdentifier,
-      catalogueItemId: CatalogueItemIdentifier
+      catalogueItemId: CatalogueItemIdentifier,
+      neededBy: Option[Instant]
   ): Future[StacksHoldRequest] =
     for {
       stacksItem <- catalogueService.getStacksItem(catalogueItemId)
@@ -27,7 +30,7 @@ class StacksService(
           sierraService.placeHold(
             userIdentifier = userIdentifier,
             sierraItemIdentifier = item.id.sierraId,
-            itemLocation = item.location
+            neededBy = neededBy
           )
         case None =>
           Future.failed(
