@@ -2,7 +2,7 @@ package uk.ac.wellcome.platform.stacks.requests.api
 
 import java.time.Instant
 
-import akka.http.scaladsl.model.StatusCodes
+import akka.http.scaladsl.model.{HttpEntity, StatusCodes}
 import akka.http.scaladsl.server.Route
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import grizzled.slf4j.Logging
@@ -43,8 +43,10 @@ trait RequestsApi extends Logging with FailFastCirceSupport {
                   neededBy = neededBy
                 )
 
+                val accepted = (StatusCodes.Accepted, HttpEntity.Empty)
+
                 onComplete(result) {
-                  case Success(_)   => complete(StatusCodes.Accepted)
+                  case Success(_)   => complete(accepted)
                   case Failure(err) => failWith(err)
                 }
             }
