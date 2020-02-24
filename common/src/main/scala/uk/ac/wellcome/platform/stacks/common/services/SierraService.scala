@@ -1,5 +1,7 @@
 package uk.ac.wellcome.platform.stacks.common.services
 
+import java.time.Instant
+
 import uk.ac.wellcome.platform.stacks.common.models._
 import uk.ac.wellcome.platform.stacks.common.services.source.SierraSource
 
@@ -19,13 +21,13 @@ class SierraService(
   def placeHold(
       userIdentifier: StacksUserIdentifier,
       sierraItemIdentifier: SierraItemIdentifier,
-      itemLocation: StacksLocation
+      neededBy: Option[Instant]
   ): Future[Unit] =
     sierraSource
       .postHold(
         userIdentifier,
         sierraItemIdentifier,
-        itemLocation
+        neededBy
       )
 
   protected def buildStacksHold(

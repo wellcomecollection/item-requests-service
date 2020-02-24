@@ -72,22 +72,19 @@ class RequestsApiFeatureTest
 
                 val entity = createJsonHttpEntityWith(
                   """
-                |{
-                |   "itemId": "ys3ern6x"
-                |}
-                |""".stripMargin
+                    |{
+                    |  "item": {
+                    |    "id": "ys3ern6x",
+                    |    "type": "Item"
+                    |  },
+                    |  "pickupDate": "2020-01-01T00:00:00Z",
+                    |  "type": "Request"
+                    |}
+                    |""".stripMargin
                 )
 
-                val expectedJson =
-                  """
-                |{
-                |  "itemId" : "ys3ern6x",
-                |  "userId" : "1234567"
-                |}
-                |""".stripMargin
-
                 whenPostRequestReady(path, entity, headers) { response =>
-                  response.status shouldBe StatusCodes.OK
+                  response.status shouldBe StatusCodes.Accepted
 
                   wireMockServer.verify(
                     1,
@@ -95,18 +92,19 @@ class RequestsApiFeatureTest
                       urlEqualTo(
                         "/iii/sierra-api/v5/patrons/1234567/holds/requests"
                       )
-                    ).withRequestBody(equalToJson("""
+                    ).withRequestBody(
+                      equalToJson("""
                   |{
                   |  "recordType" : "i",
                   |  "recordNumber" : 1292185,
-                  |  "pickupLocation" : "sicon"
+                  |  "pickupLocation" : "unspecified",
+                  |  "neededBy" : "2020-01-01"
                   |}
-                  |""".stripMargin))
+                  |""".stripMargin)
+                    )
                   )
 
-                  withStringEntity(response.entity) { actualJson =>
-                    assertJsonStringsAreEqual(actualJson, expectedJson)
-                  }
+                  response.entity.isKnownEmpty() shouldBe true
                 }
             }
         }

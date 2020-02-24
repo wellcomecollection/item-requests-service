@@ -1,12 +1,14 @@
 package uk.ac.wellcome.platform.stacks.common.services.source
 
-import java.time.Instant
+import java.time.{Instant, ZoneId}
+import java.time.format.DateTimeFormatter
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.model.Uri.Path
 import akka.http.scaladsl.model.headers.{Authorization, BasicHttpCredentials}
 import akka.stream.ActorMaterializer
+import io.circe.Encoder
 import uk.ac.wellcome.platform.stacks.common.http.{
   AkkaClientGet,
   AkkaClientPost,
@@ -14,7 +16,6 @@ import uk.ac.wellcome.platform.stacks.common.http.{
 }
 import uk.ac.wellcome.platform.stacks.common.models.{
   SierraItemIdentifier,
-  StacksLocation,
   StacksUserIdentifier
 }
 import uk.ac.wellcome.platform.stacks.common.services.source.SierraSource.{
@@ -35,7 +36,7 @@ trait SierraSource {
   def postHold(
       userIdentifier: StacksUserIdentifier,
       sierraItemIdentifier: SierraItemIdentifier,
-      itemLocation: StacksLocation
+      neededBy: Option[Instant]
   ): Future[Unit]
 }
 
@@ -70,7 +71,8 @@ object SierraSource {
   case class SierraHoldRequestPostBody(
       recordType: String,
       recordNumber: Long,
-      pickupLocation: String
+      pickupLocation: String,
+      neededBy: Option[Instant]
   )
 }
 
@@ -121,11 +123,18 @@ class AkkaSierraSource(
       )
     } yield holds
 
+  private val dateTimeFormatter = DateTimeFormatter
+    .ofPattern("yyyy-MM-dd")
+    .withZone(ZoneId.systemDefault())
+
+  implicit val encodeInstant: Encoder[Instant] =
+    Encoder.encodeString.contramap[Instant](dateTimeFormatter.format)
+
   // See https://sandbox.iii.com/iii/sierra-api/swagger/index.html#!/patrons
   def postHold(
       userIdentifier: StacksUserIdentifier,
       sierraItemIdentifier: SierraItemIdentifier,
-      itemLocation: StacksLocation
+      neededBy: Option[Instant]
   ): Future[Unit] =
     for {
       token <- getToken(credentials)
@@ -135,7 +144,9 @@ class AkkaSierraSource(
           SierraHoldRequestPostBody(
             recordType = "i",
             recordNumber = sierraItemIdentifier.value,
-            pickupLocation = itemLocation.id
+            // This field is required non-empty by the Sierra API - but has no effect
+            pickupLocation = "unspecified",
+            neededBy = neededBy
           )
         ),
         headers = List(Authorization(token))

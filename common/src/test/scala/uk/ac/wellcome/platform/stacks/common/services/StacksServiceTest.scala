@@ -26,11 +26,15 @@ class StacksServiceTest
           case (stacksService, wireMockServer) =>
             val stacksUserIdentifier = StacksUserIdentifier("1234567")
             val catalogueItemIdentifier = CatalogueItemIdentifier("ys3ern6x")
+            val neededBy = Some(
+              Instant.parse("2020-01-01T00:00:00.00Z")
+            )
 
             whenReady(
               stacksService.requestHoldOnItem(
                 userIdentifier = stacksUserIdentifier,
-                catalogueItemId = catalogueItemIdentifier
+                catalogueItemId = catalogueItemIdentifier,
+                neededBy = neededBy
               )
             ) { stacksHoldRequest =>
               stacksHoldRequest shouldBe StacksHoldRequest(
@@ -44,13 +48,16 @@ class StacksServiceTest
                   urlEqualTo(
                     "/iii/sierra-api/v5/patrons/1234567/holds/requests"
                   )
-                ).withRequestBody(equalToJson("""
+                ).withRequestBody(
+                  equalToJson("""
                 |{
                 |  "recordType" : "i",
                 |  "recordNumber" : 1292185,
-                |  "pickupLocation" : "sicon"
+                |  "pickupLocation" : "unspecified",
+                |  "neededBy" : "2020-01-01"
                 |}
-                |""".stripMargin))
+                |""".stripMargin)
+                )
               )
             }
         }

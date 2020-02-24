@@ -1,20 +1,20 @@
 package uk.ac.wellcome.platform.stacks.requests.api
 
+import java.time.Instant
+
+import akka.http.scaladsl.model.{HttpEntity, StatusCodes}
 import akka.http.scaladsl.server.Route
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import grizzled.slf4j.Logging
 import uk.ac.wellcome.platform.stacks.common.models.display.DisplayResultsList
 import uk.ac.wellcome.platform.stacks.common.models.{
   CatalogueItemIdentifier,
-  StacksHoldRequest,
-  StacksItemIdentifier,
-  StacksUserHolds,
   StacksUserIdentifier
 }
 import uk.ac.wellcome.platform.stacks.common.services.StacksService
-import uk.ac.wellcome.platform.stacks.requests.api.models.RequestItemHold
+import uk.ac.wellcome.platform.stacks.requests.api.models.Request
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
 trait RequestsApi extends Logging with FailFastCirceSupport {
@@ -30,21 +30,27 @@ trait RequestsApi extends Logging with FailFastCirceSupport {
       headerValueByName("Weco-Sierra-Patron-Id") {
         sierraPatronId =>
           val userIdentifier = StacksUserIdentifier(sierraPatronId)
+          val neededBy = Some(
+            Instant.parse("2020-01-01T00:00:00.00Z")
+          )
 
           post {
-            entity(as[RequestItemHold]) {
-              requestItemHold: RequestItemHold =>
+            entity(as[Request]) {
+              requestItemHold: Request =>
                 val catalogueItemId =
-                  CatalogueItemIdentifier(requestItemHold.itemId)
+                  CatalogueItemIdentifier(requestItemHold.item.id)
 
                 val result = stacksWorkService.requestHoldOnItem(
                   userIdentifier = userIdentifier,
-                  catalogueItemId = catalogueItemId
+                  catalogueItemId = catalogueItemId,
+                  neededBy = neededBy
                 )
 
+                val accepted = (StatusCodes.Accepted, HttpEntity.Empty)
+
                 onComplete(result) {
-                  case Success(value) => complete(value)
-                  case Failure(err)   => failWith(err)
+                  case Success(_)   => complete(accepted)
+                  case Failure(err) => failWith(err)
                 }
             }
           } ~ get {
