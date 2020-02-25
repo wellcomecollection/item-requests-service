@@ -11,6 +11,7 @@ module "items_api" {
     context_url        = "https://api.wellcomecollection.org/stacks/v1/context.json"
     catalogue_base_url = "https://api.wellcomecollection.org/catalogue/v2"
     sierra_base_url    = "https://libsys.wellcomelibrary.org/iii/sierra-api"
+    logstash_host      = local.logstash_host
 
     metrics_namespace = "items_api"
   }
@@ -44,6 +45,7 @@ module "requests_api" {
     context_url        = "https://api.wellcomecollection.org/stacks/v1/context.json"
     catalogue_base_url = "https://api.wellcomecollection.org/catalogue/v2"
     sierra_base_url    = "https://libsys.wellcomelibrary.org/iii/sierra-api"
+    logstash_host      = local.logstash_host
 
     metrics_namespace = "requests_api"
   }

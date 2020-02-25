@@ -7,20 +7,20 @@ module "logstash_transit_task" {
 
   task_name = local.logstash_name
 
-  container_image = "wellcome/logstash_transit:114"
+  container_image = "wellcome/logstash_transit:edgelord"
 
   cpu    = 1024
   memory = 2048
 
   env_vars = {
     XPACK_MONITORING_ENABLED = "false"
-    NAMESPACE                = "items"
+    NAMESPACE                = "stacks"
   }
 
   secret_env_vars = {
-    ES_HOST = "items/logstash/es_host"
-    ES_USER = "items/logstash/es_user"
-    ES_PASS = "items/logstash/es_pass"
+    ES_HOST = "catalogue/logstash/es_host"
+    ES_USER = "catalogue/logstash/es_user"
+    ES_PASS = "catalogue/logstash/es_pass"
   }
 
   aws_region = var.aws_region
