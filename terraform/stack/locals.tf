@@ -15,9 +15,8 @@ locals {
   // This is taken from the routemaster AWS account which doesn't expose it's terraform state
   routermaster_router53_zone_id = "Z3THRVQ5VDYDMC"
 
-  logstash_transit_service_name = "${local.namespace_hyphen}_logstash_transit"
-  logstash_host                 = "${local.logstash_transit_service_name}.${local.namespace_hyphen}"
-  namespace_hyphen              = replace(var.namespace, "_", "-")
+  logstash_transit_service_name = "stacks_logstash_transit"
+  logstash_host                 = "${local.logstash_transit_service_name}.${aws_service_discovery_private_dns_namespace.namespace.name}"
 }
 
 data "aws_vpc" "vpc" {

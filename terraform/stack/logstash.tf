@@ -1,13 +1,9 @@
-locals {
-  logstash_name = "${var.namespace}_logstash_transit"
-}
-
 module "logstash_transit_task" {
   source = "github.com/wellcomecollection/terraform-aws-ecs-service.git//task_definition/single_container?ref=v1.1.1"
 
-  task_name = local.logstash_name
+  task_name = local.logstash_transit_service_name
 
-  container_image = "wellcome/logstash_transit:edgelord"
+  container_image = "wellcome/logstash_transit:121"
 
   cpu    = 1024
   memory = 2048
@@ -29,7 +25,7 @@ module "logstash_transit_task" {
 module "logstash_transit_service" {
   source = "github.com/wellcomecollection/terraform-aws-ecs-service.git//service?ref=v1.1.1"
 
-  service_name = local.logstash_name
+  service_name = local.logstash_transit_service_name
   cluster_arn  = aws_ecs_cluster.cluster.arn
 
   task_definition_arn = module.logstash_transit_task.arn
