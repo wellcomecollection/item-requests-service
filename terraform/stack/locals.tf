@@ -23,7 +23,3 @@ locals {
 data "aws_vpc" "vpc" {
   id = var.vpc_id
 }
-
-/aws/reference/secretsmanager/items/logstash/es_host
-/aws/reference/secretsmanager/items/logstash/es_pass
-/aws/reference/secretsmanager/items/logstash/es_user
