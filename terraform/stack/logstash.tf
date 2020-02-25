@@ -3,7 +3,7 @@ module "logstash_transit_task" {
 
   task_name = local.logstash_transit_service_name
 
-  container_image = "wellcome/logstash_transit:121"
+  container_image = "wellcome/logstash_transit:edgelord"
 
   cpu    = 1024
   memory = 2048

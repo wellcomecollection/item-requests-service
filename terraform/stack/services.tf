@@ -12,7 +12,7 @@ module "items_api" {
     catalogue_base_url = "https://api.wellcomecollection.org/catalogue/v2"
     sierra_base_url    = "https://libsys.wellcomelibrary.org/iii/sierra-api"
     logstash_host      = local.logstash_host
-    
+
     log_level = "DEBUG"
 
     metrics_namespace = "items_api"
