@@ -80,13 +80,13 @@ module "items" {
   source = "../modules/resource_integration/api_key"
 
   api_id    = aws_api_gateway_rest_api.api.id
-  path_part = "items"
+  path_part = "works"
 
   root_resource_id = aws_api_gateway_rest_api.api.root_resource_id
   connection_id    = aws_api_gateway_vpc_link.link.id
 
   forward_port = "$${stageVariables.items_port}"
-  forward_path = "items"
+  forward_path = "works"
 }
 
 module "items_resource_cors" {
