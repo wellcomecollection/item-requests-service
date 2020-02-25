@@ -37,8 +37,8 @@ object CatalogueSource {
   )
 
   case class ItemStub(
-      id: String,
-      identifiers: List[IdentifiersStub],
+      id: Option[String],
+      identifiers: Option[List[IdentifiersStub]],
       locations: List[LocationStub]
   )
 

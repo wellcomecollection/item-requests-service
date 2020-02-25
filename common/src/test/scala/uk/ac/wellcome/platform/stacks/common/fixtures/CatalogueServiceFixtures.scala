@@ -28,8 +28,8 @@ trait CatalogueServiceFixtures {
       sierraId: Long = Random.nextLong(),
       locations: List[LocationStub] = List(createPhysicalLocation())
   ) = ItemStub(
-    id = catId,
-    identifiers = List(
+    id = Some(catId),
+    identifiers = Some(List(
       IdentifiersStub(
         identifierType = TypeStub(
           id = "sierra-identifier",
@@ -37,7 +37,7 @@ trait CatalogueServiceFixtures {
         ),
         value = sierraId.toString
       )
-    ),
+    )),
     locations = locations
   )
 }

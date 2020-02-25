@@ -113,6 +113,36 @@
         }
       ],
       "type": "Item"
+    },
+    {
+      "locations": [
+        {
+          "locationType": {
+            "id": "iiif-presentation",
+            "label": "IIIF Presentation API",
+            "type": "LocationType"
+          },
+          "url": "https://wellcomelibrary.org/iiif/b30626857/manifest",
+          "license": {
+            "id": "inc",
+            "label": "In copyright",
+            "url": "http://rightsstatements.org/vocab/InC/1.0/",
+            "type": "License"
+          },
+          "accessConditions": [
+            {
+              "status": {
+                "id": "open",
+                "label": "Open",
+                "type": "AccessStatus"
+              },
+              "type": "AccessCondition"
+            }
+          ],
+          "type": "DigitalLocation"
+        }
+      ],
+      "type": "Item"
     }
   ],
   "language": {

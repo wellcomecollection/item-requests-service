@@ -40,8 +40,8 @@ class CatalogueService(
   protected def getStacksItems(
       itemStubs: List[ItemStub]
   ): List[StacksItemWithOutStatus] =
-    itemStubs map {
-      case ItemStub(id, identifiers, locations) =>
+    itemStubs collect {
+      case ItemStub(Some(id), Some(identifiers), locations) =>
         (
           CatalogueItemIdentifier(id),
           getIdentifier(identifiers),
