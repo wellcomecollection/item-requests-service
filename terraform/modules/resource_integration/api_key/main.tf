@@ -44,7 +44,7 @@ module "auth_subresource" {
 
 locals {
   subresource_domain = "${var.hostname}:${var.forward_port}"
-  subresource_uri    = "http://${local.subresource_domain}/{proxy}"
+  subresource_uri    = "http://${local.subresource_domain}/${var.forward_path}/{proxy}"
 }
 
 resource "aws_api_gateway_integration" "auth_subresource" {
