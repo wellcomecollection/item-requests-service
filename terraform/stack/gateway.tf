@@ -4,7 +4,7 @@ locals {
 }
 
 resource "aws_api_gateway_rest_api" "api" {
-  name = "Stacks API (${var.namespace})"
+  name = "Stacks API"
 
   endpoint_configuration {
     types = ["REGIONAL"]

@@ -1,8 +1,8 @@
 resource "aws_ecs_cluster" "cluster" {
-  name = "${var.namespace}-stacks"
+  name = "stacks-api"
 }
 
 resource "aws_service_discovery_private_dns_namespace" "namespace" {
-  name = "${var.namespace}-stacks"
+  name = "stacks_api-${var.namespace}"
   vpc  = var.vpc_id
 }

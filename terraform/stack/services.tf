@@ -7,8 +7,10 @@ module "items_api" {
   container_image = local.items_api_image
 
   env_vars = {
-    app_base_url      = "https://api.wellcomecollection.org/stacks/v1/items"
-    context_url       = "https://api.wellcomecollection.org/stacks/v1/context.json"
+    app_base_url       = "https://api.wellcomecollection.org/stacks/v1/items"
+    context_url        = "https://api.wellcomecollection.org/stacks/v1/context.json"
+    catalogue_base_url = "https://api.wellcomecollection.org/catalogue/v2"
+
     metrics_namespace = "items_api"
   }
 
@@ -37,8 +39,10 @@ module "requests_api" {
   container_image = local.requests_api_image
 
   env_vars = {
-    app_base_url      = "https://api.wellcomecollection.org/stacks/v1/requests"
-    context_url       = "https://api.wellcomecollection.org/stacks/v1/context.json"
+    app_base_url       = "https://api.wellcomecollection.org/stacks/v1/requests"
+    context_url        = "https://api.wellcomecollection.org/stacks/v1/context.json"
+    catalogue_base_url = "https://api.wellcomecollection.org/catalogue/v2"
+
     metrics_namespace = "requests_api"
   }
 
