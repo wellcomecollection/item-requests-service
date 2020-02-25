@@ -15,7 +15,7 @@
     <host>${logstash_host}</host>
     <port>514</port>
   </appender>
-  
+
 
   <root level="${log_level:-INFO}">
     <appender-ref ref="STDOUT"/>
