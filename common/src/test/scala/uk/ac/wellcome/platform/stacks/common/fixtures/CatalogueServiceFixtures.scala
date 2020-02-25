@@ -29,15 +29,17 @@ trait CatalogueServiceFixtures {
       locations: List[LocationStub] = List(createPhysicalLocation())
   ) = ItemStub(
     id = Some(catId),
-    identifiers = Some(List(
-      IdentifiersStub(
-        identifierType = TypeStub(
-          id = "sierra-identifier",
-          label = "Sierra identifier"
-        ),
-        value = sierraId.toString
+    identifiers = Some(
+      List(
+        IdentifiersStub(
+          identifierType = TypeStub(
+            id = "sierra-identifier",
+            label = "Sierra identifier"
+          ),
+          value = sierraId.toString
+        )
       )
-    )),
+    ),
     locations = locations
   )
 }
