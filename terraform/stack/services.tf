@@ -10,7 +10,8 @@ module "items_api" {
     app_base_url       = "https://api.wellcomecollection.org/stacks/v1/items"
     context_url        = "https://api.wellcomecollection.org/stacks/v1/context.json"
     catalogue_base_url = "https://api.wellcomecollection.org/catalogue/v2"
-
+    sierra_base_url    = "https://libsys.wellcomelibrary.org/iii/sierra-api"
+    
     metrics_namespace = "items_api"
   }
 
@@ -42,6 +43,7 @@ module "requests_api" {
     app_base_url       = "https://api.wellcomecollection.org/stacks/v1/requests"
     context_url        = "https://api.wellcomecollection.org/stacks/v1/context.json"
     catalogue_base_url = "https://api.wellcomecollection.org/catalogue/v2"
+    sierra_base_url    = "https://libsys.wellcomelibrary.org/iii/sierra-api"
 
     metrics_namespace = "requests_api"
   }
