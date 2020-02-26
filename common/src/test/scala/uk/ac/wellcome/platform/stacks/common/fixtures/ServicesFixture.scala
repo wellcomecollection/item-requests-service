@@ -23,7 +23,7 @@ trait ServicesFixture
     with CatalogueWireMockFixture {
 
   def withCatalogueService[R](
-      testWith: TestWith[CatalogueService, R]
+    testWith: TestWith[CatalogueService, R]
   ): R = {
     withMockCatalogueServer { catalogueApiUrl: String =>
       withActorSystem { implicit as =>
@@ -45,7 +45,7 @@ trait ServicesFixture
   }
 
   def withSierraService[R](
-      testWith: TestWith[(SierraService, WireMockServer), R]
+    testWith: TestWith[(SierraService, WireMockServer), R]
   ): R = {
     withMockSierraServer {
       case (sierraApiUrl, wireMockServer) =>
@@ -70,7 +70,7 @@ trait ServicesFixture
   }
 
   def withStacksService[R](
-      testWith: TestWith[(StacksService, WireMockServer), R]
+    testWith: TestWith[(StacksService, WireMockServer), R]
   ): R = {
     withCatalogueService { catalogueService =>
       withSierraService {

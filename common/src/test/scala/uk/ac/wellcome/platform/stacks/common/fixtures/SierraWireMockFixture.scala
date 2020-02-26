@@ -6,7 +6,7 @@ import uk.ac.wellcome.fixtures.TestWith
 
 trait SierraWireMockFixture {
   def withMockSierraServer[R](
-      testWith: TestWith[(String, WireMockServer), R]
+    testWith: TestWith[(String, WireMockServer), R]
   ): R = {
 
     val wireMockServer = new WireMockServer(
