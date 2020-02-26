@@ -19,6 +19,6 @@ case class StacksHoldStatus(
 )
 
 case class StacksPickup(
-  location: StacksPickupLocation,
-  pickUpBy: Option[Instant]
+    location: StacksPickupLocation,
+    pickUpBy: Option[Instant]
 )

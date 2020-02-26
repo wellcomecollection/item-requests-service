@@ -38,10 +38,11 @@ class StacksService(
           )
       }
 
-    } yield StacksHoldRequest(
-      itemId = catalogueItemId.value,
-      userId = userIdentifier.value
-    )
+    } yield
+      StacksHoldRequest(
+        itemId = catalogueItemId.value,
+        userId = userIdentifier.value
+      )
 
   def getStacksWork(
       workId: StacksWorkIdentifier
@@ -56,7 +57,6 @@ class StacksService(
       stacksItemsWithStatuses = (stacksItemIds zip itemStatuses) map {
         case (itemId, status) => StacksItem(itemId, status)
       }
-
 
     } yield StacksWork(workId, stacksItemsWithStatuses)
 

@@ -48,7 +48,7 @@ class CatalogueService(
         )
     } collect {
       case (catId, Some(sierraId)) =>
-          StacksItemIdentifier(catId, sierraId)
+        StacksItemIdentifier(catId, sierraId)
     }
 
   def getStacksItems(
@@ -59,7 +59,8 @@ class CatalogueService(
       items = getStacksItems(workStub.items)
     } yield items
 
-  def getStacksItem(identifier: Identifier[_]): Future[Option[StacksItemIdentifier]] =
+  def getStacksItem(
+      identifier: Identifier[_]): Future[Option[StacksItemIdentifier]] =
     for {
       searchStub <- catalogueSource.getSearchStub(identifier)
 
@@ -80,11 +81,13 @@ class CatalogueService(
 
       distinctFilteredItems = filteredItems.distinct
 
-    } yield distinctFilteredItems  match {
-      case List(item) => Some(item)
-      case Nil        => None
-      case _          => throw new Exception(
-        s"Failed to find distinct items in: $distinctFilteredItems"
-      )
-    }
+    } yield
+      distinctFilteredItems match {
+        case List(item) => Some(item)
+        case Nil        => None
+        case _ =>
+          throw new Exception(
+            s"Failed to find distinct items in: $distinctFilteredItems"
+          )
+      }
 }
