@@ -6,13 +6,13 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
 class CatalogueService(
-    val catalogueSource: CatalogueSource
+  val catalogueSource: CatalogueSource
 )(implicit ec: ExecutionContext) {
 
   import CatalogueSource._
 
   protected def getIdentifier(
-      identifiers: List[IdentifiersStub]
+    identifiers: List[IdentifiersStub]
   ): Option[SierraItemIdentifier] =
     identifiers filter (_.identifierType.id == "sierra-identifier") match {
       case List(IdentifiersStub(_, value)) =>
@@ -28,7 +28,7 @@ class CatalogueService(
     }
 
   protected def getLocations(
-      locations: List[LocationStub]
+    locations: List[LocationStub]
   ): List[StacksPickupLocation] = locations collect {
     case location @ LocationStub(_, _, "PhysicalLocation") =>
       StacksPickupLocation(
@@ -38,13 +38,13 @@ class CatalogueService(
   }
 
   protected def getStacksItems(
-      itemStubs: List[ItemStub]
+    itemStubs: List[ItemStub]
   ): List[StacksItemIdentifier] =
     itemStubs collect {
       case ItemStub(Some(id), Some(identifiers)) =>
         (
           CatalogueItemIdentifier(id),
-          getIdentifier(identifiers),
+          getIdentifier(identifiers)
         )
     } collect {
       case (catId, Some(sierraId)) =>
@@ -52,7 +52,7 @@ class CatalogueService(
     }
 
   def getStacksItems(
-      workId: StacksWorkIdentifier
+    workId: StacksWorkIdentifier
   ): Future[List[StacksItemIdentifier]] =
     for {
       workStub <- catalogueSource.getWorkStub(workId)
@@ -60,7 +60,8 @@ class CatalogueService(
     } yield items
 
   def getStacksItem(
-      identifier: Identifier[_]): Future[Option[StacksItemIdentifier]] =
+    identifier: Identifier[_]
+  ): Future[Option[StacksItemIdentifier]] =
     for {
       searchStub <- catalogueSource.getSearchStub(identifier)
 
@@ -82,13 +83,12 @@ class CatalogueService(
       // Items can appear on multiple works in a search result
       distinctFilteredItems = filteredItems.distinct
 
-    } yield
-      distinctFilteredItems match {
-        case List(item) => Some(item)
-        case Nil        => None
-        case _ =>
-          throw new Exception(
-            s"Found multiple matching items for $identifier in: $distinctFilteredItems"
-          )
-      }
+    } yield distinctFilteredItems match {
+      case List(item) => Some(item)
+      case Nil        => None
+      case _ =>
+        throw new Exception(
+          s"Found multiple matching items for $identifier in: $distinctFilteredItems"
+        )
+    }
 }

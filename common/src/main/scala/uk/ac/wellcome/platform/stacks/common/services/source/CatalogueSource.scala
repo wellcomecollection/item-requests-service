@@ -21,45 +21,45 @@ trait CatalogueSource {
 
 object CatalogueSource {
   case class TypeStub(
-      id: String,
-      label: String
+    id: String,
+    label: String
   )
 
   case class LocationStub(
-      locationType: TypeStub,
-      label: Option[String],
-      `type`: String
+    locationType: TypeStub,
+    label: Option[String],
+    `type`: String
   )
 
   case class IdentifiersStub(
-      identifierType: TypeStub,
-      value: String
+    identifierType: TypeStub,
+    value: String
   )
 
   case class ItemStub(
-      id: Option[String],
-      identifiers: Option[List[IdentifiersStub]]
+    id: Option[String],
+    identifiers: Option[List[IdentifiersStub]]
   )
 
   case class WorkStub(
-      id: String,
-      items: List[ItemStub]
+    id: String,
+    items: List[ItemStub]
   )
 
   case class SearchStub(
-      totalResults: Int,
-      results: List[WorkStub]
+    totalResults: Int,
+    results: List[WorkStub]
   )
 }
 
 class AkkaCatalogueSource(
-    val baseUri: Uri = Uri(
-      "https://api.wellcomecollection.org/catalogue/v2"
-    )
+  val baseUri: Uri = Uri(
+    "https://api.wellcomecollection.org/catalogue/v2"
+  )
 )(
-    implicit
-    val system: ActorSystem,
-    val mat: ActorMaterializer
+  implicit
+  val system: ActorSystem,
+  val mat: ActorMaterializer
 ) extends CatalogueSource
     with AkkaClientGet {
 

@@ -6,7 +6,7 @@ import uk.ac.wellcome.platform.stacks.common.models._
 
 object DisplayResultsList {
   def apply(
-      stacksUserHolds: StacksUserHolds
+    stacksUserHolds: StacksUserHolds
   ): DisplayResultsList =
     DisplayResultsList(
       results = stacksUserHolds.holds.map(DisplayRequest(_)),
@@ -15,9 +15,9 @@ object DisplayResultsList {
 }
 
 case class DisplayResultsList(
-    results: List[DisplayRequest],
-    totalResults: Int,
-    `type`: String = "ResultList"
+  results: List[DisplayRequest],
+  totalResults: Int,
+  `type`: String = "ResultList"
 )
 
 object DisplayRequest {
@@ -37,11 +37,11 @@ object DisplayRequest {
 }
 
 case class DisplayRequest(
-    item: DisplayItem,
-    pickupDate: Option[Instant],
-    pickupLocation: DisplayLocationDescription,
-    status: DisplayRequestStatus,
-    `type`: String = "Request"
+  item: DisplayItem,
+  pickupDate: Option[Instant],
+  pickupLocation: DisplayLocationDescription,
+  status: DisplayRequestStatus,
+  `type`: String = "Request"
 )
 
 object DisplayLocationDescription {
@@ -53,9 +53,9 @@ object DisplayLocationDescription {
 }
 
 case class DisplayLocationDescription(
-    id: String,
-    label: String,
-    `type`: String = "LocationDescription"
+  id: String,
+  label: String,
+  `type`: String = "LocationDescription"
 )
 
 object DisplayRequestStatus {
@@ -67,7 +67,7 @@ object DisplayRequestStatus {
 }
 
 case class DisplayRequestStatus(
-    id: String,
-    label: String,
-    `type`: String = "RequestStatus"
+  id: String,
+  label: String,
+  `type`: String = "RequestStatus"
 )

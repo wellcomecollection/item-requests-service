@@ -8,7 +8,7 @@ import uk.ac.wellcome.platform.stacks.common.services.source.SierraSource
 import scala.concurrent.{ExecutionContext, Future}
 
 class SierraService(
-    sierraSource: SierraSource
+  sierraSource: SierraSource
 )(implicit ec: ExecutionContext) {
 
   import SierraSource._
@@ -19,9 +19,9 @@ class SierraService(
       .map(item => StacksItemStatus(item.status.code))
 
   def placeHold(
-      userIdentifier: StacksUserIdentifier,
-      sierraItemIdentifier: SierraItemIdentifier,
-      neededBy: Option[Instant]
+    userIdentifier: StacksUserIdentifier,
+    sierraItemIdentifier: SierraItemIdentifier,
+    neededBy: Option[Instant]
   ): Future[Unit] =
     sierraSource
       .postHold(
@@ -31,7 +31,7 @@ class SierraService(
       )
 
   protected def buildStacksHold(
-      entry: SierraUserHoldsEntryStub
+    entry: SierraUserHoldsEntryStub
   ): StacksHold = {
 
     val itemId = SierraItemIdentifier
@@ -56,7 +56,7 @@ class SierraService(
   }
 
   def getStacksUserHolds(
-      userId: StacksUserIdentifier
+    userId: StacksUserIdentifier
   ): Future[StacksUserHolds] = {
     sierraSource
       .getSierraUserHoldsStub(userId)

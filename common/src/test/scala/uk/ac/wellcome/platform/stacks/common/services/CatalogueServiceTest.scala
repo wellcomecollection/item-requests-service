@@ -36,9 +36,9 @@ class CatalogueServiceTest
             catalogueService.getStacksItems(stacksWorkIdentifier)
           ) { stacksItems =>
             val expectedItems = List(
-                StacksItemIdentifier(
-                  catalogueId = CatalogueItemIdentifier("ys3ern6x"),
-                  sierraId = SierraItemIdentifier(1292185)
+              StacksItemIdentifier(
+                catalogueId = CatalogueItemIdentifier("ys3ern6x"),
+                sierraId = SierraItemIdentifier(1292185)
               )
             )
 
@@ -113,7 +113,8 @@ class CatalogueServiceTest
           whenReady(
             catalogueService.getStacksItem(itemIdentifier)
           ) { maybeStacksItemIdentifier =>
-            val expectedStacksItemIdentifier = Some(StacksItemIdentifier(
+            val expectedStacksItemIdentifier = Some(
+              StacksItemIdentifier(
                 catalogueId = CatalogueItemIdentifier("ys3ern6x"),
                 sierraId = SierraItemIdentifier(1292185)
               )

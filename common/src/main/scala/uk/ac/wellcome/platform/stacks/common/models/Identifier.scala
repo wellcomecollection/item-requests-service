@@ -30,8 +30,8 @@ object SierraItemIdentifier {
 }
 
 case class StacksItemIdentifier(
-    catalogueId: CatalogueItemIdentifier,
-    sierraId: SierraItemIdentifier
+  catalogueId: CatalogueItemIdentifier,
+  sierraId: SierraItemIdentifier
 ) extends ItemIdentifier[String] {
   override val value: String = catalogueId.value
 }

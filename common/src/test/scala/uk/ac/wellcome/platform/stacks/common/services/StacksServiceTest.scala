@@ -2,14 +2,18 @@ package uk.ac.wellcome.platform.stacks.common.services
 
 import java.time.Instant
 
-import com.github.tomakehurst.wiremock.client.WireMock.{equalToJson, postRequestedFor, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock.{
+  equalToJson,
+  postRequestedFor,
+  urlEqualTo
+}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.{FunSpec, Matchers}
 import uk.ac.wellcome.platform.stacks.common.fixtures.ServicesFixture
 import uk.ac.wellcome.platform.stacks.common.models._
 
 class StacksServiceTest
-  extends FunSpec
+    extends FunSpec
     with ServicesFixture
     with ScalaFutures
     with IntegrationPatience
@@ -45,8 +49,7 @@ class StacksServiceTest
                     "/iii/sierra-api/v5/patrons/1234567/holds/requests"
                   )
                 ).withRequestBody(
-                  equalToJson(
-                    """
+                  equalToJson("""
                       |{
                       |  "recordType" : "i",
                       |  "recordNumber" : 1292185,
@@ -107,7 +110,8 @@ class StacksServiceTest
                       sierraId = SierraItemIdentifier(1292185)
                     ),
                     pickup = StacksPickup(
-                      location = StacksPickupLocation("sepbb", "Rare Materials Room"),
+                      location =
+                        StacksPickupLocation("sepbb", "Rare Materials Room"),
                       pickUpBy = Some(Instant.parse("2019-12-03T04:00:00Z"))
                     ),
                     status =
