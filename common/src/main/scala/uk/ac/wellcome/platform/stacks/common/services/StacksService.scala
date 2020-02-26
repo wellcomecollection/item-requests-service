@@ -26,10 +26,10 @@ class StacksService(
       stacksItem <- catalogueService.getStacksItem(catalogueItemId)
 
       _ <- stacksItem match {
-        case Some(item) =>
+        case Some(id) =>
           sierraService.placeHold(
             userIdentifier = userIdentifier,
-            sierraItemIdentifier = item.id.sierraId,
+            sierraItemIdentifier = id.sierraId,
             neededBy = neededBy
           )
         case None =>
@@ -43,37 +43,39 @@ class StacksService(
       userId = userIdentifier.value
     )
 
-  def getStacksWorkWithItemStatuses(
+  def getStacksWork(
       workId: StacksWorkIdentifier
-  ): Future[StacksWork[StacksItemWithStatus]] =
+  ): Future[StacksWork] =
     for {
-      stacksWorkWithoutItemStatuses <- catalogueService.getStacksWork(workId)
-      itemStatuses <- stacksWorkWithoutItemStatuses.items
-        .map(_.id.sierraId)
+      stacksItemIds <- catalogueService.getStacksItems(workId)
+
+      itemStatuses <- stacksItemIds
+        .map(_.sierraId)
         .traverse(sierraService.getItemStatus)
 
-      stacksItemsWithStatuses = (stacksWorkWithoutItemStatuses.items zip itemStatuses) map {
-        case (item, status) => item.addStatus(status)
+      stacksItemsWithStatuses = (stacksItemIds zip itemStatuses) map {
+        case (itemId, status) => StacksItem(itemId, status)
       }
-    } yield stacksWorkWithoutItemStatuses
-      .updateItems(stacksItemsWithStatuses)
+
+
+    } yield StacksWork(workId, stacksItemsWithStatuses)
 
   def getStacksUserHolds(
       userId: StacksUserIdentifier
-  ): Future[StacksUserHolds[StacksItemIdentifier]] =
+  ): Future[StacksUserHolds] =
     for {
       userHolds <- sierraService.getStacksUserHolds(userId)
-      stacksItems <- userHolds.holds
+      stacksItemIds <- userHolds.holds
         .map(_.itemId)
         .traverse(catalogueService.getStacksItem)
 
-      updatedUserHolds = (userHolds.holds zip stacksItems) map {
-        case (hold, Some(stacksItem)) =>
-          Some(hold.updateItemId[StacksItemIdentifier](stacksItem.id))
+      updatedUserHolds = (userHolds.holds zip stacksItemIds) map {
+        case (hold, Some(stacksItemId)) =>
+          Some(hold.copy(itemId = stacksItemId))
         case (hold, None) =>
           error(f"Unable to map $hold to Catalogue Id!")
           None
       }
 
-    } yield userHolds.updateHolds(updatedUserHolds.flatten)
+    } yield userHolds.copy(holds = updatedUserHolds.flatten)
 }

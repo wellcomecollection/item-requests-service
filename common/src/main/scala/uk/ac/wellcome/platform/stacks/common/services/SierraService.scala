@@ -32,12 +32,12 @@ class SierraService(
 
   protected def buildStacksHold(
       entry: SierraUserHoldsEntryStub
-  ): StacksHold[SierraItemIdentifier] = {
+  ): StacksHold = {
 
     val itemId = SierraItemIdentifier
       .createFromSierraId(entry.record)
 
-    val pickupLocation = StacksLocation(
+    val pickupLocation = StacksPickupLocation(
       id = entry.pickupLocation.code,
       label = entry.pickupLocation.name
     )
@@ -57,7 +57,7 @@ class SierraService(
 
   def getStacksUserHolds(
       userId: StacksUserIdentifier
-  ): Future[StacksUserHolds[SierraItemIdentifier]] = {
+  ): Future[StacksUserHolds] = {
     sierraSource
       .getSierraUserHoldsStub(userId)
       .map { hold =>

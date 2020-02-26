@@ -5,7 +5,6 @@ import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import grizzled.slf4j.Logging
 import uk.ac.wellcome.platform.stacks.common.models.display.DisplayStacksWork
 import uk.ac.wellcome.platform.stacks.common.models.{
-  StacksItemWithStatus,
   StacksWork,
   StacksWorkIdentifier
 }
@@ -27,8 +26,8 @@ trait ItemsApi extends Logging with FailFastCirceSupport {
       path(Segment) {
         id: String =>
           get {
-            val result: Future[StacksWork[StacksItemWithStatus]] =
-              stacksWorkService.getStacksWorkWithItemStatuses(
+            val result: Future[StacksWork] =
+              stacksWorkService.getStacksWork(
                 StacksWorkIdentifier(id)
               )
 

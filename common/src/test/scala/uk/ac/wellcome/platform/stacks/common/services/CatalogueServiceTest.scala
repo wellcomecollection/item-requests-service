@@ -33,23 +33,16 @@ class CatalogueServiceTest
           )
 
           whenReady(
-            catalogueService.getStacksWork(stacksWorkIdentifier)
-          ) { actualWork =>
-            val expectedWork = StacksWork(
-              id = "cnkv77md",
-              items = List(
-                StacksItemWithOutStatus(
-                  id = StacksItemIdentifier(
-                    catalogueId = CatalogueItemIdentifier("ys3ern6x"),
-                    sierraId = SierraItemIdentifier(1292185)
-                  ),
-                  location =
-                    StacksLocation("sicon", "Closed stores Iconographic")
-                )
+            catalogueService.getStacksItems(stacksWorkIdentifier)
+          ) { stacksItems =>
+            val expectedItems = List(
+                StacksItemIdentifier(
+                  catalogueId = CatalogueItemIdentifier("ys3ern6x"),
+                  sierraId = SierraItemIdentifier(1292185)
               )
             )
 
-            actualWork shouldBe expectedWork
+            stacksItems shouldBe expectedItems
           }
 
         }
@@ -102,22 +95,12 @@ class CatalogueServiceTest
             StacksWorkIdentifier(catalogueId)
           )
 
-          whenReady(eventuallyStacksItem) { maybeStacksItem =>
-            val stacksItem = maybeStacksItem.get
+          whenReady(eventuallyStacksItem) { maybeStacksItemId =>
+            val stacksItemId = maybeStacksItemId.get
 
-            stacksItem shouldBe StacksItemWithOutStatus(
-              id = StacksItemIdentifier(
-                CatalogueItemIdentifier(
-                  catalogueId
-                ),
-                SierraItemIdentifier(
-                  sierraId
-                )
-              ),
-              location = StacksLocation(
-                id = location.locationType.id,
-                label = location.locationType.label
-              )
+            stacksItemId shouldBe StacksItemIdentifier(
+              CatalogueItemIdentifier(catalogueId),
+              SierraItemIdentifier(sierraId)
             )
           }
         }
@@ -129,18 +112,14 @@ class CatalogueServiceTest
 
           whenReady(
             catalogueService.getStacksItem(itemIdentifier)
-          ) { actualWork =>
-            val expectedItem = Some(
-              StacksItemWithOutStatus(
-                id = StacksItemIdentifier(
-                  catalogueId = CatalogueItemIdentifier("ys3ern6x"),
-                  sierraId = SierraItemIdentifier(1292185)
-                ),
-                location = StacksLocation("sicon", "Closed stores Iconographic")
+          ) { maybeStacksItemIdentifier =>
+            val expectedStacksItemIdentifier = Some(StacksItemIdentifier(
+                catalogueId = CatalogueItemIdentifier("ys3ern6x"),
+                sierraId = SierraItemIdentifier(1292185)
               )
             )
 
-            actualWork shouldBe expectedItem
+            maybeStacksItemIdentifier shouldBe expectedStacksItemIdentifier
           }
         }
       }
@@ -151,18 +130,15 @@ class CatalogueServiceTest
 
           whenReady(
             catalogueService.getStacksItem(itemIdentifier)
-          ) { actualWork =>
-            val expectedItem = Some(
-              StacksItemWithOutStatus(
-                id = StacksItemIdentifier(
-                  catalogueId = CatalogueItemIdentifier("ys3ern6x"),
-                  sierraId = SierraItemIdentifier(1292185)
-                ),
-                location = StacksLocation("sicon", "Closed stores Iconographic")
+          ) { maybeStacksItemIdentifier =>
+            val expectedStacksItemIdentifier = Some(
+              StacksItemIdentifier(
+                catalogueId = CatalogueItemIdentifier("ys3ern6x"),
+                sierraId = SierraItemIdentifier(1292185)
               )
             )
 
-            actualWork shouldBe expectedItem
+            maybeStacksItemIdentifier shouldBe expectedStacksItemIdentifier
           }
         }
       }

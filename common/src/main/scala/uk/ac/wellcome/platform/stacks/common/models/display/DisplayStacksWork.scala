@@ -1,14 +1,11 @@
 package uk.ac.wellcome.platform.stacks.common.models.display
 
-import uk.ac.wellcome.platform.stacks.common.models.{
-  StacksItemWithStatus,
-  StacksWork
-}
+import uk.ac.wellcome.platform.stacks.common.models.StacksWork
 
 object DisplayStacksWork {
-  def apply(stacksWork: StacksWork[StacksItemWithStatus]): DisplayStacksWork =
+  def apply(stacksWork: StacksWork): DisplayStacksWork =
     DisplayStacksWork(
-      id = stacksWork.id,
+      id = stacksWork.id.value,
       items = stacksWork.items.map { stacksItem =>
         DisplayItem(
           id = stacksItem.id.value,
