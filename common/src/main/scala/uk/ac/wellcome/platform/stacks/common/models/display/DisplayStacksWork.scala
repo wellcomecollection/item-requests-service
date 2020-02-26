@@ -24,7 +24,7 @@ object DisplayStacksWork {
 }
 
 case class DisplayStacksWork(
-    id: String,
-    items: List[DisplayItem],
-    `type`: String = "Work"
+  id: String,
+  items: List[DisplayItem],
+  `type`: String = "Work"
 )

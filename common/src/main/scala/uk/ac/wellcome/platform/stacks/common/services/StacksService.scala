@@ -11,16 +11,16 @@ import uk.ac.wellcome.platform.stacks.common.models._
 import scala.concurrent.{ExecutionContext, Future}
 
 class StacksService(
-    catalogueService: CatalogueService,
-    sierraService: SierraService
+  catalogueService: CatalogueService,
+  sierraService: SierraService
 )(
-    implicit ec: ExecutionContext
+  implicit ec: ExecutionContext
 ) extends Logging {
 
   def requestHoldOnItem(
-      userIdentifier: StacksUserIdentifier,
-      catalogueItemId: CatalogueItemIdentifier,
-      neededBy: Option[Instant]
+    userIdentifier: StacksUserIdentifier,
+    catalogueItemId: CatalogueItemIdentifier,
+    neededBy: Option[Instant]
   ): Future[StacksHoldRequest] =
     for {
       stacksItem <- catalogueService.getStacksItem(catalogueItemId)
@@ -44,7 +44,7 @@ class StacksService(
     )
 
   def getStacksWorkWithItemStatuses(
-      workId: StacksWorkIdentifier
+    workId: StacksWorkIdentifier
   ): Future[StacksWork[StacksItemWithStatus]] =
     for {
       stacksWorkWithoutItemStatuses <- catalogueService.getStacksWork(workId)
@@ -59,7 +59,7 @@ class StacksService(
       .updateItems(stacksItemsWithStatuses)
 
   def getStacksUserHolds(
-      userId: StacksUserIdentifier
+    userId: StacksUserIdentifier
   ): Future[StacksUserHolds[StacksItemIdentifier]] =
     for {
       userHolds <- sierraService.getStacksUserHolds(userId)
