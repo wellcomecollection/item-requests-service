@@ -57,7 +57,7 @@ trait WellcomeRejectionHandler {
       }
 
   private def handleDecodingFailures(
-      causes: DecodingFailures
+    causes: DecodingFailures
   ): StandardRoute = {
     val message = causes.failures.map { cause =>
       val path = CursorOp.opsToPath(cause.history)
@@ -91,8 +91,8 @@ trait WellcomeRejectionHandler {
   }
 
   private def transformToJsonErrorResponse(
-      statusCode: StatusCode,
-      response: HttpResponse
+    statusCode: StatusCode,
+    response: HttpResponse
   ): HttpResponse = {
 
     val errorResponseMarshallingFlow = Flow[ByteString]

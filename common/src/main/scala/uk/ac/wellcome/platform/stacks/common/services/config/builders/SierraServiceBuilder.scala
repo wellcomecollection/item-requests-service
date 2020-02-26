@@ -14,9 +14,9 @@ import uk.ac.wellcome.typesafe.config.builders.EnrichConfig._
 import scala.concurrent.ExecutionContext
 
 class SierraServiceBuilder()(
-    implicit am: ActorMaterializer,
-    as: ActorSystem,
-    ec: ExecutionContext
+  implicit am: ActorMaterializer,
+  as: ActorSystem,
+  ec: ExecutionContext
 ) extends TypesafeBuilder[SierraService, SierraServiceConfig] {
 
   def buildConfig(config: Config): SierraServiceConfig = {

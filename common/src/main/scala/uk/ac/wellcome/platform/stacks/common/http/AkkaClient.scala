@@ -26,8 +26,8 @@ trait AkkaClient {
   import Path._
 
   protected def buildUri(
-      path: Path,
-      params: Map[String, String] = Map.empty
+    path: Path,
+    params: Map[String, String] = Map.empty
   ): Uri =
     baseUri
       .withPath(baseUri.path ++ Slash(path))
@@ -36,11 +36,11 @@ trait AkkaClient {
 
 trait AkkaClientGet extends AkkaClient {
   protected def get[Out](
-      path: Path,
-      params: Map[String, String] = Map.empty,
-      headers: List[HttpHeader] = Nil
+    path: Path,
+    params: Map[String, String] = Map.empty,
+    headers: List[HttpHeader] = Nil
   )(
-      implicit um: Unmarshaller[HttpResponse, Out]
+    implicit um: Unmarshaller[HttpResponse, Out]
   ): Future[Out] =
     for {
       response <- Http().singleRequest(
@@ -55,14 +55,14 @@ trait AkkaClientGet extends AkkaClient {
 
 trait AkkaClientPost extends AkkaClient {
   protected def post[In, Out](
-      path: Path,
-      body: Option[In] = None,
-      params: Map[String, String] = Map.empty,
-      headers: List[HttpHeader] = Nil
+    path: Path,
+    body: Option[In] = None,
+    params: Map[String, String] = Map.empty,
+    headers: List[HttpHeader] = Nil
   )(
-      implicit
-      um: Unmarshaller[HttpResponse, Out],
-      m: Marshaller[In, RequestEntity]
+    implicit
+    um: Unmarshaller[HttpResponse, Out],
+    m: Marshaller[In, RequestEntity]
   ): Future[Option[Out]] =
     for {
       entity <- body match {
@@ -96,7 +96,7 @@ trait AkkaClientTokenExchange extends AkkaClientPost {
   val tokenPath: Path
 
   protected def getToken(
-      credentials: BasicHttpCredentials
+    credentials: BasicHttpCredentials
   ): Future[OAuth2BearerToken] = {
     for {
       token <- post[String, AccessToken](

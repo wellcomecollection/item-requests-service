@@ -21,7 +21,7 @@ import uk.ac.wellcome.platform.stacks.common.http.config.models.HTTPServerConfig
 trait HttpFixtures extends Akka with ScalaFutures with Matchers {
 
   private def whenRequestReady[R](
-      r: HttpRequest
+    r: HttpRequest
   )(testWith: TestWith[HttpResponse, R]): R =
     withActorSystem { implicit actorSystem =>
       val request = Http().singleRequest(r)
@@ -31,8 +31,8 @@ trait HttpFixtures extends Akka with ScalaFutures with Matchers {
     }
 
   def whenGetRequestReady[R](
-      path: String,
-      headers: List[HttpHeader] = Nil
+    path: String,
+    headers: List[HttpHeader] = Nil
   )(testWith: TestWith[HttpResponse, R]): R = {
 
     val request = HttpRequest(
@@ -53,11 +53,11 @@ trait HttpFixtures extends Akka with ScalaFutures with Matchers {
     )
 
   def whenPostRequestReady[R](
-      path: String,
-      entity: RequestEntity,
-      headers: List[HttpHeader] = Nil
+    path: String,
+    entity: RequestEntity,
+    headers: List[HttpHeader] = Nil
   )(
-      testWith: TestWith[HttpResponse, R]
+    testWith: TestWith[HttpResponse, R]
   ): R = {
 
     val request = HttpRequest(
@@ -73,7 +73,7 @@ trait HttpFixtures extends Akka with ScalaFutures with Matchers {
   }
 
   def withStringEntity[R](
-      httpEntity: HttpEntity
+    httpEntity: HttpEntity
   )(testWith: TestWith[String, R]): R =
     withMaterializer { implicit mat =>
       val value =

@@ -32,9 +32,9 @@ trait RequestsApiFixture
   )
 
   private def withApp[R](
-      catalogueApiUrl: String,
-      sierraApiUrl: String,
-      metrics: MemoryMetrics[Unit]
+    catalogueApiUrl: String,
+    sierraApiUrl: String,
+    metrics: MemoryMetrics[Unit]
   )(testWith: TestWith[WellcomeHttpApp, R]): R =
     withActorSystem { implicit actorSystem =>
       withMaterializer(actorSystem) { implicit materializer =>
@@ -80,10 +80,10 @@ trait RequestsApiFixture
     }
 
   def withConfiguredApp[R](
-      catalogueApiUrl: String,
-      sierraApiUrl: String
+    catalogueApiUrl: String,
+    sierraApiUrl: String
   )(
-      testWith: TestWith[(MemoryMetrics[Unit], String), R]
+    testWith: TestWith[(MemoryMetrics[Unit], String), R]
   ): R = {
     val metrics = new MemoryMetrics[Unit]()
 

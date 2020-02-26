@@ -6,7 +6,7 @@ import uk.ac.wellcome.fixtures.TestWith
 
 trait CatalogueWireMockFixture {
   def withMockCatalogueServer[R](
-      testWith: TestWith[String, R]
+    testWith: TestWith[String, R]
   ): R = {
 
     val wireMockServer = new WireMockServer(

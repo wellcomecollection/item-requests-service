@@ -6,13 +6,13 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
 class CatalogueService(
-    val catalogueSource: CatalogueSource
+  val catalogueSource: CatalogueSource
 )(implicit ec: ExecutionContext) {
 
   import CatalogueSource._
 
   protected def getIdentifier(
-      identifiers: List[IdentifiersStub]
+    identifiers: List[IdentifiersStub]
   ): Option[SierraItemIdentifier] =
     identifiers filter (_.identifierType.id == "sierra-identifier") match {
       case List(IdentifiersStub(_, value)) =>
@@ -28,7 +28,7 @@ class CatalogueService(
     }
 
   protected def getLocations(
-      locations: List[LocationStub]
+    locations: List[LocationStub]
   ): List[StacksLocation] = locations collect {
     case location @ LocationStub(_, _, "PhysicalLocation") =>
       StacksLocation(
@@ -38,7 +38,7 @@ class CatalogueService(
   }
 
   protected def getStacksItems(
-      itemStubs: List[ItemStub]
+    itemStubs: List[ItemStub]
   ): List[StacksItemWithOutStatus] =
     itemStubs collect {
       case ItemStub(Some(id), Some(identifiers), locations) =>
@@ -56,7 +56,7 @@ class CatalogueService(
     }
 
   def getStacksWork(
-      workId: StacksWorkIdentifier
+    workId: StacksWorkIdentifier
   ): Future[StacksWork[StacksItemWithOutStatus]] =
     for {
       workStub <- catalogueSource.getWorkStub(workId)
