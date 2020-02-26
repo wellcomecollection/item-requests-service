@@ -87,7 +87,7 @@ class CatalogueService(
         case Nil        => None
         case _ =>
           throw new Exception(
-            s"Failed to find distinct items in: $distinctFilteredItems"
+            s"Found multiple matching items for $identifier in: $distinctFilteredItems"
           )
       }
 }
