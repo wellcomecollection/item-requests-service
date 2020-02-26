@@ -79,6 +79,7 @@ class CatalogueService(
         case _ => items
       }
 
+      // Items can appear on multiple works in a search result
       distinctFilteredItems = filteredItems.distinct
 
     } yield
