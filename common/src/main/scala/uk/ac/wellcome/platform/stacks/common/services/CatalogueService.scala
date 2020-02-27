@@ -12,7 +12,7 @@ class CatalogueService(
 
   import CatalogueSource._
 
-  protected def getIdentifier(
+  private def getSierraItemIdentifier(
     identifiers: List[IdentifiersStub]
   ): Option[SierraItemIdentifier] =
     identifiers filter (_.identifierType.id == "sierra-identifier") match {
@@ -28,21 +28,21 @@ class CatalogueService(
       case _ => None
     }
 
-  protected def getStacksItems(
+  private def getStacksItems(
     itemStubs: List[ItemStub]
   ): List[StacksItemIdentifier] =
     itemStubs collect {
       case ItemStub(Some(id), Some(identifiers)) =>
         (
           CatalogueItemIdentifier(id),
-          getIdentifier(identifiers)
+          getSierraItemIdentifier(identifiers)
         )
     } collect {
       case (catId, Some(sierraId)) =>
         StacksItemIdentifier(catId, sierraId)
     }
 
-  def getStacksItems(
+  def getAllStacksItems(
     workId: StacksWorkIdentifier
   ): Future[List[StacksItemIdentifier]] =
     for {

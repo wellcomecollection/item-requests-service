@@ -2,17 +2,12 @@ package uk.ac.wellcome.platform.stacks.common.services
 
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.{FunSpec, Matchers}
-import uk.ac.wellcome.platform.stacks.common.fixtures.{
-  CatalogueServiceFixtures,
-  ServicesFixture
-}
+import uk.ac.wellcome.platform.stacks.common.fixtures.{CatalogueServiceFixtures, CatalogueStubGenerators, ServicesFixture}
 import uk.ac.wellcome.platform.stacks.common.models._
 import uk.ac.wellcome.platform.stacks.common.services.source.CatalogueSource
-import uk.ac.wellcome.platform.stacks.common.services.source.CatalogueSource.{
-  SearchStub,
-  WorkStub
-}
+import uk.ac.wellcome.platform.stacks.common.services.source.CatalogueSource._
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.Random
 
@@ -22,7 +17,104 @@ class CatalogueServiceTest
     with CatalogueServiceFixtures
     with ScalaFutures
     with IntegrationPatience
-    with Matchers {
+    with Matchers
+    with CatalogueStubGenerators {
+
+  class MockCatalogueSource(works: WorkStub*) extends CatalogueSource {
+    override def getWorkStub(id: StacksWorkIdentifier): Future[WorkStub] =
+      Future.successful(works.head)
+
+    override def getSearchStub(identifier: Identifier[_]): Future[SearchStub] =
+      Future.successful(
+        SearchStub(totalResults = works.size, results = works.toList)
+      )
+  }
+
+  describe("getAllStacksItems") {
+    class OneWorkCatalogueSource(work: WorkStub) extends CatalogueSource {
+      override def getWorkStub(id: StacksWorkIdentifier): Future[WorkStub] =
+        Future.successful(work)
+
+      override def getSearchStub(identifier: Identifier[_]): Future[SearchStub] =
+        Future.failed(new Throwable("BOOM!"))
+    }
+
+    it("finds an item on a work") {
+      val item = ItemStub(
+        id = Some(createStacksItemIdentifier.value),
+        identifiers = Some(
+          List(
+            IdentifiersStub(
+              identifierType = TypeStub(id = "sierra-identifier", label = "Sierra identifier"),
+              value = "1234567"
+            )
+          )
+        )
+      )
+
+      val work = createWorkStubWith(
+        items = List(item)
+      )
+
+      val catalogueSource = new OneWorkCatalogueSource(work)
+      val service = new CatalogueService(catalogueSource)
+
+      whenReady(service.getAllStacksItems(createStacksWorkIdentifier)) {
+        _ shouldBe List(
+          StacksItemIdentifier(
+            catalogueId = CatalogueItemIdentifier(item.id.get),
+            sierraId = SierraItemIdentifier(1234567)
+          )
+        )
+      }
+    }
+
+    it("finds multiple matching items on a work") {
+      val item1 = ItemStub(
+        id = Some(createStacksItemIdentifier.value),
+        identifiers = Some(
+          List(
+            IdentifiersStub(
+              identifierType = TypeStub(id = "sierra-identifier", label = "Sierra identifier"),
+              value = "1234567"
+            )
+          )
+        )
+      )
+
+      val item2 = ItemStub(
+        id = Some(createStacksItemIdentifier.value),
+        identifiers = Some(
+          List(
+            IdentifiersStub(
+              identifierType = TypeStub(id = "sierra-identifier", label = "Sierra identifier"),
+              value = "1111111"
+            )
+          )
+        )
+      )
+
+      val work = createWorkStubWith(
+        items = List(item1, item2)
+      )
+
+      val catalogueSource = new OneWorkCatalogueSource(work)
+      val service = new CatalogueService(catalogueSource)
+
+      whenReady(service.getAllStacksItems(createStacksWorkIdentifier)) {
+        _ shouldBe List(
+          StacksItemIdentifier(
+            catalogueId = CatalogueItemIdentifier(item1.id.get),
+            sierraId = SierraItemIdentifier(1234567)
+          ),
+          StacksItemIdentifier(
+            catalogueId = CatalogueItemIdentifier(item2.id.get),
+            sierraId = SierraItemIdentifier(1111111)
+          )
+        )
+      }
+    }
+  }
 
   describe("CatalogueService") {
     describe("getStacksWork") {
