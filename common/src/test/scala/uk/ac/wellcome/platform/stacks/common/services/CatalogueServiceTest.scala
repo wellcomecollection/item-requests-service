@@ -38,13 +38,12 @@ class CatalogueServiceTest
             val expectedItems = List(
               StacksItemIdentifier(
                 catalogueId = CatalogueItemIdentifier("ys3ern6x"),
-                sierraId = SierraItemIdentifier(1292185)
+                sierraId = SierraItemIdentifier(1601017)
               )
             )
 
             stacksItems shouldBe expectedItems
           }
-
         }
       }
     }
@@ -107,7 +106,7 @@ class CatalogueServiceTest
           ) { maybeStacksItemIdentifier =>
             val expectedStacksItemIdentifier = Some(
               StacksItemIdentifier(
-                catalogueId = CatalogueItemIdentifier("ys3ern6x"),
+                catalogueId = CatalogueItemIdentifier("n5v7b4md"),
                 sierraId = SierraItemIdentifier(1292185)
               )
             )
@@ -127,7 +126,7 @@ class CatalogueServiceTest
             val expectedStacksItemIdentifier = Some(
               StacksItemIdentifier(
                 catalogueId = CatalogueItemIdentifier("ys3ern6x"),
-                sierraId = SierraItemIdentifier(1292185)
+                sierraId = SierraItemIdentifier(1601017)
               )
             )
 

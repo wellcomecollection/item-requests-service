@@ -4,7 +4,6 @@ We use [WireMock](http://wiremock.org/) to record external API interactions and 
 
 To re-record:
 
-- Catalogue API: `record_catalogue.sh`
 - Sierra API: `record_sierra.sh`
 
 The Sierra API requires an API key & secret (contact the Collection Platform team for access).

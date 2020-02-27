@@ -18,9 +18,9 @@ import uk.ac.wellcome.platform.stacks.common.services.{
 import scala.concurrent.ExecutionContextExecutor
 
 trait ServicesFixture
-    extends Akka
-    with SierraWireMockFixture
-    with CatalogueWireMockFixture {
+    extends CatalogueWireMockFixture
+    with Akka
+    with SierraWireMockFixture {
 
   def withCatalogueService[R](
     testWith: TestWith[CatalogueService, R]

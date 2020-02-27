@@ -20,7 +20,7 @@ class SierraServiceTest
       it("should get a StacksItemStatus") {
         withSierraService {
           case (sierraService, _) =>
-            val sierraItemIdentifier = SierraItemIdentifier(1292185)
+            val sierraItemIdentifier = SierraItemIdentifier(1601017)
 
             whenReady(
               sierraService.getItemStatus(sierraItemIdentifier)
@@ -71,7 +71,7 @@ class SierraServiceTest
       it("should request a hold from the Sierra API") {
         withSierraService {
           case (sierraService, wireMockServer) =>
-            val sierraItemIdentifier = SierraItemIdentifier(1292185)
+            val sierraItemIdentifier = SierraItemIdentifier(1601017)
             val stacksUserIdentifier = StacksUserIdentifier("1234567")
             val neededBy = Some(
               Instant.parse("2020-01-01T00:00:00.00Z")
@@ -94,7 +94,7 @@ class SierraServiceTest
                   equalToJson("""
                 |{
                 |  "recordType" : "i",
-                |  "recordNumber" : 1292185,
+                |  "recordNumber" : 1601017,
                 |  "pickupLocation" : "unspecified",
                 |  "neededBy" : "2020-01-01"
                 |}
