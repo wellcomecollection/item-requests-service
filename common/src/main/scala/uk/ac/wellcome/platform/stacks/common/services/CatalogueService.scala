@@ -19,13 +19,18 @@ class CatalogueService(
       case List(IdentifiersStub(_, value)) =>
         Try(value.toLong) match {
           case Success(l) => Some(SierraItemIdentifier(l))
-          case Failure(_) =>
-            throw new Exception(
-              s"Unable to convert $value to Long!"
-            )
+          case Failure(_) => throw new Exception(s"Unable to convert $value to Long!")
         }
 
-      case _ => None
+      case Nil => None
+
+      // This would be very unusual and probably points to a problem in the Catalogue API.
+      // We throw a distinct error here so that it's easier to debug if this ever
+      // occurs in practice.
+      case multipleSierraIdentifiers =>
+        throw new Exception(
+          s"Multiple values for sierra-identifier: $multipleSierraIdentifiers"
+        )
     }
 
   private def getStacksItems(
@@ -38,8 +43,8 @@ class CatalogueService(
           getSierraItemIdentifier(identifiers)
         )
     } collect {
-      case (catId, Some(sierraId)) =>
-        StacksItemIdentifier(catId, sierraId)
+      case (catalogueId, Some(sierraId)) =>
+        StacksItemIdentifier(catalogueId = catalogueId, sierraId = sierraId)
     }
 
   def getAllStacksItems(
