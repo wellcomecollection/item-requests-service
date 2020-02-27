@@ -56,7 +56,7 @@ class CatalogueService(
     } yield items
 
   def getStacksItem(
-    identifier: Identifier[_]
+    identifier: ItemIdentifier[_]
   ): Future[Option[StacksItemIdentifier]] =
     for {
       searchStub <- catalogueSource.getSearchStub(identifier)
@@ -71,8 +71,6 @@ class CatalogueService(
           items.filter(_.catalogueId.value == id)
         case SierraItemIdentifier(id) =>
           items.filter(_.sierraId.value == id)
-        case StacksWorkIdentifier(id) =>
-          items.filter(_.catalogueId.value == id)
         case _ => items
       }
 

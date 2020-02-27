@@ -1,22 +1,18 @@
 package uk.ac.wellcome.platform.stacks.common.services
 
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{FunSpec, Matchers}
-import uk.ac.wellcome.platform.stacks.common.fixtures.{CatalogueServiceFixtures, CatalogueStubGenerators, ServicesFixture}
+import uk.ac.wellcome.platform.stacks.common.fixtures.CatalogueStubGenerators
 import uk.ac.wellcome.platform.stacks.common.models._
 import uk.ac.wellcome.platform.stacks.common.services.source.CatalogueSource
 import uk.ac.wellcome.platform.stacks.common.services.source.CatalogueSource._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.util.Random
 
 class CatalogueServiceTest
     extends FunSpec
-    with ServicesFixture
-    with CatalogueServiceFixtures
     with ScalaFutures
-    with IntegrationPatience
     with Matchers
     with CatalogueStubGenerators {
 
@@ -55,14 +51,12 @@ class CatalogueServiceTest
     it("finds multiple matching items on a work") {
       val item1 = ItemStub(
         id = Some(createStacksItemIdentifier.value),
-        identifiers = Some(List(createSierraIdentifier("1234567"))
-        )
+        identifiers = Some(List(createSierraIdentifier("1234567")))
       )
 
       val item2 = ItemStub(
         id = Some(createStacksItemIdentifier.value),
-        identifiers = Some(List(createSierraIdentifier("1111111"))
-        )
+        identifiers = Some(List(createSierraIdentifier("1111111")))
       )
 
       val work = createWorkStubWith(
@@ -155,115 +149,174 @@ class CatalogueServiceTest
     }
   }
 
-  describe("behaves as a CatalogueService") {
-    describe("getStacksItems") {
-      ignore("should return a StacksWork") {
-        withCatalogueService { catalogueService =>
-          val stacksWorkIdentifier = StacksWorkIdentifier(
-            "cnkv77md"
-          )
+  describe("getStacksItem") {
+    class MockCatalogueSource(works: WorkStub*) extends CatalogueSource {
+      override def getWorkStub(id: StacksWorkIdentifier): Future[WorkStub] =
+        Future.failed(new Throwable("BOOM!"))
 
-          whenReady(
-            catalogueService.getAllStacksItems(stacksWorkIdentifier)
-          ) { stacksItems =>
-            val expectedItems = List(
-              StacksItemIdentifier(
-                catalogueId = CatalogueItemIdentifier("ys3ern6x"),
-                sierraId = SierraItemIdentifier(1601017)
-              )
-            )
+      override def getSearchStub(identifier: Identifier[_]): Future[SearchStub] =
+        Future.successful(
+          SearchStub(totalResults = works.size, results = works.toList)
+        )
+    }
 
-            stacksItems shouldBe expectedItems
-          }
-        }
+    it("returns an empty list if there are no matching works") {
+      val catalogueSource = new MockCatalogueSource()
+      val service = new CatalogueService(catalogueSource)
+
+      whenReady(service.getStacksItem(createStacksItemIdentifier)) {
+        _ shouldBe None
       }
     }
 
-    describe("getStacksItem") {
+    it("gets an item from a work") {
+      val item = ItemStub(
+        id = Some(createStacksItemIdentifier.value),
+        identifiers = Some(List(createSierraIdentifier("1234567"))
+        )
+      )
 
-      ignore("should filter non-matching items from the source") {
-        withActorSystem { implicit as =>
-          implicit val ec = as.dispatcher
+      val work = createWorkStubWith(items = List(item))
 
-          val catalogueId = Random.nextString(10)
-          val sierraId = Random.nextLong()
+      val catalogueSource = new MockCatalogueSource(work)
+      val service = new CatalogueService(catalogueSource)
 
-          val items = List(
-            createItem(catId = catalogueId, sierraId = sierraId),
-            createItem()
+      whenReady(service.getStacksItem(CatalogueItemIdentifier(item.id.get))) {
+        _ shouldBe Some(
+          StacksItemIdentifier(
+            catalogueId = CatalogueItemIdentifier(item.id.get),
+            sierraId = SierraItemIdentifier(1234567)
           )
-
-          val catalogueService = new CatalogueService(
-            new CatalogueSource() {
-              def getWorkStub(id: StacksWorkIdentifier): Future[WorkStub] =
-                Future.failed(new NotImplementedError())
-
-              def getSearchStub(identifier: Identifier[_]): Future[SearchStub] =
-                Future {
-                  SearchStub(
-                    totalResults = items.size,
-                    results = List(
-                      WorkStub(
-                        id = Random.nextString(10),
-                        items = items
-                      )
-                    )
-                  )
-                }
-            }
-          )
-
-          val eventuallyStacksItem = catalogueService.getStacksItem(
-            StacksWorkIdentifier(catalogueId)
-          )
-
-          whenReady(eventuallyStacksItem) { maybeStacksItemId =>
-            val stacksItemId = maybeStacksItemId.get
-
-            stacksItemId shouldBe StacksItemIdentifier(
-              CatalogueItemIdentifier(catalogueId),
-              SierraItemIdentifier(sierraId)
-            )
-          }
-        }
+        )
       }
+    }
 
-      ignore("should get a StacksItem for a SierraItemIdentifier") {
-        withCatalogueService { catalogueService =>
-          val itemIdentifier = SierraItemIdentifier(1292185)
+    it("filters results by catalogue item identifier") {
+      val item1 = ItemStub(
+        id = Some(createStacksItemIdentifier.value),
+        identifiers = Some(List(createSierraIdentifier("1111111")))
+      )
 
-          whenReady(
-            catalogueService.getStacksItem(itemIdentifier)
-          ) { maybeStacksItemIdentifier =>
-            val expectedStacksItemIdentifier = Some(
-              StacksItemIdentifier(
-                catalogueId = CatalogueItemIdentifier("n5v7b4md"),
-                sierraId = SierraItemIdentifier(1292185)
-              )
-            )
+      val work1 = createWorkStubWith(items = List(item1))
 
-            maybeStacksItemIdentifier shouldBe expectedStacksItemIdentifier
-          }
-        }
+      val item2 = ItemStub(
+        id = Some(createStacksItemIdentifier.value),
+        identifiers = Some(List(createSierraIdentifier("2222222")))
+      )
+
+      val work2 = createWorkStubWith(items = List(item2))
+
+      val catalogueSource = new MockCatalogueSource(work1, work2)
+      val service = new CatalogueService(catalogueSource)
+
+      whenReady(service.getStacksItem(CatalogueItemIdentifier(item1.id.get))) {
+        _ shouldBe Some(
+          StacksItemIdentifier(
+            catalogueId = CatalogueItemIdentifier(item1.id.get),
+            sierraId = SierraItemIdentifier(1111111)
+          )
+        )
       }
+    }
 
-      ignore("should get a StacksItem for a CatalogueItemIdentifier") {
-        withCatalogueService { catalogueService =>
-          val itemIdentifier = CatalogueItemIdentifier("ys3ern6x")
+    it("filters results by Sierra item identifier") {
+      val item1 = ItemStub(
+        id = Some(createStacksItemIdentifier.value),
+        identifiers = Some(List(createSierraIdentifier("1111111")))
+      )
 
-          whenReady(
-            catalogueService.getStacksItem(itemIdentifier)
-          ) { maybeStacksItemIdentifier =>
-            val expectedStacksItemIdentifier = Some(
-              StacksItemIdentifier(
-                catalogueId = CatalogueItemIdentifier("ys3ern6x"),
-                sierraId = SierraItemIdentifier(1601017)
-              )
-            )
+      val work1 = createWorkStubWith(items = List(item1))
 
-            maybeStacksItemIdentifier shouldBe expectedStacksItemIdentifier
-          }
-        }
+      val item2 = ItemStub(
+        id = Some(createStacksItemIdentifier.value),
+        identifiers = Some(List(createSierraIdentifier("2222222")))
+      )
+
+      val work2 = createWorkStubWith(items = List(item2))
+
+      val catalogueSource = new MockCatalogueSource(work1, work2)
+      val service = new CatalogueService(catalogueSource)
+
+      whenReady(service.getStacksItem(SierraItemIdentifier(1111111))) {
+        _ shouldBe Some(
+          StacksItemIdentifier(
+            catalogueId = CatalogueItemIdentifier(item1.id.get),
+            sierraId = SierraItemIdentifier(1111111)
+          )
+        )
+      }
+    }
+
+    it("de-duplicates results if the same item appears on multiple works") {
+      val item = ItemStub(
+        id = Some(createStacksItemIdentifier.value),
+        identifiers = Some(List(createSierraIdentifier("1111111")))
+      )
+
+      val works = (1 to 5).map { _ => createWorkStubWith(items = List(item)) }
+
+      val catalogueSource = new MockCatalogueSource(works: _*)
+      val service = new CatalogueService(catalogueSource)
+
+      whenReady(service.getStacksItem(SierraItemIdentifier(1111111))) {
+        _ shouldBe Some(
+          StacksItemIdentifier(
+            catalogueId = CatalogueItemIdentifier(item.id.get),
+            sierraId = SierraItemIdentifier(1111111)
+          )
+        )
+      }
+    }
+
+    it("errors if it finds multiple matching items") {
+      val catalogueId = createStacksItemIdentifier
+
+      val item1 = ItemStub(
+        id = Some(catalogueId.value),
+        identifiers = Some(List(createSierraIdentifier("1111111")))
+      )
+
+      val item2 = ItemStub(
+        id = Some(catalogueId.value),
+        identifiers = Some(List(createSierraIdentifier("22222222")))
+      )
+
+      val work = createWorkStubWith(items = List(item1, item2))
+
+      val catalogueSource = new MockCatalogueSource(work)
+      val service = new CatalogueService(catalogueSource)
+
+      whenReady(service.getStacksItem(catalogueId).failed) { err =>
+        err shouldBe a[Exception]
+        err.getMessage should startWith("Found multiple matching items for")
+      }
+    }
+  }
+
+  describe("handling errors from CatalogueSource") {
+    val getException = new Throwable("BOOM!")
+    val searchException = new Throwable("BANG!")
+
+    class BrokenCatalogueSource extends CatalogueSource {
+      override def getWorkStub(id: StacksWorkIdentifier): Future[WorkStub] =
+        Future.failed(getException)
+
+      override def getSearchStub(identifier: Identifier[_]): Future[SearchStub] =
+        Future.failed(searchException)
+    }
+
+    val catalogueSource = new BrokenCatalogueSource()
+    val service = new CatalogueService(catalogueSource)
+
+    it("inside getAllStacksItems") {
+      whenReady(service.getAllStacksItems(createStacksWorkIdentifier).failed) {
+        _ shouldBe getException
+      }
+    }
+
+    it("inside getStacksItem") {
+      whenReady(service.getStacksItem(createStacksItemIdentifier).failed) {
+        _ shouldBe searchException
       }
     }
   }
@@ -273,5 +326,4 @@ class CatalogueServiceTest
       identifierType = TypeStub(id = "sierra-identifier", label = "Sierra identifier"),
       value = value
     )
-
 }
