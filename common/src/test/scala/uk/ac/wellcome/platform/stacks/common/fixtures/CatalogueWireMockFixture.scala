@@ -55,7 +55,7 @@ trait CatalogueWireMockFixture extends FunSpec with Logging {
 
     // Are there any existing recordings for this test?  If so, we should
     // configure Wiremock to get new recordings.
-    val shouldRecord: Boolean = ! existingRecordingsIn(recordingRoot)
+    val shouldRecord: Boolean = !existingRecordingsIn(recordingRoot)
 
     if (shouldRecord) {
       info("Recording new Wiremock fixtures for the catalogue API")

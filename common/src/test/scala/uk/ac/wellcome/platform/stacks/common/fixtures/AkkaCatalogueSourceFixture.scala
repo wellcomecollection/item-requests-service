@@ -6,7 +6,9 @@ import uk.ac.wellcome.fixtures.TestWith
 import uk.ac.wellcome.platform.stacks.common.services.source.AkkaCatalogueSource
 
 trait AkkaCatalogueSourceFixture extends CatalogueWireMockFixture with Akka {
-  def withAkkaCatalogueSource[R](testWith: TestWith[AkkaCatalogueSource, R]): R =
+  def withAkkaCatalogueSource[R](
+    testWith: TestWith[AkkaCatalogueSource, R]
+  ): R =
     withActorSystem { implicit actorSystem =>
       withMaterializer(actorSystem) { implicit materializer =>
         withMockCatalogueServer { baseUrl =>
