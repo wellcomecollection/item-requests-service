@@ -55,19 +55,11 @@ class CatalogueServiceTest
         withActorSystem { implicit as =>
           implicit val ec = as.dispatcher
 
-          val location = createPhysicalLocation(
-            id = "sicon",
-            label = "Closed stores Iconographic"
-          )
           val catalogueId = Random.nextString(10)
           val sierraId = Random.nextLong()
 
           val items = List(
-            createItem(
-              catId = catalogueId,
-              sierraId = sierraId,
-              locations = List(location)
-            ),
+            createItem(catId = catalogueId, sierraId = sierraId),
             createItem()
           )
 

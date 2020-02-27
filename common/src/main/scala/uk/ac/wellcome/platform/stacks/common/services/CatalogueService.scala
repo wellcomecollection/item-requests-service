@@ -1,4 +1,5 @@
 package uk.ac.wellcome.platform.stacks.common.services
+
 import uk.ac.wellcome.platform.stacks.common.models._
 import uk.ac.wellcome.platform.stacks.common.services.source.CatalogueSource
 
@@ -26,16 +27,6 @@ class CatalogueService(
 
       case _ => None
     }
-
-  protected def getLocations(
-    locations: List[LocationStub]
-  ): List[StacksPickupLocation] = locations collect {
-    case location @ LocationStub(_, _, "PhysicalLocation") =>
-      StacksPickupLocation(
-        location.locationType.id,
-        location.locationType.label
-      )
-  }
 
   protected def getStacksItems(
     itemStubs: List[ItemStub]

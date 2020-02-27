@@ -25,12 +25,6 @@ object CatalogueSource {
     label: String
   )
 
-  case class LocationStub(
-    locationType: TypeStub,
-    label: Option[String],
-    `type`: String
-  )
-
   case class IdentifiersStub(
     identifierType: TypeStub,
     value: String
