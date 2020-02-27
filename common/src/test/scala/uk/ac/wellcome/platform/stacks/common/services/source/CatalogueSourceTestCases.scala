@@ -38,5 +38,30 @@ trait CatalogueSourceTestCases[CatalogueSourceImpl <: CatalogueSource] extends F
         whenReady(future) { _ shouldBe expectedWork }
       }
     }
+
+    it("handles a work without any items") {
+      withCatalogueSource { catalogueSource =>
+        val future = catalogueSource.getWorkStub(id = StacksWorkIdentifier("a2284uhb"))
+
+        val expectedWork = WorkStub(id = "a2284uhb", items = List.empty)
+
+        whenReady(future) { _ shouldBe expectedWork }
+      }
+    }
+
+    it("handles a work where an item is not identified") {
+      withCatalogueSource { catalogueSource =>
+        val future = catalogueSource.getWorkStub(id = StacksWorkIdentifier("a227dajt"))
+
+        val expectedWork = WorkStub(
+          id = "a227dajt",
+          items = List(
+            ItemStub(id = None, identifiers = None)
+          )
+        )
+
+        whenReady(future) { _ shouldBe expectedWork }
+      }
+    }
   }
 }
