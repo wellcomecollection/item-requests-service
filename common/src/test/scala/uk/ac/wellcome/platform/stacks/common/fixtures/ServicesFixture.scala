@@ -3,12 +3,8 @@ package uk.ac.wellcome.platform.stacks.common.fixtures
 import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.model.headers.BasicHttpCredentials
 import com.github.tomakehurst.wiremock.WireMockServer
-import uk.ac.wellcome.akka.fixtures.Akka
 import uk.ac.wellcome.fixtures.TestWith
-import uk.ac.wellcome.platform.stacks.common.services.source.{
-  AkkaCatalogueSource,
-  AkkaSierraSource
-}
+import uk.ac.wellcome.platform.stacks.common.services.source.AkkaSierraSource
 import uk.ac.wellcome.platform.stacks.common.services.{
   CatalogueService,
   SierraService,
@@ -16,33 +12,18 @@ import uk.ac.wellcome.platform.stacks.common.services.{
 }
 
 import scala.concurrent.ExecutionContextExecutor
+import scala.concurrent.ExecutionContext.Implicits.global
 
 trait ServicesFixture
-    extends CatalogueWireMockFixture
-    with Akka
+    extends AkkaCatalogueSourceFixture
     with SierraWireMockFixture {
 
   def withCatalogueService[R](
     testWith: TestWith[CatalogueService, R]
-  ): R = {
-    withMockCatalogueServer { catalogueApiUrl: String =>
-      withActorSystem { implicit as =>
-        withMaterializer { implicit mat =>
-          implicit val ec: ExecutionContextExecutor = as.dispatcher
-
-          testWith(
-            new CatalogueService(
-              new AkkaCatalogueSource(
-                Uri(
-                  s"$catalogueApiUrl/catalogue/v2"
-                )
-              )
-            )
-          )
-        }
-      }
+  ): R =
+    withAkkaCatalogueSource { catalogueSource =>
+      testWith(new CatalogueService(catalogueSource))
     }
-  }
 
   def withSierraService[R](
     testWith: TestWith[(SierraService, WireMockServer), R]

@@ -55,7 +55,7 @@ trait CatalogueWireMockFixture extends FunSpec with Logging {
 
     // Are there any existing recordings for this test?  If so, we should
     // configure Wiremock to get new recordings.
-    val shouldRecord: Boolean = ! isNonEmpty(recordingRoot)
+    val shouldRecord: Boolean = ! existingRecordingsIn(recordingRoot)
 
     if (shouldRecord) {
       info("Recording new Wiremock fixtures for the catalogue API")
@@ -64,6 +64,8 @@ trait CatalogueWireMockFixture extends FunSpec with Logging {
       new File(s"$recordingRoot/mappings").mkdir()
 
       wireMockServer.startRecording("https://api.wellcomecollection.org")
+    } else {
+      info("Using cached Wiremock fixtures")
     }
 
     val result = testWith(s"http://localhost:${wireMockServer.port()}")
@@ -76,6 +78,12 @@ trait CatalogueWireMockFixture extends FunSpec with Logging {
     wireMockServer.shutdown()
 
     result
+  }
+
+  private def existingRecordingsIn(p: Path): Boolean = {
+    val mappingsPath = Paths.get(p.toString, "mappings")
+
+    isNonEmpty(mappingsPath)
   }
 
   private def exists(p: Path): Boolean =
