@@ -6,7 +6,7 @@ import uk.ac.wellcome.platform.stacks.common.models._
 
 object DisplayResultsList {
   def apply(
-    stacksUserHolds: StacksUserHolds[StacksItemIdentifier]
+    stacksUserHolds: StacksUserHolds
   ): DisplayResultsList =
     DisplayResultsList(
       results = stacksUserHolds.holds.map(DisplayRequest(_)),
@@ -21,10 +21,10 @@ case class DisplayResultsList(
 )
 
 object DisplayRequest {
-  def apply(request: StacksHold[StacksItemIdentifier]): DisplayRequest =
+  def apply(request: StacksHold): DisplayRequest =
     DisplayRequest(
       item = DisplayItem(
-        id = request.itemId.value
+        id = request.itemId.value.toString
       ),
       pickupDate = request.pickup.pickUpBy,
       pickupLocation = DisplayLocationDescription(
@@ -45,7 +45,7 @@ case class DisplayRequest(
 )
 
 object DisplayLocationDescription {
-  def apply(location: StacksLocation): DisplayLocationDescription =
+  def apply(location: StacksPickupLocation): DisplayLocationDescription =
     DisplayLocationDescription(
       id = location.id,
       label = location.label

@@ -50,13 +50,13 @@ class StacksServiceTest
                   )
                 ).withRequestBody(
                   equalToJson("""
-                |{
-                |  "recordType" : "i",
-                |  "recordNumber" : 1292185,
-                |  "pickupLocation" : "unspecified",
-                |  "neededBy" : "2020-01-01"
-                |}
-                |""".stripMargin)
+                      |{
+                      |  "recordType" : "i",
+                      |  "recordNumber" : 1292185,
+                      |  "pickupLocation" : "unspecified",
+                      |  "neededBy" : "2020-01-01"
+                      |}
+                      |""".stripMargin)
                 )
               )
             }
@@ -64,32 +64,27 @@ class StacksServiceTest
       }
     }
 
-    describe("getStacksWorkWithItemStatuses") {
-      it("gets a StacksWork[StacksItemWithStatus]") {
+    describe("getStacksWork") {
+      it("gets a StacksWork") {
         withStacksService {
           case (stacksService, _) =>
-            val stacksWorkIdentifier = StacksWorkIdentifier("cnkv77md")
+            val workId = StacksWorkIdentifier("cnkv77md")
 
             whenReady(
-              stacksService.getStacksWorkWithItemStatuses(
-                workId = stacksWorkIdentifier
-              )
+              stacksService.getStacksWork(workId)
             ) { stacksWork =>
               stacksWork shouldBe StacksWork(
-                id = "cnkv77md",
+                id = workId,
                 items = List(
-                  StacksItemWithStatus(
+                  StacksItem(
                     id = StacksItemIdentifier(
                       catalogueId = CatalogueItemIdentifier("ys3ern6x"),
                       sierraId = SierraItemIdentifier(1292185)
                     ),
-                    location =
-                      StacksLocation("sicon", "Closed stores Iconographic"),
                     status = StacksItemStatus("available", "Available")
                   )
                 )
               )
-
             }
         }
       }
@@ -115,7 +110,8 @@ class StacksServiceTest
                       sierraId = SierraItemIdentifier(1292185)
                     ),
                     pickup = StacksPickup(
-                      location = StacksLocation("sepbb", "Rare Materials Room"),
+                      location =
+                        StacksPickupLocation("sepbb", "Rare Materials Room"),
                       pickUpBy = Some(Instant.parse("2019-12-03T04:00:00Z"))
                     ),
                     status =

@@ -49,7 +49,7 @@ class SierraServiceTest
                   StacksHold(
                     itemId = SierraItemIdentifier(1292185),
                     pickup = StacksPickup(
-                      location = StacksLocation(
+                      location = StacksPickupLocation(
                         id = "sepbb",
                         label = "Rare Materials Room"
                       ),

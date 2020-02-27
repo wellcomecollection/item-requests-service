@@ -39,7 +39,6 @@ trait CatalogueServiceFixtures {
           value = sierraId.toString
         )
       )
-    ),
-    locations = locations
+    )
   )
 }

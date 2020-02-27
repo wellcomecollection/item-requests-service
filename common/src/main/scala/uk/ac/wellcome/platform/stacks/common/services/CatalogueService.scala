@@ -1,5 +1,5 @@
 package uk.ac.wellcome.platform.stacks.common.services
-import uk.ac.wellcome.platform.stacks.common.models.{StacksItem, _}
+import uk.ac.wellcome.platform.stacks.common.models._
 import uk.ac.wellcome.platform.stacks.common.services.source.CatalogueSource
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -29,9 +29,9 @@ class CatalogueService(
 
   protected def getLocations(
     locations: List[LocationStub]
-  ): List[StacksLocation] = locations collect {
+  ): List[StacksPickupLocation] = locations collect {
     case location @ LocationStub(_, _, "PhysicalLocation") =>
-      StacksLocation(
+      StacksPickupLocation(
         location.locationType.id,
         location.locationType.label
       )
@@ -39,31 +39,29 @@ class CatalogueService(
 
   protected def getStacksItems(
     itemStubs: List[ItemStub]
-  ): List[StacksItemWithOutStatus] =
+  ): List[StacksItemIdentifier] =
     itemStubs collect {
-      case ItemStub(Some(id), Some(identifiers), locations) =>
+      case ItemStub(Some(id), Some(identifiers)) =>
         (
           CatalogueItemIdentifier(id),
-          getIdentifier(identifiers),
-          getLocations(locations)
+          getIdentifier(identifiers)
         )
-    } map {
-      case (catId, Some(sierraId), List(location)) =>
-        StacksItemWithOutStatus(
-          StacksItemIdentifier(catId, sierraId),
-          location
-        )
+    } collect {
+      case (catId, Some(sierraId)) =>
+        StacksItemIdentifier(catId, sierraId)
     }
 
-  def getStacksWork(
+  def getStacksItems(
     workId: StacksWorkIdentifier
-  ): Future[StacksWork[StacksItemWithOutStatus]] =
+  ): Future[List[StacksItemIdentifier]] =
     for {
       workStub <- catalogueSource.getWorkStub(workId)
       items = getStacksItems(workStub.items)
-    } yield StacksWork(workStub.id, items)
+    } yield items
 
-  def getStacksItem(identifier: Identifier[_]): Future[Option[StacksItem]] =
+  def getStacksItem(
+    identifier: Identifier[_]
+  ): Future[Option[StacksItemIdentifier]] =
     for {
       searchStub <- catalogueSource.getSearchStub(identifier)
 
@@ -74,16 +72,23 @@ class CatalogueService(
       // Ensure we are only matching items that match the passed id!
       filteredItems = identifier match {
         case CatalogueItemIdentifier(id) =>
-          items.filter(_.id.catalogueId.value == id)
+          items.filter(_.catalogueId.value == id)
         case SierraItemIdentifier(id) =>
-          items.filter(_.id.sierraId.value == id)
+          items.filter(_.sierraId.value == id)
         case StacksWorkIdentifier(id) =>
-          items.filter(_.id.catalogueId.value == id)
+          items.filter(_.catalogueId.value == id)
         case _ => items
       }
 
-    } yield filteredItems match {
+      // Items can appear on multiple works in a search result
+      distinctFilteredItems = filteredItems.distinct
+
+    } yield distinctFilteredItems match {
       case List(item) => Some(item)
-      case _          => None
+      case Nil        => None
+      case _ =>
+        throw new Exception(
+          s"Found multiple matching items for $identifier in: $distinctFilteredItems"
+        )
     }
 }
