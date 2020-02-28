@@ -30,20 +30,18 @@ trait RequestsApi extends Logging with FailFastCirceSupport {
       headerValueByName("Weco-Sierra-Patron-Id") {
         sierraPatronId =>
           val userIdentifier = StacksUserIdentifier(sierraPatronId)
-          val neededBy = Some(
-            Instant.parse("2020-01-01T00:00:00.00Z")
-          )
 
           post {
             entity(as[Request]) {
               requestItemHold: Request =>
+
                 val catalogueItemId =
                   CatalogueItemIdentifier(requestItemHold.item.id)
 
                 val result = stacksWorkService.requestHoldOnItem(
                   userIdentifier = userIdentifier,
                   catalogueItemId = catalogueItemId,
-                  neededBy = neededBy
+                  neededBy = requestItemHold.pickupDate
                 )
 
                 val accepted = (StatusCodes.Accepted, HttpEntity.Empty)
