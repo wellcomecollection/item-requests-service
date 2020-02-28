@@ -34,7 +34,6 @@ trait RequestsApi extends Logging with FailFastCirceSupport {
           post {
             entity(as[Request]) {
               requestItemHold: Request =>
-
                 val catalogueItemId =
                   CatalogueItemIdentifier(requestItemHold.item.id)
 

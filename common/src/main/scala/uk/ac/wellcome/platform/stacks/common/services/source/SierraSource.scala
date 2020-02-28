@@ -9,9 +9,20 @@ import akka.http.scaladsl.model.Uri.Path
 import akka.http.scaladsl.model.headers.{Authorization, BasicHttpCredentials}
 import akka.stream.ActorMaterializer
 import io.circe.{Encoder, Printer}
-import uk.ac.wellcome.platform.stacks.common.http.{AkkaClientGet, AkkaClientPost, AkkaClientTokenExchange}
-import uk.ac.wellcome.platform.stacks.common.models.{SierraItemIdentifier, StacksUserIdentifier}
-import uk.ac.wellcome.platform.stacks.common.services.source.SierraSource.{SierraHoldRequestPostBody, SierraItemStub, SierraUserHoldsStub}
+import uk.ac.wellcome.platform.stacks.common.http.{
+  AkkaClientGet,
+  AkkaClientPost,
+  AkkaClientTokenExchange
+}
+import uk.ac.wellcome.platform.stacks.common.models.{
+  SierraItemIdentifier,
+  StacksUserIdentifier
+}
+import uk.ac.wellcome.platform.stacks.common.services.source.SierraSource.{
+  SierraHoldRequestPostBody,
+  SierraItemStub,
+  SierraUserHoldsStub
+}
 
 import scala.concurrent.Future
 
@@ -83,8 +94,7 @@ class AkkaSierraSource(
   import io.circe.generic.auto._
 
   // Sierra will not tolerate null values in optional fields
-  implicit val printer: Printer = Printer
-    .noSpaces.copy(dropNullValues = true)
+  implicit val printer: Printer = Printer.noSpaces.copy(dropNullValues = true)
 
   override val tokenPath = Path("v5/token")
 
