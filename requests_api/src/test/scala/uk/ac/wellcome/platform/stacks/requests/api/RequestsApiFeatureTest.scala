@@ -52,7 +52,7 @@ class RequestsApiFeatureTest
       }
     }
 
-    it("accepts requests to place a hold on an item") {
+    it("accepts requests to place a hold on an item with a pickupDate") {
       withMockCatalogueServer { catalogueApiUrl: String =>
         withMockSierraServer {
           case (sierraApiUrl, wireMockServer) =>
@@ -101,6 +101,63 @@ class RequestsApiFeatureTest
                   |  "neededBy" : "2020-01-01"
                   |}
                   |""".stripMargin)
+                    )
+                  )
+
+                  response.entity.isKnownEmpty() shouldBe true
+                }
+            }
+        }
+      }
+    }
+
+    it("accepts requests to place a hold on an item without a pickupDate") {
+      withMockCatalogueServer { catalogueApiUrl: String =>
+        withMockSierraServer {
+          case (sierraApiUrl, wireMockServer) =>
+            withConfiguredApp(catalogueApiUrl, sierraApiUrl) {
+              case (_, _) =>
+                val path = "/requests"
+
+                val headers = List(
+                  HttpHeader
+                    .parse(
+                      name = "Weco-Sierra-Patron-Id",
+                      value = "1234567"
+                    )
+                    .asInstanceOf[ParsingResult.Ok]
+                    .header
+                )
+
+                val entity = createJsonHttpEntityWith(
+                  """
+                    |{
+                    |  "item": {
+                    |    "id": "ys3ern6x",
+                    |    "type": "Item"
+                    |  },
+                    |  "type": "Request"
+                    |}
+                    |""".stripMargin
+                )
+
+                whenPostRequestReady(path, entity, headers) { response =>
+                  response.status shouldBe StatusCodes.Accepted
+
+                  wireMockServer.verify(
+                    1,
+                    postRequestedFor(
+                      urlEqualTo(
+                        "/iii/sierra-api/v5/patrons/1234567/holds/requests"
+                      )
+                    ).withRequestBody(
+                      equalToJson("""
+                                    |{
+                                    |  "recordType" : "i",
+                                    |  "recordNumber" : 1601017,
+                                    |  "pickupLocation" : "unspecified"
+                                    |}
+                                    |""".stripMargin)
                     )
                   )
 

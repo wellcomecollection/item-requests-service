@@ -9,6 +9,6 @@ case class RequestItem(
 
 case class Request(
   item: RequestItem,
-  pickupDate: Instant,
+  pickupDate: Option[Instant],
   `type`: String
 )
