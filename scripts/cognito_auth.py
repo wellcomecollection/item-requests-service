@@ -61,7 +61,7 @@ def get_authorization_token(
 
     login_resp = sess.post(
         authorize_resp.url,
-        data={"_csrf": csrf_token, "username": username, "password": password,},
+        data={"_csrf": csrf_token, "username": username, "password": password},
     )
 
     # Step 4: After Amazon Cognito verifies the user pool credentials or
