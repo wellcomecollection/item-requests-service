@@ -21,7 +21,9 @@ class CatalogueServiceTest
       override def getWorkStub(id: StacksWorkIdentifier): Future[WorkStub] =
         Future.successful(work)
 
-      override def getSearchStub(identifier: Identifier[_]): Future[SearchStub] =
+      override def getSearchStub(
+        identifier: Identifier[_]
+      ): Future[SearchStub] =
         Future.failed(new Throwable("BOOM!"))
     }
 
@@ -86,7 +88,8 @@ class CatalogueServiceTest
         identifiers = Some(
           List(
             IdentifiersStub(
-              identifierType = TypeStub(id = "miro-image-number", label = "Miro image number"),
+              identifierType =
+                TypeStub(id = "miro-image-number", label = "Miro image number"),
               value = "A0001234"
             )
           )
@@ -123,9 +126,12 @@ class CatalogueServiceTest
       val catalogueSource = new OneWorkCatalogueSource(work)
       val service = new CatalogueService(catalogueSource)
 
-      whenReady(service.getAllStacksItems(createStacksWorkIdentifier).failed) { err =>
-        err shouldBe a[Exception]
-        err.getMessage should startWith("Multiple values for sierra-identifier")
+      whenReady(service.getAllStacksItems(createStacksWorkIdentifier).failed) {
+        err =>
+          err shouldBe a[Exception]
+          err.getMessage should startWith(
+            "Multiple values for sierra-identifier"
+          )
       }
     }
 
@@ -142,9 +148,10 @@ class CatalogueServiceTest
       val catalogueSource = new OneWorkCatalogueSource(work)
       val service = new CatalogueService(catalogueSource)
 
-      whenReady(service.getAllStacksItems(createStacksWorkIdentifier).failed) { err =>
-        err shouldBe a[Exception]
-        err.getMessage shouldBe "Unable to convert Not a Number to Long!"
+      whenReady(service.getAllStacksItems(createStacksWorkIdentifier).failed) {
+        err =>
+          err shouldBe a[Exception]
+          err.getMessage shouldBe "Unable to convert Not a Number to Long!"
       }
     }
   }
@@ -154,7 +161,9 @@ class CatalogueServiceTest
       override def getWorkStub(id: StacksWorkIdentifier): Future[WorkStub] =
         Future.failed(new Throwable("BOOM!"))
 
-      override def getSearchStub(identifier: Identifier[_]): Future[SearchStub] =
+      override def getSearchStub(
+        identifier: Identifier[_]
+      ): Future[SearchStub] =
         Future.successful(
           SearchStub(totalResults = works.size, results = works.toList)
         )
@@ -172,8 +181,7 @@ class CatalogueServiceTest
     it("gets an item from a work") {
       val item = ItemStub(
         id = Some(createStacksItemIdentifier.value),
-        identifiers = Some(List(createSierraIdentifier("1234567"))
-        )
+        identifiers = Some(List(createSierraIdentifier("1234567")))
       )
 
       val work = createWorkStubWith(items = List(item))
@@ -253,7 +261,9 @@ class CatalogueServiceTest
         identifiers = Some(List(createSierraIdentifier("1111111")))
       )
 
-      val works = (1 to 5).map { _ => createWorkStubWith(items = List(item)) }
+      val works = (1 to 5).map { _ =>
+        createWorkStubWith(items = List(item))
+      }
 
       val catalogueSource = new MockCatalogueSource(works: _*)
       val service = new CatalogueService(catalogueSource)
@@ -301,7 +311,9 @@ class CatalogueServiceTest
       override def getWorkStub(id: StacksWorkIdentifier): Future[WorkStub] =
         Future.failed(getException)
 
-      override def getSearchStub(identifier: Identifier[_]): Future[SearchStub] =
+      override def getSearchStub(
+        identifier: Identifier[_]
+      ): Future[SearchStub] =
         Future.failed(searchException)
     }
 
@@ -323,7 +335,8 @@ class CatalogueServiceTest
 
   private def createSierraIdentifier(value: String): IdentifiersStub =
     IdentifiersStub(
-      identifierType = TypeStub(id = "sierra-identifier", label = "Sierra identifier"),
+      identifierType =
+        TypeStub(id = "sierra-identifier", label = "Sierra identifier"),
       value = value
     )
 }

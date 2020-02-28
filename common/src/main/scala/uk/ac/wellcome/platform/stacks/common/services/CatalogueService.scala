@@ -19,7 +19,8 @@ class CatalogueService(
       case List(IdentifiersStub(_, value)) =>
         Try(value.toLong) match {
           case Success(l) => Some(SierraItemIdentifier(l))
-          case Failure(_) => throw new Exception(s"Unable to convert $value to Long!")
+          case Failure(_) =>
+            throw new Exception(s"Unable to convert $value to Long!")
         }
 
       case Nil => None

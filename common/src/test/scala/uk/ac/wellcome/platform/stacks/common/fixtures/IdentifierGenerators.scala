@@ -1,6 +1,11 @@
 package uk.ac.wellcome.platform.stacks.common.fixtures
 
-import uk.ac.wellcome.platform.stacks.common.models.{CatalogueItemIdentifier, SierraItemIdentifier, StacksItemIdentifier, StacksWorkIdentifier}
+import uk.ac.wellcome.platform.stacks.common.models.{
+  CatalogueItemIdentifier,
+  SierraItemIdentifier,
+  StacksItemIdentifier,
+  StacksWorkIdentifier
+}
 
 import scala.util.Random
 
