@@ -52,7 +52,7 @@ class StacksServiceTest
                   equalToJson("""
                       |{
                       |  "recordType" : "i",
-                      |  "recordNumber" : 1292185,
+                      |  "recordNumber" : 1601017,
                       |  "pickupLocation" : "unspecified",
                       |  "neededBy" : "2020-01-01"
                       |}
@@ -79,7 +79,7 @@ class StacksServiceTest
                   StacksItem(
                     id = StacksItemIdentifier(
                       catalogueId = CatalogueItemIdentifier("ys3ern6x"),
-                      sierraId = SierraItemIdentifier(1292185)
+                      sierraId = SierraItemIdentifier(1601017)
                     ),
                     status = StacksItemStatus("available", "Available")
                   )
@@ -106,7 +106,7 @@ class StacksServiceTest
                 holds = List(
                   StacksHold(
                     itemId = StacksItemIdentifier(
-                      catalogueId = CatalogueItemIdentifier("ys3ern6x"),
+                      catalogueId = CatalogueItemIdentifier("n5v7b4md"),
                       sierraId = SierraItemIdentifier(1292185)
                     ),
                     pickup = StacksPickup(

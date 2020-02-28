@@ -1,7 +1,7 @@
 {
   "id" : "e4b92ae1-1e2c-3ca3-bc6c-82bc1cc4e1b4",
   "request" : {
-    "url" : "/iii/sierra-api/v5/items/1292185",
+    "url" : "/iii/sierra-api/v5/items/1601017",
     "method" : "GET",
     "headers" : {
       "Authorization" : {

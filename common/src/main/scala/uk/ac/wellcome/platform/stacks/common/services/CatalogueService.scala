@@ -12,7 +12,7 @@ class CatalogueService(
 
   import CatalogueSource._
 
-  protected def getIdentifier(
+  private def getSierraItemIdentifier(
     identifiers: List[IdentifiersStub]
   ): Option[SierraItemIdentifier] =
     identifiers filter (_.identifierType.id == "sierra-identifier") match {
@@ -20,29 +20,35 @@ class CatalogueService(
         Try(value.toLong) match {
           case Success(l) => Some(SierraItemIdentifier(l))
           case Failure(_) =>
-            throw new Exception(
-              s"Unable to convert $value to Long!"
-            )
+            throw new Exception(s"Unable to convert $value to Long!")
         }
 
-      case _ => None
+      case Nil => None
+
+      // This would be very unusual and probably points to a problem in the Catalogue API.
+      // We throw a distinct error here so that it's easier to debug if this ever
+      // occurs in practice.
+      case multipleSierraIdentifiers =>
+        throw new Exception(
+          s"Multiple values for sierra-identifier: $multipleSierraIdentifiers"
+        )
     }
 
-  protected def getStacksItems(
+  private def getStacksItems(
     itemStubs: List[ItemStub]
   ): List[StacksItemIdentifier] =
     itemStubs collect {
       case ItemStub(Some(id), Some(identifiers)) =>
         (
           CatalogueItemIdentifier(id),
-          getIdentifier(identifiers)
+          getSierraItemIdentifier(identifiers)
         )
     } collect {
-      case (catId, Some(sierraId)) =>
-        StacksItemIdentifier(catId, sierraId)
+      case (catalogueId, Some(sierraId)) =>
+        StacksItemIdentifier(catalogueId = catalogueId, sierraId = sierraId)
     }
 
-  def getStacksItems(
+  def getAllStacksItems(
     workId: StacksWorkIdentifier
   ): Future[List[StacksItemIdentifier]] =
     for {
@@ -51,7 +57,7 @@ class CatalogueService(
     } yield items
 
   def getStacksItem(
-    identifier: Identifier[_]
+    identifier: ItemIdentifier[_]
   ): Future[Option[StacksItemIdentifier]] =
     for {
       searchStub <- catalogueSource.getSearchStub(identifier)
@@ -66,8 +72,6 @@ class CatalogueService(
           items.filter(_.catalogueId.value == id)
         case SierraItemIdentifier(id) =>
           items.filter(_.sierraId.value == id)
-        case StacksWorkIdentifier(id) =>
-          items.filter(_.catalogueId.value == id)
         case _ => items
       }
 

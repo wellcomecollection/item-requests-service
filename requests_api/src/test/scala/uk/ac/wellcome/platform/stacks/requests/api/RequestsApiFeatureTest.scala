@@ -96,7 +96,7 @@ class RequestsApiFeatureTest
                       equalToJson("""
                   |{
                   |  "recordType" : "i",
-                  |  "recordNumber" : 1292185,
+                  |  "recordNumber" : 1601017,
                   |  "pickupLocation" : "unspecified",
                   |  "neededBy" : "2020-01-01"
                   |}
@@ -135,7 +135,7 @@ class RequestsApiFeatureTest
                  |  "results" : [
                  |    {
                  |      "item" : {
-                 |        "id" : "ys3ern6x",
+                 |        "id" : "n5v7b4md",
                  |        "status" : null,
                  |        "type" : "Item"
                  |      },
