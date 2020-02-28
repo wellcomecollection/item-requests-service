@@ -47,7 +47,7 @@ class StacksService(
     workId: StacksWorkIdentifier
   ): Future[StacksWork] =
     for {
-      stacksItemIds <- catalogueService.getStacksItems(workId)
+      stacksItemIds <- catalogueService.getAllStacksItems(workId)
 
       itemStatuses <- stacksItemIds
         .map(_.sierraId)

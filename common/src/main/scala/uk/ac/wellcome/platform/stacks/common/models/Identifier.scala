@@ -34,4 +34,7 @@ case class StacksItemIdentifier(
   sierraId: SierraItemIdentifier
 ) extends ItemIdentifier[String] {
   override val value: String = catalogueId.value
+
+  override def toString: String =
+    s"<StacksItemIdentifier catalogue=$catalogueId, sierra=$sierraId>"
 }
