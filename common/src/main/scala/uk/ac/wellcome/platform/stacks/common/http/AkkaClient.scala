@@ -5,17 +5,20 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshalling.{Marshal, Marshaller}
 import akka.http.scaladsl.model.Uri.{Path, Query}
 import akka.http.scaladsl.model._
-import akka.http.scaladsl.model.headers.{
-  Authorization,
-  BasicHttpCredentials,
-  OAuth2BearerToken
-}
+import akka.http.scaladsl.model.headers.{Authorization, BasicHttpCredentials, OAuth2BearerToken}
 import akka.http.scaladsl.unmarshalling.{Unmarshal, Unmarshaller}
 import akka.stream.ActorMaterializer
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
 
 trait AkkaClient {
+
+  sealed trait Response[T] {
+    val content: Option[T]
+  }
+  case class SuccessResponse[T](content: Option[T]) extends Response[T]
+  case class FailureResponse[T](content: Option[T]) extends Response[T]
+
   implicit val system: ActorSystem
   implicit val mat: ActorMaterializer
 
@@ -41,7 +44,7 @@ trait AkkaClientGet extends AkkaClient {
     headers: List[HttpHeader] = Nil
   )(
     implicit um: Unmarshaller[HttpResponse, Out]
-  ): Future[Out] =
+  ): Future[Response[Out]] =
     for {
       response <- Http().singleRequest(
         HttpRequest(
@@ -49,8 +52,16 @@ trait AkkaClientGet extends AkkaClient {
           headers = headers
         )
       )
-      out <- Unmarshal(response).to[Out]
-    } yield out
+
+      result <- response.entity match {
+        case e if e.isKnownEmpty() => Future.successful(None)
+        case _                     => Unmarshal(response).to[Out].map(Some(_))
+      }
+
+    } yield response.status match {
+        case r if r.isSuccess() => SuccessResponse(result)
+        case _ => FailureResponse(result)
+    }
 }
 
 trait AkkaClientPost extends AkkaClient {
@@ -63,7 +74,7 @@ trait AkkaClientPost extends AkkaClient {
     implicit
     um: Unmarshaller[HttpResponse, Out],
     m: Marshaller[In, RequestEntity]
-  ): Future[Option[Out]] =
+  ): Future[Response[Out]] =
     for {
       entity <- body match {
         case Some(body) => Marshal(body).to[RequestEntity]
@@ -83,7 +94,11 @@ trait AkkaClientPost extends AkkaClient {
         case e if e.isKnownEmpty() => Future.successful(None)
         case _                     => Unmarshal(response).to[Out].map(Some(_))
       }
-    } yield result
+
+    } yield response.status match {
+    case r if r.isSuccess() => SuccessResponse(result)
+    case _ => FailureResponse(result)
+  }
 }
 
 trait AkkaClientTokenExchange extends AkkaClientPost {
@@ -99,7 +114,7 @@ trait AkkaClientTokenExchange extends AkkaClientPost {
     credentials: BasicHttpCredentials
   ): Future[OAuth2BearerToken] = {
     for {
-      token <- post[String, AccessToken](
+      response <- post[String, AccessToken](
         path = tokenPath,
         headers = List(
           Authorization(
@@ -108,14 +123,14 @@ trait AkkaClientTokenExchange extends AkkaClientPost {
         )
       )
 
-      result <- token match {
-        case Some(token) =>
+      result <- response match {
+        case SuccessResponse(Some(token)) =>
           Future.successful(
             OAuth2BearerToken(token.access_token)
           )
-        case None =>
+        case _ =>
           Future.failed(
-            new Exception("No access token provided!")
+            new Exception(s"Failed to get access token.")
           )
       }
 

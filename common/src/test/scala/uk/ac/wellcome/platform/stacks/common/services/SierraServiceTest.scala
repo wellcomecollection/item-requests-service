@@ -104,6 +104,41 @@ class SierraServiceTest
             }
         }
       }
+
+      it("should error when requesting a hold from the Sierra API errors") {
+        withSierraService {
+          case (sierraService, wireMockServer) =>
+            val sierraItemIdentifier = SierraItemIdentifier(1601018)
+            val stacksUserIdentifier = StacksUserIdentifier("1234567")
+
+            whenReady(
+              sierraService.placeHold(
+                userIdentifier = stacksUserIdentifier,
+                sierraItemIdentifier = sierraItemIdentifier,
+                neededBy = None
+              ).failed
+            ) { error =>
+              wireMockServer.verify(
+                1,
+                postRequestedFor(
+                  urlEqualTo(
+                    "/iii/sierra-api/v5/patrons/1234567/holds/requests"
+                  )
+                ).withRequestBody(
+                  equalToJson("""
+                                |{
+                                |  "recordType" : "i",
+                                |  "recordNumber" : 1601018,
+                                |  "pickupLocation" : "unspecified"
+                                |}
+                                |""".stripMargin)
+                )
+              )
+
+              error.getMessage should include("This record is not available")
+            }
+        }
+      }
     }
   }
 }
