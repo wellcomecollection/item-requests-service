@@ -6,6 +6,7 @@ import akka.http.scaladsl.model.{HttpEntity, StatusCodes}
 import akka.http.scaladsl.server.Route
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import grizzled.slf4j.Logging
+import io.circe.Printer
 import uk.ac.wellcome.platform.stacks.common.models.display.DisplayResultsList
 import uk.ac.wellcome.platform.stacks.common.models.{
   CatalogueItemIdentifier,
@@ -24,6 +25,10 @@ trait RequestsApi extends Logging with FailFastCirceSupport {
 
   implicit val ec: ExecutionContext
   implicit val stacksWorkService: StacksService
+
+  // Omit optional fields in response to clients
+  implicit val printer: Printer =
+    Printer.noSpaces.copy(dropNullValues = true)
 
   val routes: Route = concat(
     pathPrefix("requests") {

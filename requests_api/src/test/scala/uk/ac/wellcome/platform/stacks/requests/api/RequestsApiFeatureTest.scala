@@ -193,7 +193,6 @@ class RequestsApiFeatureTest
                  |    {
                  |      "item" : {
                  |        "id" : "n5v7b4md",
-                 |        "status" : null,
                  |        "type" : "Item"
                  |      },
                  |      "pickupDate" : "2019-12-03T04:00:00Z",
