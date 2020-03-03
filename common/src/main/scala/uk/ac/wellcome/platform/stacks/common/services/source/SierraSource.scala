@@ -9,9 +9,21 @@ import akka.http.scaladsl.model.Uri.Path
 import akka.http.scaladsl.model.headers.{Authorization, BasicHttpCredentials}
 import akka.stream.ActorMaterializer
 import io.circe.{Encoder, Printer}
-import uk.ac.wellcome.platform.stacks.common.http.{AkkaClientGet, AkkaClientPost, AkkaClientTokenExchange}
-import uk.ac.wellcome.platform.stacks.common.models.{SierraItemIdentifier, StacksUserIdentifier}
-import uk.ac.wellcome.platform.stacks.common.services.source.SierraSource.{SierraErrorCode, SierraHoldRequestPostBody, SierraItemStub, SierraUserHoldsStub}
+import uk.ac.wellcome.platform.stacks.common.http.{
+  AkkaClientGet,
+  AkkaClientPost,
+  AkkaClientTokenExchange
+}
+import uk.ac.wellcome.platform.stacks.common.models.{
+  SierraItemIdentifier,
+  StacksUserIdentifier
+}
+import uk.ac.wellcome.platform.stacks.common.services.source.SierraSource.{
+  SierraErrorCode,
+  SierraHoldRequestPostBody,
+  SierraItemStub,
+  SierraUserHoldsStub
+}
 
 import scala.concurrent.Future
 
@@ -110,7 +122,7 @@ class AkkaSierraSource(
       )
     } yield item match {
       case SuccessResponse(Some(holds)) => holds
-      case _ => throw new Exception(s"Failed to get item!")
+      case _                            => throw new Exception(s"Failed to get item!")
     }
 
   // See https://sandbox.iii.com/iii/sierra-api/swagger/index.html#!/patrons
@@ -129,7 +141,7 @@ class AkkaSierraSource(
       )
     } yield response match {
       case SuccessResponse(Some(holds)) => holds
-      case _ => throw new Exception(s"Failed to get user holds!")
+      case _                            => throw new Exception(s"Failed to get user holds!")
     }
 
   private val dateTimeFormatter = DateTimeFormatter
@@ -161,10 +173,11 @@ class AkkaSierraSource(
         headers = List(Authorization(token))
       )
     } yield response match {
-      case SuccessResponse(_) => Right(())
+      case SuccessResponse(_)                     => Right(())
       case FailureResponse(Some(sierraErrorCode)) => Left(sierraErrorCode)
-      case _ => throw new Exception(
-        s"Failed to make hold!"
-      )
+      case _ =>
+        throw new Exception(
+          s"Failed to make hold!"
+        )
     }
 }

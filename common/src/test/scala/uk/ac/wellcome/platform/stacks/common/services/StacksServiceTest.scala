@@ -37,7 +37,6 @@ class StacksServiceTest
                 neededBy = neededBy
               )
             ) { response =>
-
               response shouldBe a[HoldAccepted]
 
               wireMockServer.verify(
@@ -74,7 +73,6 @@ class StacksServiceTest
                 neededBy = None
               )
             ) { response =>
-
               response shouldBe a[HoldRejected]
 
               wireMockServer.verify(

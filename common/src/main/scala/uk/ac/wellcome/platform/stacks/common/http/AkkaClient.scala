@@ -5,7 +5,11 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshalling.{Marshal, Marshaller}
 import akka.http.scaladsl.model.Uri.{Path, Query}
 import akka.http.scaladsl.model._
-import akka.http.scaladsl.model.headers.{Authorization, BasicHttpCredentials, OAuth2BearerToken}
+import akka.http.scaladsl.model.headers.{
+  Authorization,
+  BasicHttpCredentials,
+  OAuth2BearerToken
+}
 import akka.http.scaladsl.unmarshalling.{Unmarshal, Unmarshaller}
 import akka.stream.ActorMaterializer
 
@@ -59,8 +63,8 @@ trait AkkaClientGet extends AkkaClient {
       }
 
     } yield response.status match {
-        case r if r.isSuccess() => SuccessResponse(result)
-        case _ => FailureResponse(result)
+      case r if r.isSuccess() => SuccessResponse(result)
+      case _                  => FailureResponse(result)
     }
 }
 
@@ -96,9 +100,9 @@ trait AkkaClientPost extends AkkaClient {
       }
 
     } yield response.status match {
-    case r if r.isSuccess() => SuccessResponse(result)
-    case _ => FailureResponse(result)
-  }
+      case r if r.isSuccess() => SuccessResponse(result)
+      case _                  => FailureResponse(result)
+    }
 }
 
 trait AkkaClientTokenExchange extends AkkaClientPost {

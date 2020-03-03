@@ -8,8 +8,16 @@ import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import grizzled.slf4j.Logging
 import io.circe.Printer
 import uk.ac.wellcome.platform.stacks.common.models.display.DisplayResultsList
-import uk.ac.wellcome.platform.stacks.common.models.{CatalogueItemIdentifier, StacksUserIdentifier}
-import uk.ac.wellcome.platform.stacks.common.services.{HoldAccepted, HoldRejected, HoldResponse, StacksService}
+import uk.ac.wellcome.platform.stacks.common.models.{
+  CatalogueItemIdentifier,
+  StacksUserIdentifier
+}
+import uk.ac.wellcome.platform.stacks.common.services.{
+  HoldAccepted,
+  HoldRejected,
+  HoldResponse,
+  StacksService
+}
 import uk.ac.wellcome.platform.stacks.requests.api.models.Request
 
 import scala.concurrent.{ExecutionContext, Future}

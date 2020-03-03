@@ -2,16 +2,23 @@ package uk.ac.wellcome.platform.stacks.requests.api
 
 import akka.http.scaladsl.model.HttpHeader.ParsingResult
 import akka.http.scaladsl.model.{HttpHeader, StatusCodes}
-import com.github.tomakehurst.wiremock.client.WireMock.{equalToJson, postRequestedFor, urlEqualTo}
+import com.github.tomakehurst.wiremock.client.WireMock.{
+  equalToJson,
+  postRequestedFor,
+  urlEqualTo
+}
 import org.scalatest.concurrent.IntegrationPatience
 import org.scalatest.{FunSpec, Matchers}
 import uk.ac.wellcome.akka.fixtures.Akka
 import uk.ac.wellcome.json.utils.JsonAssertions
-import uk.ac.wellcome.platform.stacks.common.fixtures.{CatalogueWireMockFixture, SierraWireMockFixture}
+import uk.ac.wellcome.platform.stacks.common.fixtures.{
+  CatalogueWireMockFixture,
+  SierraWireMockFixture
+}
 import uk.ac.wellcome.platform.stacks.requests.api.fixtures.RequestsApiFixture
 
 class RequestsApiFeatureTest
-  extends FunSpec
+    extends FunSpec
     with Matchers
     with RequestsApiFixture
     with JsonAssertions
@@ -88,8 +95,7 @@ class RequestsApiFeatureTest
                         "/iii/sierra-api/v5/patrons/1234567/holds/requests"
                       )
                     ).withRequestBody(
-                      equalToJson(
-                        """
+                      equalToJson("""
                           |{
                           |  "recordType" : "i",
                           |  "recordNumber" : 1601017,
@@ -147,8 +153,7 @@ class RequestsApiFeatureTest
                         "/iii/sierra-api/v5/patrons/1234567/holds/requests"
                       )
                     ).withRequestBody(
-                      equalToJson(
-                        """
+                      equalToJson("""
                           |{
                           |  "recordType" : "i",
                           |  "recordNumber" : 1601017,
@@ -206,8 +211,7 @@ class RequestsApiFeatureTest
                           "/iii/sierra-api/v5/patrons/1234567/holds/requests"
                         )
                       ).withRequestBody(
-                        equalToJson(
-                          """
+                        equalToJson("""
                             |{
                             |  "recordType" : "i",
                             |  "recordNumber" : 1601018,
