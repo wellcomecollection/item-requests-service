@@ -115,10 +115,7 @@ if __name__ == "__main__":
 
     requests_resp = requests.post(
         "https://stacks.api.wellcomecollection.org/stacks/v1/requests",
-        headers={
-            "Authorization": auth_header,
-            "Content-Type": "application/json",
-        },
+        headers={"Authorization": auth_header, "Content-Type": "application/json"},
         json={
             "item": {"id": "xbq6d9rg", "type": "Item"},
             "pickupDate": "2020-02-28T14:02:09.497Z",
