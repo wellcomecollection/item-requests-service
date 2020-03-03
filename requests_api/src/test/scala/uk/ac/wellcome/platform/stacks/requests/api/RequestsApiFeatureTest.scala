@@ -9,6 +9,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.{
 }
 import org.scalatest.concurrent.IntegrationPatience
 import org.scalatest.{FunSpec, Matchers}
+import uk.ac.wellcome.akka.fixtures.Akka
 import uk.ac.wellcome.json.utils.JsonAssertions
 import uk.ac.wellcome.platform.stacks.common.fixtures.{
   CatalogueWireMockFixture,
@@ -21,6 +22,7 @@ class RequestsApiFeatureTest
     with Matchers
     with RequestsApiFixture
     with JsonAssertions
+    with Akka
     with CatalogueWireMockFixture
     with SierraWireMockFixture
     with IntegrationPatience {
@@ -94,13 +96,13 @@ class RequestsApiFeatureTest
                       )
                     ).withRequestBody(
                       equalToJson("""
-                  |{
-                  |  "recordType" : "i",
-                  |  "recordNumber" : 1601017,
-                  |  "pickupLocation" : "unspecified",
-                  |  "neededBy" : "2020-01-01"
-                  |}
-                  |""".stripMargin)
+                          |{
+                          |  "recordType" : "i",
+                          |  "recordNumber" : 1601017,
+                          |  "pickupLocation" : "unspecified",
+                          |  "neededBy" : "2020-01-01"
+                          |}
+                          |""".stripMargin)
                     )
                   )
 
@@ -152,18 +154,76 @@ class RequestsApiFeatureTest
                       )
                     ).withRequestBody(
                       equalToJson("""
-                                    |{
-                                    |  "recordType" : "i",
-                                    |  "recordNumber" : 1601017,
-                                    |  "pickupLocation" : "unspecified"
-                                    |}
-                                    |""".stripMargin)
+                          |{
+                          |  "recordType" : "i",
+                          |  "recordNumber" : 1601017,
+                          |  "pickupLocation" : "unspecified"
+                          |}
+                          |""".stripMargin)
                     )
                   )
 
                   response.entity.isKnownEmpty() shouldBe true
                 }
             }
+        }
+      }
+    }
+
+    it("responds with a 409 Conflict when a hold is rejected") {
+      withMaterializer { implicit mat =>
+        withMockCatalogueServer { catalogueApiUrl: String =>
+          withMockSierraServer {
+            case (sierraApiUrl, wireMockServer) =>
+              withConfiguredApp(catalogueApiUrl, sierraApiUrl) {
+                case (_, _) =>
+                  val path = "/requests"
+
+                  val headers = List(
+                    HttpHeader
+                      .parse(
+                        name = "Weco-Sierra-Patron-Id",
+                        value = "1234567"
+                      )
+                      .asInstanceOf[ParsingResult.Ok]
+                      .header
+                  )
+
+                  val entity = createJsonHttpEntityWith(
+                    """
+                      |{
+                      |  "item": {
+                      |    "id": "ys3ern6y",
+                      |    "type": "Item"
+                      |  },
+                      |  "type": "Request"
+                      |}
+                      |""".stripMargin
+                  )
+
+                  whenPostRequestReady(path, entity, headers) { response =>
+                    response.status shouldBe StatusCodes.Conflict
+
+                    wireMockServer.verify(
+                      1,
+                      postRequestedFor(
+                        urlEqualTo(
+                          "/iii/sierra-api/v5/patrons/1234567/holds/requests"
+                        )
+                      ).withRequestBody(
+                        equalToJson("""
+                            |{
+                            |  "recordType" : "i",
+                            |  "recordNumber" : 1601018,
+                            |  "pickupLocation" : "unspecified"
+                            |}
+                            |""".stripMargin)
+                      )
+                    )
+
+                  }
+              }
+          }
         }
       }
     }
@@ -188,30 +248,30 @@ class RequestsApiFeatureTest
 
                 val expectedJson =
                   s"""
-                 |{
-                 |  "results" : [
-                 |    {
-                 |      "item" : {
-                 |        "id" : "n5v7b4md",
-                 |        "type" : "Item"
-                 |      },
-                 |      "pickupDate" : "2019-12-03T04:00:00Z",
-                 |      "pickupLocation" : {
-                 |        "id" : "sepbb",
-                 |        "label" : "Rare Materials Room",
-                 |        "type" : "LocationDescription"
-                 |      },
-                 |      "status" : {
-                 |        "id" : "i",
-                 |        "label" : "item hold ready for pickup.",
-                 |        "type" : "RequestStatus"
-                 |      },
-                 |      "type" : "Request"
-                 |    }
-                 |  ],
-                 |  "totalResults" : 1,
-                 |  "type" : "ResultList"
-                 |}""".stripMargin
+                     |{
+                     |  "results" : [
+                     |    {
+                     |      "item" : {
+                     |        "id" : "n5v7b4md",
+                     |        "type" : "Item"
+                     |      },
+                     |      "pickupDate" : "2019-12-03T04:00:00Z",
+                     |      "pickupLocation" : {
+                     |        "id" : "sepbb",
+                     |        "label" : "Rare Materials Room",
+                     |        "type" : "LocationDescription"
+                     |      },
+                     |      "status" : {
+                     |        "id" : "i",
+                     |        "label" : "item hold ready for pickup.",
+                     |        "type" : "RequestStatus"
+                     |      },
+                     |      "type" : "Request"
+                     |    }
+                     |  ],
+                     |  "totalResults" : 1,
+                     |  "type" : "ResultList"
+                     |}""".stripMargin
 
                 whenGetRequestReady(path, headers) { response =>
                   response.status shouldBe StatusCodes.OK

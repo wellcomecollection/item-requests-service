@@ -19,6 +19,7 @@ import uk.ac.wellcome.platform.stacks.common.models.{
   StacksUserIdentifier
 }
 import uk.ac.wellcome.platform.stacks.common.services.source.SierraSource.{
+  SierraErrorCode,
   SierraHoldRequestPostBody,
   SierraItemStub,
   SierraUserHoldsStub
@@ -27,6 +28,7 @@ import uk.ac.wellcome.platform.stacks.common.services.source.SierraSource.{
 import scala.concurrent.Future
 
 trait SierraSource {
+
   import SierraSource._
 
   def getSierraItemStub(sierraId: SierraItemIdentifier): Future[SierraItemStub]
@@ -37,10 +39,19 @@ trait SierraSource {
     userIdentifier: StacksUserIdentifier,
     sierraItemIdentifier: SierraItemIdentifier,
     neededBy: Option[Instant]
-  ): Future[Unit]
+  ): Future[PostHoldResult]
 }
 
 object SierraSource {
+  type PostHoldResult = Either[SierraErrorCode, Unit]
+
+  case class SierraErrorCode(
+    code: Int,
+    specificCode: Int,
+    httpStatus: Int,
+    name: String,
+    description: Option[String]
+  )
   case class SierraUserHoldsPickupLocationStub(
     code: String,
     name: String
@@ -92,6 +103,7 @@ class AkkaSierraSource(
 
   import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
   import io.circe.generic.auto._
+  import SierraSource._
 
   // Sierra will not tolerate null values in optional fields
   implicit val printer: Printer = Printer.noSpaces.copy(dropNullValues = true)
@@ -108,7 +120,10 @@ class AkkaSierraSource(
         path = Path(s"v5/items/${sierraId.value}"),
         headers = List(Authorization(token))
       )
-    } yield item
+    } yield item match {
+      case SuccessResponse(Some(holds)) => holds
+      case _                            => throw new Exception(s"Failed to get item!")
+    }
 
   // See https://sandbox.iii.com/iii/sierra-api/swagger/index.html#!/patrons
   def getSierraUserHoldsStub(
@@ -116,7 +131,7 @@ class AkkaSierraSource(
   ): Future[SierraUserHoldsStub] =
     for {
       token <- getToken(credentials)
-      holds <- get[SierraUserHoldsStub](
+      response <- get[SierraUserHoldsStub](
         path = Path(s"v5/patrons/${userId.value}/holds"),
         params = Map(
           ("limit", "100"),
@@ -124,7 +139,10 @@ class AkkaSierraSource(
         ),
         headers = List(Authorization(token))
       )
-    } yield holds
+    } yield response match {
+      case SuccessResponse(Some(holds)) => holds
+      case _                            => throw new Exception(s"Failed to get user holds!")
+    }
 
   private val dateTimeFormatter = DateTimeFormatter
     .ofPattern("yyyy-MM-dd")
@@ -138,10 +156,10 @@ class AkkaSierraSource(
     userIdentifier: StacksUserIdentifier,
     sierraItemIdentifier: SierraItemIdentifier,
     neededBy: Option[Instant]
-  ): Future[Unit] =
+  ): Future[PostHoldResult] =
     for {
       token <- getToken(credentials)
-      _ <- post[SierraHoldRequestPostBody, String](
+      response <- post[SierraHoldRequestPostBody, SierraErrorCode](
         path = Path(s"v5/patrons/${userIdentifier.value}/holds/requests"),
         body = Some(
           SierraHoldRequestPostBody(
@@ -154,5 +172,12 @@ class AkkaSierraSource(
         ),
         headers = List(Authorization(token))
       )
-    } yield ()
+    } yield response match {
+      case SuccessResponse(_)                     => Right(())
+      case FailureResponse(Some(sierraErrorCode)) => Left(sierraErrorCode)
+      case _ =>
+        throw new Exception(
+          s"Failed to make hold!"
+        )
+    }
 }

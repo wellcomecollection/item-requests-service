@@ -68,7 +68,10 @@ class AkkaCatalogueSource(
       params = Map(
         ("include", "items,identifiers")
       )
-    )
+    ) map {
+      case SuccessResponse(Some(workStub)) => workStub
+      case _                               => throw new Exception("Failed to get catalogue work!")
+    }
 
   // See https://developers.wellcomecollection.org/catalogue/v2/works/getworks
   def getSearchStub(identifier: Identifier[_]): Future[SearchStub] =
@@ -78,5 +81,8 @@ class AkkaCatalogueSource(
         ("include", "items,identifiers"),
         ("query", identifier.value.toString)
       )
-    )
+    ) map {
+      case SuccessResponse(Some(workStub)) => workStub
+      case _                               => throw new Exception("Failed to make catalogue search!")
+    }
 }

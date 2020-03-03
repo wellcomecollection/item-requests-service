@@ -21,11 +21,11 @@ class StacksService(
     userIdentifier: StacksUserIdentifier,
     catalogueItemId: CatalogueItemIdentifier,
     neededBy: Option[Instant]
-  ): Future[StacksHoldRequest] =
+  ): Future[HoldResponse] =
     for {
       stacksItem <- catalogueService.getStacksItem(catalogueItemId)
 
-      _ <- stacksItem match {
+      response <- stacksItem match {
         case Some(id) =>
           sierraService.placeHold(
             userIdentifier = userIdentifier,
@@ -38,10 +38,7 @@ class StacksService(
           )
       }
 
-    } yield StacksHoldRequest(
-      itemId = catalogueItemId.value,
-      userId = userIdentifier.value
-    )
+    } yield response
 
   def getStacksWork(
     workId: StacksWorkIdentifier

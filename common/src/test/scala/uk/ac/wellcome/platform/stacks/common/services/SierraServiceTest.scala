@@ -3,7 +3,7 @@ package uk.ac.wellcome.platform.stacks.common.services
 import java.time.Instant
 
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.{EitherValues, FunSpec, Matchers}
 import uk.ac.wellcome.platform.stacks.common.fixtures.ServicesFixture
 import uk.ac.wellcome.platform.stacks.common.models._
 import com.github.tomakehurst.wiremock.client.WireMock._
@@ -13,6 +13,7 @@ class SierraServiceTest
     with ServicesFixture
     with ScalaFutures
     with IntegrationPatience
+    with EitherValues
     with Matchers {
 
   describe("SierraService") {
@@ -101,6 +102,41 @@ class SierraServiceTest
                 |""".stripMargin)
                 )
               )
+            }
+        }
+      }
+
+      it("should reject a hold when the sierra API errors indicating such") {
+        withSierraService {
+          case (sierraService, wireMockServer) =>
+            val sierraItemIdentifier = SierraItemIdentifier(1601018)
+            val stacksUserIdentifier = StacksUserIdentifier("1234567")
+
+            whenReady(
+              sierraService.placeHold(
+                userIdentifier = stacksUserIdentifier,
+                sierraItemIdentifier = sierraItemIdentifier,
+                neededBy = None
+              )
+            ) { response =>
+              wireMockServer.verify(
+                1,
+                postRequestedFor(
+                  urlEqualTo(
+                    "/iii/sierra-api/v5/patrons/1234567/holds/requests"
+                  )
+                ).withRequestBody(
+                  equalToJson("""
+                                |{
+                                |  "recordType" : "i",
+                                |  "recordNumber" : 1601018,
+                                |  "pickupLocation" : "unspecified"
+                                |}
+                                |""".stripMargin)
+                )
+              )
+
+              response shouldBe a[HoldRejected]
             }
         }
       }
