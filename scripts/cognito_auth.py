@@ -118,7 +118,6 @@ if __name__ == "__main__":
         headers={
             "Authorization": auth_header,
             "Content-Type": "application/json",
-            "Weco-Sierra-Patron-Id": "doesnotexist",
         },
         json={
             "item": {"id": "xbq6d9rg", "type": "Item"},
