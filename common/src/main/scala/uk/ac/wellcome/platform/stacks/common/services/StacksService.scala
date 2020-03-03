@@ -21,7 +21,7 @@ class StacksService(
     userIdentifier: StacksUserIdentifier,
     catalogueItemId: CatalogueItemIdentifier,
     neededBy: Option[Instant]
-  ): Future[StacksHoldRequest] =
+  ): Future[HoldResponse] =
     for {
       stacksItem <- catalogueService.getStacksItem(catalogueItemId)
 
@@ -38,10 +38,7 @@ class StacksService(
           )
       }
 
-    } yield StacksHoldRequest(
-      itemId = catalogueItemId.value,
-      userId = userIdentifier.value
-    )
+    } yield response
 
   def getStacksWork(
     workId: StacksWorkIdentifier

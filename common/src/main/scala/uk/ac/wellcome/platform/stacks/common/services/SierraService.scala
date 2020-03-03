@@ -7,13 +7,21 @@ import uk.ac.wellcome.platform.stacks.common.services.source.SierraSource
 
 import scala.concurrent.{ExecutionContext, Future}
 
+sealed trait HoldResponse {
+  val lastModified: Instant
+}
+case class HoldAccepted(lastModified: Instant = Instant.now()) extends HoldResponse
+case class HoldRejected(lastModified: Instant = Instant.now()) extends HoldResponse
+
 class SierraService(
   sierraSource: SierraSource
 )(implicit ec: ExecutionContext) {
 
   import SierraSource._
 
-  def getItemStatus(sierraId: SierraItemIdentifier): Future[StacksItemStatus] =
+  def getItemStatus(
+                     sierraId: SierraItemIdentifier
+                   ): Future[StacksItemStatus] =
     sierraSource
       .getSierraItemStub(sierraId)
       .map(item => StacksItemStatus(item.status.code))
@@ -22,13 +30,18 @@ class SierraService(
     userIdentifier: StacksUserIdentifier,
     sierraItemIdentifier: SierraItemIdentifier,
     neededBy: Option[Instant]
-  ): Future[Unit] =
+  ): Future[HoldResponse] =
     sierraSource
       .postHold(
         userIdentifier,
         sierraItemIdentifier,
         neededBy
-      )
+      ) map {
+      // This is an "XCirc/Record not available" error
+      // See https://techdocs.iii.com/sierraapi/Content/zReference/errorHandling.htm
+      case Left(SierraErrorCode(132, 2, 500, _, _)) => HoldRejected()
+      case Right(_) => HoldAccepted()
+    }
 
   protected def buildStacksHold(
     entry: SierraUserHoldsEntryStub

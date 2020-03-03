@@ -165,7 +165,7 @@ class RequestsApiFeatureTest
       }
     }
 
-    it("errors when a request to place a hold fails") {
+    it("responds with a 409 Conflict when a hold is rejected") {
       withMaterializer { implicit mat =>
         withMockCatalogueServer { catalogueApiUrl: String =>
           withMockSierraServer {
@@ -197,7 +197,7 @@ class RequestsApiFeatureTest
                   )
 
                   whenPostRequestReady(path, entity, headers) { response =>
-                    response.status shouldBe StatusCodes.InternalServerError
+                    response.status shouldBe StatusCodes.Conflict
 
                     wireMockServer.verify(
                       1,
@@ -249,7 +249,6 @@ class RequestsApiFeatureTest
                      |    {
                      |      "item" : {
                      |        "id" : "n5v7b4md",
-                     |        "status" : null,
                      |        "type" : "Item"
                      |      },
                      |      "pickupDate" : "2019-12-03T04:00:00Z",

@@ -8,14 +8,11 @@ import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import grizzled.slf4j.Logging
 import io.circe.Printer
 import uk.ac.wellcome.platform.stacks.common.models.display.DisplayResultsList
-import uk.ac.wellcome.platform.stacks.common.models.{
-  CatalogueItemIdentifier,
-  StacksUserIdentifier
-}
-import uk.ac.wellcome.platform.stacks.common.services.StacksService
+import uk.ac.wellcome.platform.stacks.common.models.{CatalogueItemIdentifier, StacksUserIdentifier}
+import uk.ac.wellcome.platform.stacks.common.services.{HoldAccepted, HoldRejected, HoldResponse, StacksService}
 import uk.ac.wellcome.platform.stacks.requests.api.models.Request
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 trait RequestsApi extends Logging with FailFastCirceSupport {
@@ -49,10 +46,12 @@ trait RequestsApi extends Logging with FailFastCirceSupport {
                 )
 
                 val accepted = (StatusCodes.Accepted, HttpEntity.Empty)
+                val conflict = (StatusCodes.Conflict, HttpEntity.Empty)
 
                 onComplete(result) {
-                  case Success(_)   => complete(accepted)
-                  case Failure(err) => failWith(err)
+                  case Success(HoldAccepted(_)) => complete(accepted)
+                  case Success(HoldRejected(_)) => complete(conflict)
+                  case Failure(err)             => failWith(err)
                 }
             }
           } ~ get {

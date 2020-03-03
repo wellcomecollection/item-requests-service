@@ -36,11 +36,9 @@ class StacksServiceTest
                 catalogueItemId = catalogueItemIdentifier,
                 neededBy = neededBy
               )
-            ) { stacksHoldRequest =>
-              stacksHoldRequest shouldBe StacksHoldRequest(
-                itemId = "ys3ern6x",
-                userId = "1234567"
-              )
+            ) { response =>
+
+              response shouldBe a[HoldAccepted]
 
               wireMockServer.verify(
                 1,
@@ -63,7 +61,7 @@ class StacksServiceTest
         }
       }
 
-      it("should error in requesting a hold from Sierra errors") {
+      it("should return a rejected hold if sierra does the same") {
         withStacksService {
           case (stacksService, wireMockServer) =>
             val stacksUserIdentifier = StacksUserIdentifier("1234567")
@@ -74,8 +72,10 @@ class StacksServiceTest
                 userIdentifier = stacksUserIdentifier,
                 catalogueItemId = catalogueItemIdentifier,
                 neededBy = None
-              ).failed
-            ) { error =>
+              )
+            ) { response =>
+
+              response shouldBe a[HoldRejected]
 
               wireMockServer.verify(
                 1,
@@ -93,8 +93,6 @@ class StacksServiceTest
                                 |""".stripMargin)
                 )
               )
-
-              error.getMessage should include("This record is not available")
             }
         }
       }

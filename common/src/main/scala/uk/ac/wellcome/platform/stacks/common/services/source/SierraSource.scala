@@ -16,6 +16,7 @@ import uk.ac.wellcome.platform.stacks.common.services.source.SierraSource.{Sierr
 import scala.concurrent.Future
 
 trait SierraSource {
+
   import SierraSource._
 
   def getSierraItemStub(sierraId: SierraItemIdentifier): Future[SierraItemStub]
@@ -26,10 +27,12 @@ trait SierraSource {
     userIdentifier: StacksUserIdentifier,
     sierraItemIdentifier: SierraItemIdentifier,
     neededBy: Option[Instant]
-  ): Future[Unit]
+  ): Future[PostHoldResult]
 }
 
 object SierraSource {
+  type PostHoldResult = Either[SierraErrorCode, Unit]
+
   case class SierraErrorCode(
     code: Int,
     specificCode: Int,
@@ -88,6 +91,7 @@ class AkkaSierraSource(
 
   import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
   import io.circe.generic.auto._
+  import SierraSource._
 
   // Sierra will not tolerate null values in optional fields
   implicit val printer: Printer = Printer.noSpaces.copy(dropNullValues = true)
@@ -140,7 +144,7 @@ class AkkaSierraSource(
     userIdentifier: StacksUserIdentifier,
     sierraItemIdentifier: SierraItemIdentifier,
     neededBy: Option[Instant]
-  ): Future[Unit] =
+  ): Future[PostHoldResult] =
     for {
       token <- getToken(credentials)
       response <- post[SierraHoldRequestPostBody, SierraErrorCode](
@@ -157,11 +161,8 @@ class AkkaSierraSource(
         headers = List(Authorization(token))
       )
     } yield response match {
-      case SuccessResponse(_) => ()
-      case FailureResponse(Some(sierraErrorCode)) =>
-        throw new Exception(
-          s"Failed to make hold, got ${sierraErrorCode}!"
-        )
+      case SuccessResponse(_) => Right(())
+      case FailureResponse(Some(sierraErrorCode)) => Left(sierraErrorCode)
       case _ => throw new Exception(
         s"Failed to make hold!"
       )
