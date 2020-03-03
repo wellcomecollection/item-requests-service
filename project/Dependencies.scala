@@ -41,10 +41,8 @@ object WellcomeDependencies {
 
 object ExternalDependencies {
   lazy val versions = new {
-    val akkaHttp = "10.1.5"
-    val akkaHttpCirce = "1.21.1"
+    val akkaHttpCirce = "1.25.2"
 
-    val circe = "0.13.0"
     val scalatest = "3.0.1"
     val wiremock = "2.18.0"
     val logback = "1.2.3"
@@ -63,7 +61,6 @@ object ExternalDependencies {
   )
 
   val akkaDependencies = Seq[ModuleID](
-    "com.typesafe.akka" %% "akka-http" % versions.akkaHttp,
     "de.heikoseeberger" %% "akka-http-circe" % versions.akkaHttpCirce
   )
 
