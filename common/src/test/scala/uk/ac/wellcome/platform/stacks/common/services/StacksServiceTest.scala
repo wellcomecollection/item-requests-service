@@ -36,11 +36,8 @@ class StacksServiceTest
                 catalogueItemId = catalogueItemIdentifier,
                 neededBy = neededBy
               )
-            ) { stacksHoldRequest =>
-              stacksHoldRequest shouldBe StacksHoldRequest(
-                itemId = "ys3ern6x",
-                userId = "1234567"
-              )
+            ) { response =>
+              response shouldBe a[HoldAccepted]
 
               wireMockServer.verify(
                 1,
@@ -57,6 +54,41 @@ class StacksServiceTest
                       |  "neededBy" : "2020-01-01"
                       |}
                       |""".stripMargin)
+                )
+              )
+            }
+        }
+      }
+
+      it("should return a rejected hold if sierra does the same") {
+        withStacksService {
+          case (stacksService, wireMockServer) =>
+            val stacksUserIdentifier = StacksUserIdentifier("1234567")
+            val catalogueItemIdentifier = CatalogueItemIdentifier("ys3ern6y")
+
+            whenReady(
+              stacksService.requestHoldOnItem(
+                userIdentifier = stacksUserIdentifier,
+                catalogueItemId = catalogueItemIdentifier,
+                neededBy = None
+              )
+            ) { response =>
+              response shouldBe a[HoldRejected]
+
+              wireMockServer.verify(
+                1,
+                postRequestedFor(
+                  urlEqualTo(
+                    "/iii/sierra-api/v5/patrons/1234567/holds/requests"
+                  )
+                ).withRequestBody(
+                  equalToJson("""
+                                |{
+                                |  "recordType" : "i",
+                                |  "recordNumber" : 1601018,
+                                |  "pickupLocation" : "unspecified"
+                                |}
+                                |""".stripMargin)
                 )
               )
             }
