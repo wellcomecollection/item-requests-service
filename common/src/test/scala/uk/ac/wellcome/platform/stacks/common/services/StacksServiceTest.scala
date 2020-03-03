@@ -62,6 +62,42 @@ class StacksServiceTest
             }
         }
       }
+
+      it("should error in requesting a hold from Sierra errors") {
+        withStacksService {
+          case (stacksService, wireMockServer) =>
+            val stacksUserIdentifier = StacksUserIdentifier("1234567")
+            val catalogueItemIdentifier = CatalogueItemIdentifier("ys3ern6y")
+
+            whenReady(
+              stacksService.requestHoldOnItem(
+                userIdentifier = stacksUserIdentifier,
+                catalogueItemId = catalogueItemIdentifier,
+                neededBy = None
+              ).failed
+            ) { error =>
+
+              wireMockServer.verify(
+                1,
+                postRequestedFor(
+                  urlEqualTo(
+                    "/iii/sierra-api/v5/patrons/1234567/holds/requests"
+                  )
+                ).withRequestBody(
+                  equalToJson("""
+                                |{
+                                |  "recordType" : "i",
+                                |  "recordNumber" : 1601018,
+                                |  "pickupLocation" : "unspecified"
+                                |}
+                                |""".stripMargin)
+                )
+              )
+
+              error.getMessage should include("This record is not available")
+            }
+        }
+      }
     }
 
     describe("getStacksWork") {

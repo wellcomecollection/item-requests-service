@@ -25,7 +25,7 @@ class StacksService(
     for {
       stacksItem <- catalogueService.getStacksItem(catalogueItemId)
 
-      _ <- stacksItem match {
+      response <- stacksItem match {
         case Some(id) =>
           sierraService.placeHold(
             userIdentifier = userIdentifier,

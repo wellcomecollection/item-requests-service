@@ -2,25 +2,20 @@ package uk.ac.wellcome.platform.stacks.requests.api
 
 import akka.http.scaladsl.model.HttpHeader.ParsingResult
 import akka.http.scaladsl.model.{HttpHeader, StatusCodes}
-import com.github.tomakehurst.wiremock.client.WireMock.{
-  equalToJson,
-  postRequestedFor,
-  urlEqualTo
-}
+import com.github.tomakehurst.wiremock.client.WireMock.{equalToJson, postRequestedFor, urlEqualTo}
 import org.scalatest.concurrent.IntegrationPatience
 import org.scalatest.{FunSpec, Matchers}
+import uk.ac.wellcome.akka.fixtures.Akka
 import uk.ac.wellcome.json.utils.JsonAssertions
-import uk.ac.wellcome.platform.stacks.common.fixtures.{
-  CatalogueWireMockFixture,
-  SierraWireMockFixture
-}
+import uk.ac.wellcome.platform.stacks.common.fixtures.{CatalogueWireMockFixture, SierraWireMockFixture}
 import uk.ac.wellcome.platform.stacks.requests.api.fixtures.RequestsApiFixture
 
 class RequestsApiFeatureTest
-    extends FunSpec
+  extends FunSpec
     with Matchers
     with RequestsApiFixture
     with JsonAssertions
+    with Akka
     with CatalogueWireMockFixture
     with SierraWireMockFixture
     with IntegrationPatience {
@@ -93,14 +88,15 @@ class RequestsApiFeatureTest
                         "/iii/sierra-api/v5/patrons/1234567/holds/requests"
                       )
                     ).withRequestBody(
-                      equalToJson("""
-                  |{
-                  |  "recordType" : "i",
-                  |  "recordNumber" : 1601017,
-                  |  "pickupLocation" : "unspecified",
-                  |  "neededBy" : "2020-01-01"
-                  |}
-                  |""".stripMargin)
+                      equalToJson(
+                        """
+                          |{
+                          |  "recordType" : "i",
+                          |  "recordNumber" : 1601017,
+                          |  "pickupLocation" : "unspecified",
+                          |  "neededBy" : "2020-01-01"
+                          |}
+                          |""".stripMargin)
                     )
                   )
 
@@ -151,13 +147,14 @@ class RequestsApiFeatureTest
                         "/iii/sierra-api/v5/patrons/1234567/holds/requests"
                       )
                     ).withRequestBody(
-                      equalToJson("""
-                                    |{
-                                    |  "recordType" : "i",
-                                    |  "recordNumber" : 1601017,
-                                    |  "pickupLocation" : "unspecified"
-                                    |}
-                                    |""".stripMargin)
+                      equalToJson(
+                        """
+                          |{
+                          |  "recordType" : "i",
+                          |  "recordNumber" : 1601017,
+                          |  "pickupLocation" : "unspecified"
+                          |}
+                          |""".stripMargin)
                     )
                   )
 
@@ -169,58 +166,60 @@ class RequestsApiFeatureTest
     }
 
     it("errors when a request to place a hold fails") {
-      withMockCatalogueServer { catalogueApiUrl: String =>
-        withMockSierraServer {
-          case (sierraApiUrl, wireMockServer) =>
-            withConfiguredApp(catalogueApiUrl, sierraApiUrl) {
-              case (_, _) =>
-                val path = "/requests"
+      withMaterializer { implicit mat =>
+        withMockCatalogueServer { catalogueApiUrl: String =>
+          withMockSierraServer {
+            case (sierraApiUrl, wireMockServer) =>
+              withConfiguredApp(catalogueApiUrl, sierraApiUrl) {
+                case (_, _) =>
+                  val path = "/requests"
 
-                val headers = List(
-                  HttpHeader
-                    .parse(
-                      name = "Weco-Sierra-Patron-Id",
-                      value = "1234567"
-                    )
-                    .asInstanceOf[ParsingResult.Ok]
-                    .header
-                )
-
-                val entity = createJsonHttpEntityWith(
-                  """
-                    |{
-                    |  "item": {
-                    |    "id": "ys3ern6y",
-                    |    "type": "Item"
-                    |  },
-                    |  "type": "Request"
-                    |}
-                    |""".stripMargin
-                )
-
-                whenPostRequestReady(path, entity, headers) { response =>
-                  response.status shouldBe StatusCodes.InternalServerError
-
-                  wireMockServer.verify(
-                    1,
-                    postRequestedFor(
-                      urlEqualTo(
-                        "/iii/sierra-api/v5/patrons/1234567/holds/requests"
+                  val headers = List(
+                    HttpHeader
+                      .parse(
+                        name = "Weco-Sierra-Patron-Id",
+                        value = "1234567"
                       )
-                    ).withRequestBody(
-                      equalToJson("""
-                                    |{
-                                    |  "recordType" : "i",
-                                    |  "recordNumber" : 1601018,
-                                    |  "pickupLocation" : "unspecified"
-                                    |}
-                                    |""".stripMargin)
-                    )
+                      .asInstanceOf[ParsingResult.Ok]
+                      .header
                   )
 
-                  response.entity.isKnownEmpty() shouldBe true
-                }
-            }
+                  val entity = createJsonHttpEntityWith(
+                    """
+                      |{
+                      |  "item": {
+                      |    "id": "ys3ern6y",
+                      |    "type": "Item"
+                      |  },
+                      |  "type": "Request"
+                      |}
+                      |""".stripMargin
+                  )
+
+                  whenPostRequestReady(path, entity, headers) { response =>
+                    response.status shouldBe StatusCodes.InternalServerError
+
+                    wireMockServer.verify(
+                      1,
+                      postRequestedFor(
+                        urlEqualTo(
+                          "/iii/sierra-api/v5/patrons/1234567/holds/requests"
+                        )
+                      ).withRequestBody(
+                        equalToJson(
+                          """
+                            |{
+                            |  "recordType" : "i",
+                            |  "recordNumber" : 1601018,
+                            |  "pickupLocation" : "unspecified"
+                            |}
+                            |""".stripMargin)
+                      )
+                    )
+
+                  }
+              }
+          }
         }
       }
     }
@@ -245,31 +244,31 @@ class RequestsApiFeatureTest
 
                 val expectedJson =
                   s"""
-                 |{
-                 |  "results" : [
-                 |    {
-                 |      "item" : {
-                 |        "id" : "n5v7b4md",
-                 |        "status" : null,
-                 |        "type" : "Item"
-                 |      },
-                 |      "pickupDate" : "2019-12-03T04:00:00Z",
-                 |      "pickupLocation" : {
-                 |        "id" : "sepbb",
-                 |        "label" : "Rare Materials Room",
-                 |        "type" : "LocationDescription"
-                 |      },
-                 |      "status" : {
-                 |        "id" : "i",
-                 |        "label" : "item hold ready for pickup.",
-                 |        "type" : "RequestStatus"
-                 |      },
-                 |      "type" : "Request"
-                 |    }
-                 |  ],
-                 |  "totalResults" : 1,
-                 |  "type" : "ResultList"
-                 |}""".stripMargin
+                     |{
+                     |  "results" : [
+                     |    {
+                     |      "item" : {
+                     |        "id" : "n5v7b4md",
+                     |        "status" : null,
+                     |        "type" : "Item"
+                     |      },
+                     |      "pickupDate" : "2019-12-03T04:00:00Z",
+                     |      "pickupLocation" : {
+                     |        "id" : "sepbb",
+                     |        "label" : "Rare Materials Room",
+                     |        "type" : "LocationDescription"
+                     |      },
+                     |      "status" : {
+                     |        "id" : "i",
+                     |        "label" : "item hold ready for pickup.",
+                     |        "type" : "RequestStatus"
+                     |      },
+                     |      "type" : "Request"
+                     |    }
+                     |  ],
+                     |  "totalResults" : 1,
+                     |  "type" : "ResultList"
+                     |}""".stripMargin
 
                 whenGetRequestReady(path, headers) { response =>
                   response.status shouldBe StatusCodes.OK
