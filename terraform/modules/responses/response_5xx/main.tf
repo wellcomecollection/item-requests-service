@@ -32,5 +32,11 @@ resource "aws_api_gateway_gateway_response" "response" {
   response_templates = {
     "application/json" = replace(data.template_file.error.rendered, "\n", "")
   }
+
+  response_parameters = {
+    "gatewayresponse.header.Access-Control-Allow-Headers" = "'Content-Type,User-Agent,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+    "gatewayresponse.header.Access-Control-Allow-Methods" = "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'"
+    "gatewayresponse.header.Access-Control-Allow-Origin"  = "'*'"
+  }
 }
 
