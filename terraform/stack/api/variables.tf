@@ -1,5 +1,6 @@
 variable "name" {}
 variable "container_image" {}
+variable "nginx_image" {}
 
 variable "service_discovery_namespace_id" {}
 variable "cluster_arn" {}

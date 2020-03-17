@@ -5,6 +5,8 @@ module "items_api" {
   cluster_arn = aws_ecs_cluster.cluster.arn
 
   container_image = local.items_api_image
+  nginx_image     = local.nginx_image
+
 
   env_vars = {
     app_base_url       = "https://api.wellcomecollection.org/stacks/v1/items"
@@ -41,6 +43,7 @@ module "requests_api" {
   cluster_arn = aws_ecs_cluster.cluster.arn
 
   container_image = local.requests_api_image
+  nginx_image     = local.nginx_image
 
   env_vars = {
     app_base_url       = "https://api.wellcomecollection.org/stacks/v1/requests"
