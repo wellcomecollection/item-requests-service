@@ -26,6 +26,6 @@ data "aws_vpc" "vpc" {
 }
 
 data "aws_ssm_parameter" "nginx_image_uri" {
-  name = "/platform/images/latest/nginx_apigw"
+  name     = "/platform/images/latest/nginx_apigw"
   provider = aws.platform
 }
