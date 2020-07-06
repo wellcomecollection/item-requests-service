@@ -21,4 +21,9 @@ module "prod_stack" {
   auth_scopes = []
 
   static_content_bucket_name = module.infra.static_content_bucket_name
+
+  providers = {
+    aws.platform = aws.platform
+    aws.dns      = aws.dns
+  }
 }
