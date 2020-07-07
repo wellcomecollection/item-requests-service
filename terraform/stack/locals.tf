@@ -12,9 +12,6 @@ locals {
   requests_api_image = local.image_ids["requests_api"]
   items_api_image    = local.image_ids["items_api"]
 
-  // This is taken from the routemaster AWS account which doesn't expose it's terraform state
-  routermaster_router53_zone_id = "Z3THRVQ5VDYDMC"
-
   logstash_transit_service_name = "stacks_logstash_transit"
   logstash_host                 = "${local.logstash_transit_service_name}.${aws_service_discovery_private_dns_namespace.namespace.name}"
 
