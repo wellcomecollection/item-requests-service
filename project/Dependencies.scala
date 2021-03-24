@@ -47,16 +47,7 @@ object ExternalDependencies {
 
     val scalatest = "3.2.3"
     val wiremock = "2.18.0"
-    val logback = "1.2.3"
-    val logstashLogback = "6.1"
   }
-
-  val logbackDependencies = Seq(
-    "ch.qos.logback" % "logback-classic" % versions.logback,
-    "ch.qos.logback" % "logback-core" % versions.logback,
-    "ch.qos.logback" % "logback-access" % versions.logback,
-    "net.logstash.logback" % "logstash-logback-encoder" % versions.logstashLogback
-  )
 
   val scalatestDependencies = Seq[ModuleID](
     "org.scalatest" %% "scalatest" % versions.scalatest % "test"
@@ -75,7 +66,6 @@ object RequestsDependencies {
   val commonDependencies =
     ExternalDependencies.akkaDependencies ++
       ExternalDependencies.scalatestDependencies ++
-      ExternalDependencies.logbackDependencies ++
       ExternalDependencies.wiremockDependencies ++
       WellcomeDependencies.jsonLibrary ++
       WellcomeDependencies.monitoringLibrary ++
