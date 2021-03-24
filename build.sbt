@@ -45,3 +45,13 @@ lazy val items_api = setupProject(
   "items_api",
   localDependencies = Seq(common)
 )
+
+// AWS Credentials to read from S3
+
+s3CredentialsProvider := { _ =>
+  val builder = new STSAssumeRoleSessionCredentialsProvider.Builder(
+    "arn:aws:iam::760097843905:role/platform-ci",
+    UUID.randomUUID().toString
+  )
+  builder.build()
+}
