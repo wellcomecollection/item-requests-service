@@ -25,7 +25,7 @@ resource "aws_lb_listener" "tcp" {
 }
 
 module "service" {
-  source = "github.com/wellcomecollection/terraform-aws-ecs-service.git//service?ref=v1.1.1"
+  source = "github.com/wellcomecollection/terraform-aws-ecs-service.git//service?ref=v1.7.0"
 
   service_name = var.namespace
   cluster_arn  = var.cluster_arn
@@ -46,7 +46,7 @@ module "service" {
 }
 
 module "task" {
-  source = "github.com/wellcomecollection/terraform-aws-ecs-service.git//task_definition/container_with_sidecar?ref=v1.1.1"
+  source = "github.com/wellcomecollection/terraform-aws-ecs-service.git//task_definition/container_with_sidecar?ref=v1.7.0"
 
   task_name = var.namespace
 
