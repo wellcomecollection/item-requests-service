@@ -1,5 +1,5 @@
 output "private_subnets" {
-  value = data.terraform_remote_state.infra_shared.outputs.catalogue_vpc_private_subnets
+  value = local.private_subnets
 }
 
 output "vpc_id" {
