@@ -24,7 +24,11 @@ import uk.ac.wellcome.platform.stacks.items.api.ItemsApi
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
 
-trait ItemsApiFixture extends CatalogueWireMockFixture with ScalaFutures with HttpFixtures with SierraWireMockFixture {
+trait ItemsApiFixture
+    extends CatalogueWireMockFixture
+    with ScalaFutures
+    with HttpFixtures
+    with SierraWireMockFixture {
 
   val metricsName = "ItemsApiFixture"
 
@@ -80,12 +84,13 @@ trait ItemsApiFixture extends CatalogueWireMockFixture with ScalaFutures with Ht
 
   def withApp[R](testWith: TestWith[WireMockServer, R]): R =
     withMockCatalogueServer { catalogueApiUrl: String =>
-      withMockSierraServer { case (sierraApiUrl, server) =>
-        val metrics = new MemoryMetrics()
+      withMockSierraServer {
+        case (sierraApiUrl, server) =>
+          val metrics = new MemoryMetrics()
 
-        withApp(catalogueApiUrl, sierraApiUrl, metrics) { _ =>
-          testWith(server)
-        }
+          withApp(catalogueApiUrl, sierraApiUrl, metrics) { _ =>
+            testWith(server)
+          }
       }
     }
 }

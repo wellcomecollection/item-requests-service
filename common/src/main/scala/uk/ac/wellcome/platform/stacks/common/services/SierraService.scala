@@ -18,7 +18,8 @@ case class HoldRejected(lastModified: Instant = Instant.now())
 
 class SierraService(
   sierraSource: SierraSource
-)(implicit ec: ExecutionContext) extends Logging {
+)(implicit ec: ExecutionContext)
+    extends Logging {
 
   import SierraSource._
 
@@ -48,7 +49,7 @@ class SierraService(
         warn(s"Unrecognised hold error: $result")
         HoldRejected()
 
-      case Right(_)                                 => HoldAccepted()
+      case Right(_) => HoldAccepted()
     }
 
   protected def buildStacksHold(
