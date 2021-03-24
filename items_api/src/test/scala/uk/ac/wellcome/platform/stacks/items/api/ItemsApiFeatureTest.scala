@@ -5,10 +5,6 @@ import org.scalatest.concurrent.IntegrationPatience
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
 import uk.ac.wellcome.json.utils.JsonAssertions
-import uk.ac.wellcome.platform.stacks.common.fixtures.{
-  CatalogueWireMockFixture,
-  SierraWireMockFixture
-}
 import uk.ac.wellcome.platform.stacks.items.api.fixtures.ItemsApiFixture
 
 class ItemsApiFeatureTest
@@ -16,45 +12,37 @@ class ItemsApiFeatureTest
     with Matchers
     with ItemsApiFixture
     with JsonAssertions
-    with CatalogueWireMockFixture
-    with SierraWireMockFixture
     with IntegrationPatience {
 
   describe("items") {
     it("shows a user the items on a work") {
-      withMockCatalogueServer { catalogueApiUrl: String =>
-        withMockSierraServer {
-          case (sierraApiUrl, _) =>
-            withConfiguredApp(catalogueApiUrl, sierraApiUrl) {
-              case (_, _) =>
-                val path = "/works/cnkv77md"
+      withApp { _ =>
+        val path = "/works/cnkv77md"
 
-                val expectedJson =
-                  s"""
-                   |{
-                   |  "id" : "cnkv77md",
-                   |  "items" : [
-                   |    {
-                   |      "id" : "ys3ern6x",
-                   |      "status" : {
-                   |        "id" : "available",
-                   |        "label" : "Available",
-                   |        "type": "ItemStatus"
-                   |      },
-                   |      "type": "Item"
-                   |    }
-                   |  ],
-                   |  "type": "Work"
-                   |}""".stripMargin
+        val expectedJson =
+          s"""
+             |{
+             |  "id" : "cnkv77md",
+             |  "items" : [
+             |    {
+             |      "id" : "ys3ern6x",
+             |      "status" : {
+             |        "id" : "available",
+             |        "label" : "Available",
+             |        "type": "ItemStatus"
+             |      },
+             |      "type": "Item"
+             |    }
+             |  ],
+             |  "type": "Work"
+             |}""".stripMargin
 
-                whenGetRequestReady(path) { response =>
-                  response.status shouldBe StatusCodes.OK
+        whenGetRequestReady(path) { response =>
+          response.status shouldBe StatusCodes.OK
 
-                  withStringEntity(response.entity) { actualJson =>
-                    assertJsonStringsAreEqual(actualJson, expectedJson)
-                  }
-                }
-            }
+          withStringEntity(response.entity) { actualJson =>
+            assertJsonStringsAreEqual(actualJson, expectedJson)
+          }
         }
       }
     }
