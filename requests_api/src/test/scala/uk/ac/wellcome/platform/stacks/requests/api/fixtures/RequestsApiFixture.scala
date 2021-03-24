@@ -19,9 +19,7 @@ import uk.ac.wellcome.platform.stacks.requests.api.RequestsApi
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
 
-trait RequestsApiFixture
-    extends ScalaFutures
-    with HttpFixtures {
+trait RequestsApiFixture extends ScalaFutures with HttpFixtures {
 
   val metricsName = "RequestsApiFixture"
 

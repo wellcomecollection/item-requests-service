@@ -19,9 +19,7 @@ import uk.ac.wellcome.platform.stacks.items.api.ItemsApi
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
 
-trait ItemsApiFixture
-    extends ScalaFutures
-    with HttpFixtures {
+trait ItemsApiFixture extends ScalaFutures with HttpFixtures {
 
   val metricsName = "ItemsApiFixture"
 
