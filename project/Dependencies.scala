@@ -45,7 +45,7 @@ object ExternalDependencies {
   lazy val versions = new {
     val akkaHttpCirce = "1.32.0"
 
-    val scalatest = "3.0.1"
+    val scalatest = "3.2.3"
     val wiremock = "2.18.0"
     val logback = "1.2.3"
     val logstashLogback = "6.1"
