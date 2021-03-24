@@ -15,14 +15,12 @@ locals {
   logstash_transit_service_name = "stacks_logstash_transit"
   logstash_host                 = "${local.logstash_transit_service_name}.${aws_service_discovery_private_dns_namespace.namespace.name}"
 
-  nginx_image = data.aws_ssm_parameter.nginx_image_uri.value
+  # TODO: This is hard-coded so that Terraform will do a no-op plan,
+  # but we should come back and update this to use our latest approach
+  # like the catalogue API at some point.
+  nginx_image = "760097843905.dkr.ecr.eu-west-1.amazonaws.com/uk.ac.wellcome/nginx_apigw:f1188c2a7df01663dd96c99b26666085a4192167"
 }
 
 data "aws_vpc" "vpc" {
   id = var.vpc_id
-}
-
-data "aws_ssm_parameter" "nginx_image_uri" {
-  name     = "/platform/images/latest/nginx_apigw"
-  provider = aws.platform
 }
