@@ -11,7 +11,6 @@ import akka.http.scaladsl.model.headers.{
   OAuth2BearerToken
 }
 import akka.http.scaladsl.unmarshalling.{Unmarshal, Unmarshaller}
-import akka.stream.ActorMaterializer
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
 
@@ -24,7 +23,6 @@ trait AkkaClient {
   case class FailureResponse[T](content: Option[T]) extends Response[T]
 
   implicit val system: ActorSystem
-  implicit val mat: ActorMaterializer
 
   implicit val ec: ExecutionContextExecutor = system.dispatcher
 

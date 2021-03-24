@@ -37,46 +37,44 @@ trait ItemsApiFixture
     metrics: MemoryMetrics[Unit]
   )(testWith: TestWith[WellcomeHttpApp, R]): R =
     withActorSystem { implicit actorSystem =>
-      withMaterializer(actorSystem) { implicit mat =>
-        val httpMetrics = new HttpMetrics(
-          name = metricsName,
-          metrics = metrics
-        )
+      val httpMetrics = new HttpMetrics(
+        name = metricsName,
+        metrics = metrics
+      )
 
-        val sierraServiceConfig = SierraServiceConfig(
-          baseUrl = f"$sierraApiUrl/iii/sierra-api",
-          username = "username",
-          password = "password"
-        )
+      val sierraServiceConfig = SierraServiceConfig(
+        baseUrl = f"$sierraApiUrl/iii/sierra-api",
+        username = "username",
+        password = "password"
+      )
 
-        val catalogueServiceConfig =
-          CatalogueServiceConfig(s"$catalogueApiUrl/catalogue/v2")
+      val catalogueServiceConfig =
+        CatalogueServiceConfig(s"$catalogueApiUrl/catalogue/v2")
 
-        val stacksService: StacksService =
-          new StacksServiceBuilder().buildT(
-            StacksServiceConfig(
-              catalogueServiceConfig,
-              sierraServiceConfig
-            )
+      val stacksService: StacksService =
+        new StacksServiceBuilder().buildT(
+          StacksServiceConfig(
+            catalogueServiceConfig,
+            sierraServiceConfig
           )
-
-        val router: ItemsApi = new ItemsApi {
-          override implicit val ec: ExecutionContext = global
-          override implicit val stacksWorkService: StacksService = stacksService
-        }
-
-        val app = new WellcomeHttpApp(
-          routes = router.routes,
-          httpMetrics = httpMetrics,
-          httpServerConfig = httpServerConfigTest,
-          contextURL = contextURLTest,
-          appName = metricsName
         )
 
-        app.run()
-
-        testWith(app)
+      val router: ItemsApi = new ItemsApi {
+        override implicit val ec: ExecutionContext = global
+        override implicit val stacksWorkService: StacksService = stacksService
       }
+
+      val app = new WellcomeHttpApp(
+        routes = router.routes,
+        httpMetrics = httpMetrics,
+        httpServerConfig = httpServerConfigTest,
+        contextURL = contextURLTest,
+        appName = metricsName
+      )
+
+      app.run()
+
+      testWith(app)
     }
 
   def withConfiguredApp[R](

@@ -3,7 +3,6 @@ package uk.ac.wellcome.platform.stacks.items.api
 import java.net.URL
 
 import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
 import com.typesafe.config.Config
 import uk.ac.wellcome.monitoring.typesafe.MetricsBuilder
 import uk.ac.wellcome.platform.stacks.common.http.config.builders.HTTPServerBuilder
@@ -22,9 +21,6 @@ object Main extends WellcomeTypesafeApp {
 
     implicit val ecMain: ExecutionContext =
       AkkaBuilder.buildExecutionContext()
-
-    implicit val amMain: ActorMaterializer =
-      AkkaBuilder.buildActorMaterializer()
 
     val workService: StacksService =
       new StacksServiceBuilder().build(config)

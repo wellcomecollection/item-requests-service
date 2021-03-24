@@ -7,7 +7,6 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.model.Uri.Path
 import akka.http.scaladsl.model.headers.{Authorization, BasicHttpCredentials}
-import akka.stream.ActorMaterializer
 import io.circe.{Encoder, Printer}
 import uk.ac.wellcome.platform.stacks.common.http.{
   AkkaClientGet,
@@ -94,8 +93,7 @@ class AkkaSierraSource(
   credentials: BasicHttpCredentials
 )(
   implicit
-  val system: ActorSystem,
-  val mat: ActorMaterializer
+  val system: ActorSystem
 ) extends SierraSource
     with AkkaClientGet
     with AkkaClientPost

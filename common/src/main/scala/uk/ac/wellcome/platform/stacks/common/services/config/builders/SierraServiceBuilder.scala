@@ -3,7 +3,6 @@ package uk.ac.wellcome.platform.stacks.common.services.config.builders
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.model.headers.BasicHttpCredentials
-import akka.stream.ActorMaterializer
 import com.typesafe.config.Config
 import uk.ac.wellcome.platform.stacks.common.config.TypesafeBuilder
 import uk.ac.wellcome.platform.stacks.common.services.SierraService
@@ -14,8 +13,7 @@ import uk.ac.wellcome.typesafe.config.builders.EnrichConfig._
 import scala.concurrent.ExecutionContext
 
 class SierraServiceBuilder()(
-  implicit am: ActorMaterializer,
-  as: ActorSystem,
+  implicit as: ActorSystem,
   ec: ExecutionContext
 ) extends TypesafeBuilder[SierraService, SierraServiceConfig] {
 

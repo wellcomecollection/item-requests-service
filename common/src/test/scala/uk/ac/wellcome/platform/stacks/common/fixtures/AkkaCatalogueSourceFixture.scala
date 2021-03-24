@@ -10,12 +10,10 @@ trait AkkaCatalogueSourceFixture extends CatalogueWireMockFixture with Akka {
     testWith: TestWith[AkkaCatalogueSource, R]
   ): R =
     withActorSystem { implicit actorSystem =>
-      withMaterializer(actorSystem) { implicit materializer =>
-        withMockCatalogueServer { baseUrl =>
-          testWith(
-            new AkkaCatalogueSource(baseUri = Uri(s"$baseUrl/catalogue/v2"))
-          )
-        }
+      withMockCatalogueServer { baseUrl =>
+        testWith(
+          new AkkaCatalogueSource(baseUri = Uri(s"$baseUrl/catalogue/v2"))
+        )
       }
     }
 }
