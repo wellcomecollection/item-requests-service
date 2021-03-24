@@ -25,10 +25,8 @@ module "api" {
   lb_arn        = var.nlb_arn
   listener_port = var.nlb_port
 
-  nginx_cpu    = 1024
-  nginx_memory = 2048
-  app_cpu      = 1024
-  app_memory   = 2048
+  cpu    = 1024
+  memory = 2048
 
   desired_task_count = 3
 }
