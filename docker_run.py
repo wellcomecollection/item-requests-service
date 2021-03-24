@@ -115,6 +115,13 @@ def parse_args():
         const=True,
         help="Whether to expose the name of the root folder of the repository in the host",
     )
+    parser.add_argument(
+        "--ci-env",
+        dest="expose_ci_env_variable",
+        action="store_const",
+        const=True,
+        help="Whether to expose the BUILDKITE_BUILD_NUMBER",
+    )
     return parser.parse_known_args()
 
 
@@ -133,9 +140,30 @@ if __name__ == "__main__":
     if namespace.docker_in_docker:
         cmd += ["--volume", "/var/run/docker.sock:/var/run/docker.sock"]
 
+        # Mount the ~/.docker directory inside the container, so auth is
+        # available inside the container.
+        # In particular, auth that lets us talk to ECR.
+        cmd += ["--volume", "%s/.docker:/root/.docker" % os.environ["HOME"]]
+
     if namespace.share_sbt_dirs:
         cmd += ["--volume", "%s/.sbt:/root/.sbt" % os.environ["HOME"]]
         cmd += ["--volume", "%s/.ivy2:/root/.ivy2" % os.environ["HOME"]]
+
+        # Coursier cache location is platform-dependent
+        # https://get-coursier.io/docs/cache.html#default-location
+        linux_coursier_cache = ".cache/coursier/v1"
+        if sys.platform == "darwin":
+            cmd += [
+                "--volume",
+                "%s/Library/Caches/Coursier/v1:/root/%s"
+                % (os.environ["HOME"], linux_coursier_cache),
+            ]
+        else:
+            cmd += [
+                "--volume",
+                "%s/%s:/root/%s"
+                % (os.environ["HOME"], linux_coursier_cache, linux_coursier_cache),
+            ]
 
         if not namespace.share_aws_creds:
             cmd += _aws_credentials_args()
@@ -143,9 +171,15 @@ if __name__ == "__main__":
     if namespace.expose_host_root_folder:
         cmd += ["-e", "ROOT=%s" % ROOT]
 
-    if additional_args[0] == "--":
-        additional_args = additional_args[1:]
-    cmd += additional_args
+    if namespace.expose_ci_env_variable:
+        cmd += ["-e", "BUILDKITE_BUILD_NUMBER"]
+
+    try:
+        if additional_args[0] == "--":
+            additional_args = additional_args[1:]
+        cmd += additional_args
+    except IndexError:
+        assert additional_args == []
 
     try:
         print("*** Running %r" % " ".join(cmd))
