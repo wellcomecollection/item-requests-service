@@ -120,10 +120,11 @@ class AkkaSierraSource(
         path = Path(s"v5/items/${sierraId.value}"),
         headers = List(Authorization(token))
       )
-    } yield item match {
-      case SuccessResponse(Some(holds)) => holds
-      case _                            => throw new Exception(s"Failed to get item!")
-    }
+    } yield
+      item match {
+        case SuccessResponse(Some(holds)) => holds
+        case _                            => throw new Exception(s"Failed to get item!")
+      }
 
   // See https://sandbox.iii.com/iii/sierra-api/swagger/index.html#!/patrons
   def getSierraUserHoldsStub(
@@ -139,10 +140,11 @@ class AkkaSierraSource(
         ),
         headers = List(Authorization(token))
       )
-    } yield response match {
-      case SuccessResponse(Some(holds)) => holds
-      case _                            => throw new Exception(s"Failed to get user holds!")
-    }
+    } yield
+      response match {
+        case SuccessResponse(Some(holds)) => holds
+        case _                            => throw new Exception(s"Failed to get user holds!")
+      }
 
   private val dateTimeFormatter = DateTimeFormatter
     .ofPattern("yyyy-MM-dd")
@@ -172,12 +174,13 @@ class AkkaSierraSource(
         ),
         headers = List(Authorization(token))
       )
-    } yield response match {
-      case SuccessResponse(_)                     => Right(())
-      case FailureResponse(Some(sierraErrorCode)) => Left(sierraErrorCode)
-      case _ =>
-        throw new Exception(
-          s"Failed to make hold!"
-        )
-    }
+    } yield
+      response match {
+        case SuccessResponse(_)                     => Right(())
+        case FailureResponse(Some(sierraErrorCode)) => Left(sierraErrorCode)
+        case _ =>
+          throw new Exception(
+            s"Failed to make hold!"
+          )
+      }
 }

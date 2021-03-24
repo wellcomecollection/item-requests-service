@@ -78,12 +78,13 @@ class CatalogueService(
       // Items can appear on multiple works in a search result
       distinctFilteredItems = filteredItems.distinct
 
-    } yield distinctFilteredItems match {
-      case List(item) => Some(item)
-      case Nil        => None
-      case _ =>
-        throw new Exception(
-          s"Found multiple matching items for $identifier in: $distinctFilteredItems"
-        )
-    }
+    } yield
+      distinctFilteredItems match {
+        case List(item) => Some(item)
+        case Nil        => None
+        case _ =>
+          throw new Exception(
+            s"Found multiple matching items for $identifier in: $distinctFilteredItems"
+          )
+      }
 }

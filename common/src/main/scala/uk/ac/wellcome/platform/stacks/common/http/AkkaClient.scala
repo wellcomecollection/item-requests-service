@@ -62,10 +62,11 @@ trait AkkaClientGet extends AkkaClient {
         case _                     => Unmarshal(response).to[Out].map(Some(_))
       }
 
-    } yield response.status match {
-      case r if r.isSuccess() => SuccessResponse(result)
-      case _                  => FailureResponse(result)
-    }
+    } yield
+      response.status match {
+        case r if r.isSuccess() => SuccessResponse(result)
+        case _                  => FailureResponse(result)
+      }
 }
 
 trait AkkaClientPost extends AkkaClient {
@@ -99,10 +100,11 @@ trait AkkaClientPost extends AkkaClient {
         case _                     => Unmarshal(response).to[Out].map(Some(_))
       }
 
-    } yield response.status match {
-      case r if r.isSuccess() => SuccessResponse(result)
-      case _                  => FailureResponse(result)
-    }
+    } yield
+      response.status match {
+        case r if r.isSuccess() => SuccessResponse(result)
+        case _                  => FailureResponse(result)
+      }
 }
 
 trait AkkaClientTokenExchange extends AkkaClientPost {
