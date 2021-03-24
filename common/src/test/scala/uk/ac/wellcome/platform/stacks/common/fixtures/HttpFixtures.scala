@@ -12,8 +12,8 @@ import akka.http.scaladsl.model.{
 }
 import akka.stream.scaladsl.Sink
 import io.circe.parser._
-import org.scalatest.Matchers
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.matchers.should.Matchers
 import uk.ac.wellcome.akka.fixtures.Akka
 import uk.ac.wellcome.fixtures.TestWith
 import uk.ac.wellcome.platform.stacks.common.http.config.models.HTTPServerConfig

@@ -1,7 +1,8 @@
 package uk.ac.wellcome.platform.stacks.common.services.source
 
-import org.scalatest.{FunSpec, Matchers}
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 import uk.ac.wellcome.fixtures.TestWith
 import uk.ac.wellcome.platform.stacks.common.models.{
   SierraItemIdentifier,
@@ -10,7 +11,7 @@ import uk.ac.wellcome.platform.stacks.common.models.{
 import uk.ac.wellcome.platform.stacks.common.services.source.CatalogueSource._
 
 trait CatalogueSourceTestCases[CatalogueSourceImpl <: CatalogueSource]
-    extends FunSpec
+    extends AnyFunSpec
     with Matchers
     with ScalaFutures {
   def withCatalogueSource[R](testWith: TestWith[CatalogueSourceImpl, R]): R
