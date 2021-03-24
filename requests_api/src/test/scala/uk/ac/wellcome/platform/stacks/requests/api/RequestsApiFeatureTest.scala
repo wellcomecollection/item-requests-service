@@ -10,7 +10,6 @@ import com.github.tomakehurst.wiremock.client.WireMock.{
 import org.scalatest.concurrent.IntegrationPatience
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
-import uk.ac.wellcome.akka.fixtures.Akka
 import uk.ac.wellcome.json.utils.JsonAssertions
 import uk.ac.wellcome.platform.stacks.common.fixtures.{
   CatalogueWireMockFixture,
@@ -23,7 +22,6 @@ class RequestsApiFeatureTest
     with Matchers
     with RequestsApiFixture
     with JsonAssertions
-    with Akka
     with CatalogueWireMockFixture
     with SierraWireMockFixture
     with IntegrationPatience {
