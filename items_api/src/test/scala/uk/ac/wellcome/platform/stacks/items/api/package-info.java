@@ -1,1 +1,0 @@
-package uk.ac.wellcome.platform.stacks.items.api;
