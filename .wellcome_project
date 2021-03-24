@@ -1,17 +1,13 @@
-{
-  "stacks": {
-    "environments": [
-      {
-        "id": "stage",
-        "name": "Staging"
-      },
-      {
-        "id": "prod",
-        "name": "Production"
-      }
-    ],
-    "name": "Stacks service",
-    "role_arn": "arn:aws:iam::756629837203:role/catalogue-developer",
-    "github_repository": "wellcometrust/stacks-service"
-  }
-}
+stacks:
+  environments:
+    - id: stage
+      name: Staging
+    - id: prod
+      name: Production
+  image_repositories:
+    - id: items_api
+    - id: requests_api
+  name: Stacks
+  account_id: '756629837203'
+  role_arn: arn:aws:iam::756629837203:role/catalogue-ci
+  aws_region_name: eu-west-1
