@@ -1,14 +1,14 @@
 ROOT = $(shell git rev-parse --show-toplevel)
-
-ifneq ($(TRAVIS),true)
-DEV_ROLE_ARN := arn:aws:iam::756629837203:role/catalogue-developer
-endif
-
-
 INFRA_BUCKET = wellcomecollection-catalogue-infra-delta
 
+ECR_REGISTRY = 760097843905.dkr.ecr.eu-west-1.amazonaws.com
 
-include $(ROOT)/makefiles/terraform.Makefile
+LAMBDA_UPLOAD_BUCKET ?= wellcomecollection-catalogue-infra-delta
+LAMBDA_PUBLISH_ROLE_ARN ?= arn:aws:iam::756629837203:role/catalogue-developer
+
+ifneq ($(CI),true)
+DEV_ROLE_ARN := arn:aws:iam::760097843905:role/catalogue-developer
+endif
 
 
 # Publish a ZIP file containing a Lambda definition to S3.
@@ -18,26 +18,26 @@ include $(ROOT)/makefiles/terraform.Makefile
 #
 define publish_lambda
     $(ROOT)/docker_run.py --aws --root -- \
-        wellcome/publish_lambda:14 \
-        "$(1)" --key="lambdas/$(1).zip" --bucket="$(INFRA_BUCKET)" --sns-topic="arn:aws:sns:eu-west-1:760097843905:lambda_pushes"
+        $(ECR_REGISTRY)/wellcome/publish_lambda:130 \
+        "$(1)" --key="lambdas/$(1).zip" \
+		--bucket="$(LAMBDA_UPLOAD_BUCKET)" \
+		--role-arn="$(LAMBDA_PUBLISH_ROLE_ARN)" \
+		--sns-topic="arn:aws:sns:eu-west-1:760097843905:lambda_pushes"
 endef
 
 
 # Test a Python project.
-#
+# Tox workdir override is to prevent the volume mount from being hammered
 # Args:
 #   $1 - Path to the Python project's directory, relative to the root
 #        of the repo.
 #
 define test_python
-	$(ROOT)/docker_run.py --aws --dind -- \
-		wellcome/build_test_python $(1)
-
-	$(ROOT)/docker_run.py --aws --dind -- \
-		--net=host \
-		--volume $(ROOT)/shared_conftest.py:/conftest.py \
-		--workdir $(ROOT)/$(1) --tty \
-		wellcome/test_python_$(shell basename $(1)):latest
+	$(ROOT)/docker_run.py --dind --root -- \
+	    --workdir $(ROOT)/$(1) \
+	    --tty \
+		wellcome/tox:latest \
+		    --workdir /tmp/.tox
 endef
 
 
@@ -50,7 +50,7 @@ endef
 define build_image
 	$(ROOT)/docker_run.py \
 	    --dind -- \
-	    wellcome/image_builder:23 \
+	    $(ECR_REGISTRY)/wellcome/image_builder:23 \
             --project=$(1) \
             --file=$(2)
 endef
@@ -66,15 +66,12 @@ endef
 #
 define publish_service
 	$(ROOT)/docker_run.py \
-	    --aws --dind -- \
-	    wellcome/publish_service:86 \
-	    	--service_id="$(1)" \
-	        --project_id=$(2) \
-	        --account_id=$(3) \
-	        --region_id=eu-west-1 \
-	        --namespace=uk.ac.wellcome \
-	        --role_arn="$(DEV_ROLE_ARN)" \
-	        --label=latest
+    	    --aws --dind -- \
+                $(ECR_REGISTRY)/wellcome/weco-deploy:5.6.10 \
+                --project-id="$(2)" \
+                --verbose \
+                publish \
+                --image-id="$(1)"
 endef
 
 
@@ -86,7 +83,7 @@ endef
 define sbt_test
 	$(ROOT)/docker_run.py --dind --sbt --root -- \
 		--net host \
-		wellcome/sbt_wrapper:edge \
+		$(ECR_REGISTRY)/wellcome/sbt_wrapper \
 		"project $(1)" ";dockerComposeUp;test;dockerComposeStop"
 endef
 
@@ -98,7 +95,7 @@ endef
 define sbt_test_no_docker
 	$(ROOT)/docker_run.py --dind --sbt --root -- \
 		--net host \
-		wellcome/sbt_wrapper:edge \
+		$(ECR_REGISTRY)/wellcome/sbt_wrapper \
 		"project $(1)" "test"
 endef
 
@@ -109,8 +106,8 @@ endef
 #   $1 - Name of the project.
 #
 define sbt_build
-	$(ROOT)/docker_run.py --sbt --root -- \
-		wellcome/sbt_wrapper:edge \
+	$(ROOT)/docker_run.py --sbt --root --ci-env -- \
+		$(ECR_REGISTRY)/wellcome/sbt_wrapper \
 		"project $(1)" ";stage"
 endef
 
@@ -123,7 +120,7 @@ endef
 define docker_compose_up
 	$(ROOT)/docker_run.py --dind --sbt --root -- \
 		--net host \
-		wellcome/sbt_wrapper:edge \
+		$(ECR_REGISTRY)/wellcome/sbt_wrapper \
 		"project $(1)" "dockerComposeUp"
 endef
 
@@ -136,7 +133,7 @@ endef
 define docker_compose_down
 	$(ROOT)/docker_run.py --dind --sbt --root -- \
 		--net host \
-		wellcome/sbt_wrapper:edge \
+		$(ECR_REGISTRY)/wellcome/sbt_wrapper \
 		"project $(1)" "dockerComposeDown"
 endef
 
@@ -160,7 +157,6 @@ $(1)-build:
 $(1)-publish: $(1)-build
 	$(call publish_service,$(1),$(3),$(4),$(5))
 endef
-
 
 
 define __sbt_no_docker_target_template
@@ -263,8 +259,10 @@ define __python_ssm_target
 $(1)-build:
 	$(call build_image,$(1),$(2))
 
+ifeq ($(filter $(1),$(TEST_OVERRIDE)),)
 $(1)-test:
 	$(call test_python,$(STACK_ROOT)/$(1))
+endif
 
 $(1)-publish: $(1)-build
 	$(call publish_service,$(1),$(3),$(4),$(5))
@@ -281,9 +279,6 @@ endef
 #	$SBT_NO_DOCKER_LIBRARIES   A space delimited list of sbt libraries  in this stack that use docker compose for tests
 #	$PYTHON_APPS              A space delimited list of ECS services
 #	$LAMBDAS                A space delimited list of Lambdas in this stack
-#
-#	$TF_NAME                Name of the associated Terraform stack
-#	$TF_PATH                Path to the associated Terraform stack
 #
 define stack_setup
 
@@ -304,5 +299,4 @@ $(foreach library,$(SBT_DOCKER_LIBRARIES),$(eval $(call __sbt_library_docker_tem
 $(foreach library,$(SBT_NO_DOCKER_LIBRARIES),$(eval $(call __sbt_library_template,$(library))))
 $(foreach task,$(PYTHON_APPS),$(eval $(call __python_ssm_target,$(task),$(STACK_ROOT)/$(task)/Dockerfile,$(PROJECT_ID),$(ACCOUNT_ID))))
 $(foreach lamb,$(LAMBDAS),$(eval $(call __lambda_target_template,$(lamb),$(STACK_ROOT)/$(lamb))))
-$(foreach name,$(TF_NAME),$(eval $(call __terraform_target_template,$(TF_NAME),$(TF_PATH))))
 endef
