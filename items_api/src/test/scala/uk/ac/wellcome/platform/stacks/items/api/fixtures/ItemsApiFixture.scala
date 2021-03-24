@@ -4,7 +4,6 @@ import java.net.URL
 
 import org.scalatest.concurrent.ScalaFutures
 import uk.ac.wellcome.fixtures.TestWith
-import uk.ac.wellcome.monitoring.fixtures.MetricsSenderFixture
 import uk.ac.wellcome.monitoring.memory.MemoryMetrics
 import uk.ac.wellcome.platform.stacks.common.fixtures.HttpFixtures
 import uk.ac.wellcome.platform.stacks.common.http.{HttpMetrics, WellcomeHttpApp}
@@ -22,8 +21,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 trait ItemsApiFixture
     extends ScalaFutures
-    with HttpFixtures
-    with MetricsSenderFixture {
+    with HttpFixtures {
 
   val metricsName = "ItemsApiFixture"
 
@@ -34,7 +32,7 @@ trait ItemsApiFixture
   private def withApp[R](
     catalogueApiUrl: String,
     sierraApiUrl: String,
-    metrics: MemoryMetrics[Unit]
+    metrics: MemoryMetrics
   )(testWith: TestWith[WellcomeHttpApp, R]): R =
     withActorSystem { implicit actorSystem =>
       val httpMetrics = new HttpMetrics(
@@ -81,9 +79,9 @@ trait ItemsApiFixture
     catalogueApiUrl: String,
     sierraApiUrl: String
   )(
-    testWith: TestWith[(MemoryMetrics[Unit], String), R]
+    testWith: TestWith[(MemoryMetrics, String), R]
   ): R = {
-    val metrics = new MemoryMetrics[Unit]()
+    val metrics = new MemoryMetrics()
 
     withApp(catalogueApiUrl, sierraApiUrl, metrics) { _ =>
       testWith((metrics, httpServerConfigTest.externalBaseURL))

@@ -4,7 +4,7 @@ import java.net.URL
 
 import akka.actor.ActorSystem
 import com.typesafe.config.Config
-import uk.ac.wellcome.monitoring.typesafe.MetricsBuilder
+import uk.ac.wellcome.monitoring.typesafe.CloudWatchBuilder
 import uk.ac.wellcome.platform.stacks.common.http.config.builders.HTTPServerBuilder
 import uk.ac.wellcome.platform.stacks.common.http.{HttpMetrics, WellcomeHttpApp}
 import uk.ac.wellcome.platform.stacks.common.services.StacksService
@@ -36,7 +36,7 @@ object Main extends WellcomeTypesafeApp {
       routes = router.routes,
       httpMetrics = new HttpMetrics(
         name = appName,
-        metrics = MetricsBuilder.buildMetricsSender(config)
+        metrics = CloudWatchBuilder.buildCloudWatchMetrics(config)
       ),
       httpServerConfig = HTTPServerBuilder.buildHTTPServerConfig(config),
       contextURL =
