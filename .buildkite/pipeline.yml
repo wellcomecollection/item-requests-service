@@ -4,3 +4,8 @@ steps:
   - wait
   - command: .buildkite/scripts/run_job.py common
     label: "common"
+  - wait
+  - command: .buildkite/scripts/run_job.py items_api
+    label: "items API"
+  - command: .buildkite/scripts/run_job.py requests_api
+    label: "requests API"
