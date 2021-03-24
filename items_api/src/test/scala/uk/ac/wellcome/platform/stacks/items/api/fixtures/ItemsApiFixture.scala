@@ -1,11 +1,16 @@
 package uk.ac.wellcome.platform.stacks.items.api.fixtures
 
-import java.net.URL
+import com.github.tomakehurst.wiremock.WireMockServer
 
+import java.net.URL
 import org.scalatest.concurrent.ScalaFutures
 import uk.ac.wellcome.fixtures.TestWith
 import uk.ac.wellcome.monitoring.memory.MemoryMetrics
-import uk.ac.wellcome.platform.stacks.common.fixtures.HttpFixtures
+import uk.ac.wellcome.platform.stacks.common.fixtures.{
+  CatalogueWireMockFixture,
+  HttpFixtures,
+  SierraWireMockFixture
+}
 import uk.ac.wellcome.platform.stacks.common.http.{HttpMetrics, WellcomeHttpApp}
 import uk.ac.wellcome.platform.stacks.common.services.StacksService
 import uk.ac.wellcome.platform.stacks.common.services.config.builders.StacksServiceBuilder
@@ -19,7 +24,11 @@ import uk.ac.wellcome.platform.stacks.items.api.ItemsApi
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
 
-trait ItemsApiFixture extends ScalaFutures with HttpFixtures {
+trait ItemsApiFixture
+    extends CatalogueWireMockFixture
+    with ScalaFutures
+    with HttpFixtures
+    with SierraWireMockFixture {
 
   val metricsName = "ItemsApiFixture"
 
@@ -73,16 +82,15 @@ trait ItemsApiFixture extends ScalaFutures with HttpFixtures {
       testWith(app)
     }
 
-  def withConfiguredApp[R](
-    catalogueApiUrl: String,
-    sierraApiUrl: String
-  )(
-    testWith: TestWith[(MemoryMetrics, String), R]
-  ): R = {
-    val metrics = new MemoryMetrics()
+  def withApp[R](testWith: TestWith[WireMockServer, R]): R =
+    withMockCatalogueServer { catalogueApiUrl: String =>
+      withMockSierraServer {
+        case (sierraApiUrl, server) =>
+          val metrics = new MemoryMetrics()
 
-    withApp(catalogueApiUrl, sierraApiUrl, metrics) { _ =>
-      testWith((metrics, httpServerConfigTest.externalBaseURL))
+          withApp(catalogueApiUrl, sierraApiUrl, metrics) { _ =>
+            testWith(server)
+          }
+      }
     }
-  }
 }

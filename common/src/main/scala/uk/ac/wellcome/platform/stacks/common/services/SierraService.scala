@@ -2,6 +2,7 @@ package uk.ac.wellcome.platform.stacks.common.services
 
 import java.time.Instant
 
+import grizzled.slf4j.Logging
 import uk.ac.wellcome.platform.stacks.common.models._
 import uk.ac.wellcome.platform.stacks.common.services.source.SierraSource
 
@@ -17,7 +18,8 @@ case class HoldRejected(lastModified: Instant = Instant.now())
 
 class SierraService(
   sierraSource: SierraSource
-)(implicit ec: ExecutionContext) {
+)(implicit ec: ExecutionContext)
+    extends Logging {
 
   import SierraSource._
 
@@ -42,7 +44,12 @@ class SierraService(
       // This is an "XCirc/Record not available" error
       // See https://techdocs.iii.com/sierraapi/Content/zReference/errorHandling.htm
       case Left(SierraErrorCode(132, 2, 500, _, _)) => HoldRejected()
-      case Right(_)                                 => HoldAccepted()
+
+      case Left(result) =>
+        warn(s"Unrecognised hold error: $result")
+        HoldRejected()
+
+      case Right(_) => HoldAccepted()
     }
 
   protected def buildStacksHold(

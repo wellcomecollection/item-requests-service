@@ -22,7 +22,7 @@ class StacksServiceTest
 
   describe("StacksService") {
     describe("requestHoldOnItem") {
-      it("should request a hold from the Sierra API") {
+      it("requests a hold from the Sierra API") {
         withStacksService {
           case (stacksService, wireMockServer) =>
             val stacksUserIdentifier = StacksUserIdentifier("1234567")
@@ -61,7 +61,7 @@ class StacksServiceTest
         }
       }
 
-      it("should return a rejected hold if sierra does the same") {
+      it("returns a rejected hold if Sierra does the same") {
         withStacksService {
           case (stacksService, wireMockServer) =>
             val stacksUserIdentifier = StacksUserIdentifier("1234567")
