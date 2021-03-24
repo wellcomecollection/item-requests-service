@@ -43,7 +43,7 @@ object WellcomeDependencies {
 
 object ExternalDependencies {
   lazy val versions = new {
-    val akkaHttpCirce = "1.25.2"
+    val akkaHttpCirce = "1.32.0"
 
     val scalatest = "3.0.1"
     val wiremock = "2.18.0"
