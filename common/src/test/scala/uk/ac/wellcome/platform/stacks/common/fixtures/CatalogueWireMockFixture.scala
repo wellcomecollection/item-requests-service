@@ -6,7 +6,8 @@ import java.nio.file.{Files, Path, Paths}
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import grizzled.slf4j.Logging
-import org.scalatest.{FunSpec, Outcome}
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.Outcome
 import uk.ac.wellcome.fixtures.TestWith
 
 /** This is a Wiremock fixture for interacting with the Catalogue API.
@@ -20,7 +21,7 @@ import uk.ac.wellcome.fixtures.TestWith
   *   - Betamax (https://pypi.org/project/betamax/)
   *
   */
-trait CatalogueWireMockFixture extends FunSpec with Logging {
+trait CatalogueWireMockFixture extends AnyFunSpec with Logging {
   val baseRecordingRoot: String = "./common/src/test/resources/catalogue"
   var recordingRoot: Path = Paths.get(baseRecordingRoot)
 

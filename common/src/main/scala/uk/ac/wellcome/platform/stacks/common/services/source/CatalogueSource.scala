@@ -3,7 +3,6 @@ package uk.ac.wellcome.platform.stacks.common.services.source
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.Uri
 import akka.http.scaladsl.model.Uri.Path
-import akka.stream.ActorMaterializer
 import uk.ac.wellcome.platform.stacks.common.http.AkkaClientGet
 import uk.ac.wellcome.platform.stacks.common.models.{
   Identifier,
@@ -53,7 +52,6 @@ class AkkaCatalogueSource(
 )(
   implicit
   val system: ActorSystem,
-  val mat: ActorMaterializer
 ) extends CatalogueSource
     with AkkaClientGet {
 

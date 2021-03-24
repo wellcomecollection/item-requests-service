@@ -3,13 +3,15 @@ package uk.ac.wellcome.platform.stacks.common.services
 import java.time.Instant
 
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.{EitherValues, FunSpec, Matchers}
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.EitherValues
 import uk.ac.wellcome.platform.stacks.common.fixtures.ServicesFixture
 import uk.ac.wellcome.platform.stacks.common.models._
 import com.github.tomakehurst.wiremock.client.WireMock._
 
 class SierraServiceTest
-    extends FunSpec
+    extends AnyFunSpec
     with ServicesFixture
     with ScalaFutures
     with IntegrationPatience

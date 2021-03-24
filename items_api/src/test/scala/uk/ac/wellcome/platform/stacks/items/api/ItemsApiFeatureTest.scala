@@ -2,7 +2,8 @@ package uk.ac.wellcome.platform.stacks.items.api
 
 import akka.http.scaladsl.model.StatusCodes
 import org.scalatest.concurrent.IntegrationPatience
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 import uk.ac.wellcome.json.utils.JsonAssertions
 import uk.ac.wellcome.platform.stacks.common.fixtures.{
   CatalogueWireMockFixture,
@@ -11,7 +12,7 @@ import uk.ac.wellcome.platform.stacks.common.fixtures.{
 import uk.ac.wellcome.platform.stacks.items.api.fixtures.ItemsApiFixture
 
 class ItemsApiFeatureTest
-    extends FunSpec
+    extends AnyFunSpec
     with Matchers
     with ItemsApiFixture
     with JsonAssertions

@@ -1,7 +1,6 @@
 package uk.ac.wellcome.platform.stacks.common.services.config.builders
 
 import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
 import com.typesafe.config.Config
 import uk.ac.wellcome.platform.stacks.common.config.TypesafeBuilder
 import uk.ac.wellcome.platform.stacks.common.services.StacksService
@@ -10,8 +9,7 @@ import uk.ac.wellcome.platform.stacks.common.services.config.models.StacksServic
 import scala.concurrent.ExecutionContext
 
 class StacksServiceBuilder()(
-  implicit am: ActorMaterializer,
-  as: ActorSystem,
+  implicit as: ActorSystem,
   ec: ExecutionContext
 ) extends TypesafeBuilder[StacksService, StacksServiceConfig] {
 

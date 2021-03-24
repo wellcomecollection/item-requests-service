@@ -1,11 +1,13 @@
 import sbt._
 
 object WellcomeDependencies {
+  val defaultVersion = "26.4.3"
+
   lazy val versions = new {
-    val fixtures = "1.0.0"
-    val json = "1.1.3"
-    val monitoring = "2.3.0"
-    val typesafe = "1.0.0"
+    val typesafe = defaultVersion
+    val fixtures = defaultVersion
+    val json = defaultVersion
+    val monitoring = defaultVersion
   }
 
   val jsonLibrary: Seq[ModuleID] = library(
@@ -23,15 +25,15 @@ object WellcomeDependencies {
     version = versions.monitoring
   )
 
-  val typesafeLibrary: Seq[ModuleID] = library(
-    name = "typesafe-app",
-    version = versions.typesafe
-  ) ++ fixturesLibrary
-
   val monitoringTypesafeLibrary: Seq[ModuleID] = library(
     name = "monitoring_typesafe",
     version = versions.monitoring
   )
+
+  val typesafeLibrary: Seq[ModuleID] = library(
+    name = "typesafe_app",
+    version = versions.typesafe
+  ) ++ fixturesLibrary
 
   private def library(name: String, version: String): Seq[ModuleID] = Seq(
     "uk.ac.wellcome" %% name % version,
@@ -41,20 +43,11 @@ object WellcomeDependencies {
 
 object ExternalDependencies {
   lazy val versions = new {
-    val akkaHttpCirce = "1.25.2"
+    val akkaHttpCirce = "1.32.0"
 
-    val scalatest = "3.0.1"
+    val scalatest = "3.2.3"
     val wiremock = "2.18.0"
-    val logback = "1.2.3"
-    val logstashLogback = "6.1"
   }
-
-  val logbackDependencies = Seq(
-    "ch.qos.logback" % "logback-classic" % versions.logback,
-    "ch.qos.logback" % "logback-core" % versions.logback,
-    "ch.qos.logback" % "logback-access" % versions.logback,
-    "net.logstash.logback" % "logstash-logback-encoder" % versions.logstashLogback
-  )
 
   val scalatestDependencies = Seq[ModuleID](
     "org.scalatest" %% "scalatest" % versions.scalatest % "test"
@@ -73,7 +66,6 @@ object RequestsDependencies {
   val commonDependencies =
     ExternalDependencies.akkaDependencies ++
       ExternalDependencies.scalatestDependencies ++
-      ExternalDependencies.logbackDependencies ++
       ExternalDependencies.wiremockDependencies ++
       WellcomeDependencies.jsonLibrary ++
       WellcomeDependencies.monitoringLibrary ++

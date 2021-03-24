@@ -1,7 +1,8 @@
 package uk.ac.wellcome.platform.stacks.common.services
 
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 import uk.ac.wellcome.platform.stacks.common.fixtures.CatalogueStubGenerators
 import uk.ac.wellcome.platform.stacks.common.models._
 import uk.ac.wellcome.platform.stacks.common.services.source.CatalogueSource
@@ -11,7 +12,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class CatalogueServiceTest
-    extends FunSpec
+    extends AnyFunSpec
     with ScalaFutures
     with Matchers
     with CatalogueStubGenerators {

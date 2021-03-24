@@ -8,12 +8,13 @@ import com.github.tomakehurst.wiremock.client.WireMock.{
   urlEqualTo
 }
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 import uk.ac.wellcome.platform.stacks.common.fixtures.ServicesFixture
 import uk.ac.wellcome.platform.stacks.common.models._
 
 class StacksServiceTest
-    extends FunSpec
+    extends AnyFunSpec
     with ServicesFixture
     with ScalaFutures
     with IntegrationPatience
