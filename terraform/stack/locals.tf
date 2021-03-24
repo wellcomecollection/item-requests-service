@@ -12,9 +12,6 @@ locals {
   requests_api_image = local.image_ids["requests_api"]
   items_api_image    = local.image_ids["items_api"]
 
-  logstash_transit_service_name = "stacks_logstash_transit"
-  logstash_host                 = "${local.logstash_transit_service_name}.${aws_service_discovery_private_dns_namespace.namespace.name}"
-
   # TODO: This is hard-coded so that Terraform will do a no-op plan,
   # but we should come back and update this to use our latest approach
   # like the catalogue API at some point.

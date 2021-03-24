@@ -13,7 +13,6 @@ module "items_api" {
     context_url        = "https://api.wellcomecollection.org/stacks/v1/context.json"
     catalogue_base_url = "https://api.wellcomecollection.org/catalogue/v2"
     sierra_base_url    = "https://libsys.wellcomelibrary.org/iii/sierra-api"
-    logstash_host      = local.logstash_host
 
     log_level = "DEBUG"
 
@@ -29,8 +28,6 @@ module "items_api" {
   }
 
   security_group_ids = local.api_security_groups
-
-  service_discovery_namespace_id = aws_service_discovery_private_dns_namespace.namespace.id
 
   subnets = var.private_subnets
   vpc_id  = var.vpc_id
@@ -50,7 +47,6 @@ module "requests_api" {
     context_url        = "https://api.wellcomecollection.org/stacks/v1/context.json"
     catalogue_base_url = "https://api.wellcomecollection.org/catalogue/v2"
     sierra_base_url    = "https://libsys.wellcomelibrary.org/iii/sierra-api"
-    logstash_host      = local.logstash_host
 
     log_level = "DEBUG"
 
@@ -66,8 +62,6 @@ module "requests_api" {
   }
 
   security_group_ids = local.api_security_groups
-
-  service_discovery_namespace_id = aws_service_discovery_private_dns_namespace.namespace.id
 
   subnets = var.private_subnets
   vpc_id  = var.vpc_id

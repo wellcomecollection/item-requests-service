@@ -6,8 +6,6 @@ module "api" {
   container_image = var.container_image
   container_port  = 9001
 
-  namespace_id = var.service_discovery_namespace_id
-
   cluster_arn = var.cluster_arn
 
   vpc_id = var.vpc_id

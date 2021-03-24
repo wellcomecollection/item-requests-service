@@ -5,7 +5,6 @@ variable "subnets" {
 variable "cluster_arn" {}
 
 variable "namespace" {}
-variable "namespace_id" {}
 
 variable "vpc_id" {}
 
