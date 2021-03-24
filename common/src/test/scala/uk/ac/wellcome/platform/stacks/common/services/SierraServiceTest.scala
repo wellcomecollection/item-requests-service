@@ -20,7 +20,7 @@ class SierraServiceTest
 
   describe("SierraService") {
     describe("getItemStatus") {
-      it("should get a StacksItemStatus") {
+      it("gets a StacksItemStatus") {
         withSierraService {
           case (sierraService, _) =>
             val sierraItemIdentifier = SierraItemIdentifier(1601017)
@@ -71,7 +71,7 @@ class SierraServiceTest
     }
 
     describe("placeHold") {
-      it("should request a hold from the Sierra API") {
+      it("requests a hold from the Sierra API") {
         withSierraService {
           case (sierraService, wireMockServer) =>
             val sierraItemIdentifier = SierraItemIdentifier(1601017)
@@ -108,7 +108,7 @@ class SierraServiceTest
         }
       }
 
-      it("should reject a hold when the sierra API errors indicating such") {
+      it("rejects a hold when the Sierra API errors indicating such") {
         withSierraService {
           case (sierraService, wireMockServer) =>
             val sierraItemIdentifier = SierraItemIdentifier(1601018)
