@@ -25,18 +25,16 @@ resource "aws_lb_listener" "tcp" {
 }
 
 module "service" {
-  source = "github.com/wellcomecollection/terraform-aws-ecs-service.git//service?ref=v1.1.1"
+  source = "github.com/wellcomecollection/terraform-aws-ecs-service.git//modules/service?ref=v3.4.0"
 
   service_name = var.namespace
   cluster_arn  = var.cluster_arn
 
   desired_task_count = var.desired_task_count
 
-  task_definition_arn = module.task.arn
+  task_definition_arn = module.task_definition.arn
 
   subnets = var.subnets
-
-  namespace_id = var.namespace_id
 
   security_group_ids = var.security_group_ids
 
@@ -45,31 +43,49 @@ module "service" {
   container_port   = var.nginx_container_port
 }
 
-module "task" {
-  source = "github.com/wellcomecollection/terraform-aws-ecs-service.git//task_definition/container_with_sidecar?ref=v1.1.1"
+module "log_router_container" {
+  source    = "git::github.com/wellcomecollection/terraform-aws-ecs-service.git//modules/firelens?ref=v3.4.0"
+  namespace = var.namespace
+
+  use_privatelink_endpoint = true
+}
+
+module "app_container" {
+  source = "github.com/wellcomecollection/terraform-aws-ecs-service.git//modules/container_definition?ref=v3.4.0"
+  name   = "app"
+
+  image = var.container_image
+
+  environment = var.env_vars
+  secrets     = var.secret_env_vars
+
+  log_configuration = module.log_router_container.container_log_configuration
+}
+
+module "app_container_secrets_permissions" {
+  source    = "git::github.com/wellcomecollection/terraform-aws-ecs-service.git//modules/secrets?ref=v3.4.0"
+  secrets   = var.secret_env_vars
+  role_name = module.task_definition.task_execution_role_name
+}
+
+module "nginx_container" {
+  source = "git::github.com/wellcomecollection/terraform-aws-ecs-service.git//modules/nginx/apigw?ref=v3.4.0"
+
+  forward_port      = var.container_port
+  log_configuration = module.log_router_container.container_log_configuration
+}
+
+module "task_definition" {
+  source = "git::github.com/wellcomecollection/terraform-aws-ecs-service.git//modules/task_definition?ref=v3.4.0"
+
+  cpu    = var.cpu
+  memory = var.memory
+
+  container_definitions = [
+    module.log_router_container.container_definition,
+    module.app_container.container_definition,
+    module.nginx_container.container_definition
+  ]
 
   task_name = var.namespace
-
-  cpu    = var.app_cpu + var.nginx_cpu
-  memory = var.app_memory + var.nginx_memory
-
-  app_container_image = var.container_image
-  app_container_port  = var.container_port
-  app_cpu             = var.app_cpu
-  app_memory          = var.app_memory
-
-  app_env_vars        = var.env_vars
-  secret_app_env_vars = var.secret_env_vars
-
-  sidecar_container_image = var.nginx_container_image
-  sidecar_container_port  = var.nginx_container_port
-  sidecar_cpu             = var.nginx_cpu
-  sidecar_memory          = var.nginx_memory
-
-  sidecar_env_vars = {
-    APP_HOST = "localhost"
-    APP_PORT = var.container_port
-  }
-
-  aws_region = var.aws_region
 }

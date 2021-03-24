@@ -11,18 +11,8 @@ locals {
 
   requests_api_image = local.image_ids["requests_api"]
   items_api_image    = local.image_ids["items_api"]
-
-  logstash_transit_service_name = "stacks_logstash_transit"
-  logstash_host                 = "${local.logstash_transit_service_name}.${aws_service_discovery_private_dns_namespace.namespace.name}"
-
-  nginx_image = data.aws_ssm_parameter.nginx_image_uri.value
 }
 
 data "aws_vpc" "vpc" {
   id = var.vpc_id
-}
-
-data "aws_ssm_parameter" "nginx_image_uri" {
-  name     = "/platform/images/latest/nginx_apigw"
-  provider = aws.platform
 }

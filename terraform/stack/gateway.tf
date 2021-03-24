@@ -45,8 +45,6 @@ resource "aws_api_gateway_deployment" "v1" {
   variables = {
     requests_port = local.requests_listener_port
     items_port    = local.items_listener_port
-
-    deployed_at = timestamp()
   }
 
   lifecycle {
