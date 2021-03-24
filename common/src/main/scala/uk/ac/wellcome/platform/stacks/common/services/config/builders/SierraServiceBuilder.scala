@@ -20,9 +20,9 @@ class SierraServiceBuilder()(
 ) extends TypesafeBuilder[SierraService, SierraServiceConfig] {
 
   def buildConfig(config: Config): SierraServiceConfig = {
-    val username = config.required[String]("sierra.api.key")
-    val password = config.required[String]("sierra.api.secret")
-    val baseUrl = config.required[String]("sierra.api.baseUrl")
+    val username = config.requireString("sierra.api.key")
+    val password = config.requireString(("sierra.api.secret"))
+    val baseUrl = config.requireString("sierra.api.baseUrl")
 
     SierraServiceConfig(baseUrl, username, password)
   }

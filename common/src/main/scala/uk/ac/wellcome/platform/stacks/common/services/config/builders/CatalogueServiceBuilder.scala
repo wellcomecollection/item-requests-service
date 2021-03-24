@@ -19,7 +19,7 @@ class CatalogueServiceBuilder()(
   implicit val ec = system.dispatcher
 
   def buildConfig(config: Config): CatalogueServiceConfig =
-    CatalogueServiceConfig(config.required("catalogue.api.baseUrl"))
+    CatalogueServiceConfig(config.requireString("catalogue.api.baseUrl"))
 
   def buildT(config: CatalogueServiceConfig): CatalogueService =
     new CatalogueService(
