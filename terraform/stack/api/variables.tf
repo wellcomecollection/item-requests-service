@@ -1,6 +1,5 @@
 variable "name" {}
 variable "container_image" {}
-variable "nginx_image" {}
 
 variable "cluster_arn" {}
 variable "vpc_id" {}

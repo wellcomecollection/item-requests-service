@@ -13,7 +13,6 @@ variable "container_port" {
   type = number
 }
 
-variable "nginx_container_image" {}
 variable "nginx_container_port" {
   type = number
 }
@@ -43,14 +42,6 @@ variable "cpu" {
 variable "memory" {
   default = 2048
   type    = number
-}
-
-variable "aws_region" {
-  default = "eu-west-1"
-}
-
-variable "launch_type" {
-  default = "FARGATE"
 }
 
 variable "desired_task_count" {

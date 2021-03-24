@@ -14,8 +14,7 @@ module "api" {
 
   subnets = var.subnets
 
-  nginx_container_port  = 9000
-  nginx_container_image = var.nginx_image
+  nginx_container_port = 9000
 
   env_vars        = var.env_vars
   secret_env_vars = var.secret_env_vars
