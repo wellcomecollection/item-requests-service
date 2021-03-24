@@ -62,6 +62,12 @@ module "app_container" {
   log_configuration = module.log_router_container.container_log_configuration
 }
 
+module "app_container_secrets_permissions" {
+  source    = "git::github.com/wellcomecollection/terraform-aws-ecs-service.git//modules/secrets?ref=v3.4.0"
+  secrets   = var.secret_env_vars
+  role_name = module.task_definition.task_execution_role_name
+}
+
 module "nginx_container" {
   source = "git::github.com/wellcomecollection/terraform-aws-ecs-service.git//modules/nginx/apigw?ref=v3.4.0"
 
