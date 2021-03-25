@@ -31,23 +31,25 @@ trait RequestsApiFixture extends ServicesFixture with HttpFixtures {
         metrics = new MemoryMetrics
       )
 
-      withStacksService { case (stacksService, server) =>
-        val router: RequestsApi = new RequestsApi {
-          override implicit val ec: ExecutionContext = global
-          override implicit val stacksWorkService: StacksService = stacksService
-        }
+      withStacksService {
+        case (stacksService, server) =>
+          val router: RequestsApi = new RequestsApi {
+            override implicit val ec: ExecutionContext = global
+            override implicit val stacksWorkService: StacksService =
+              stacksService
+          }
 
-        val app = new WellcomeHttpApp(
-          routes = router.routes,
-          httpMetrics = httpMetrics,
-          httpServerConfig = httpServerConfigTest,
-          contextURL = contextURLTest,
-          appName = metricsName
-        )
+          val app = new WellcomeHttpApp(
+            routes = router.routes,
+            httpMetrics = httpMetrics,
+            httpServerConfig = httpServerConfigTest,
+            contextURL = contextURLTest,
+            appName = metricsName
+          )
 
-        app.run()
+          app.run()
 
-        testWith(server)
+          testWith(server)
       }
     }
 }
