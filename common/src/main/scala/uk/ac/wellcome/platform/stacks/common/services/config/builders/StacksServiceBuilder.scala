@@ -2,29 +2,18 @@ package uk.ac.wellcome.platform.stacks.common.services.config.builders
 
 import akka.actor.ActorSystem
 import com.typesafe.config.Config
-import uk.ac.wellcome.platform.stacks.common.config.TypesafeBuilder
 import uk.ac.wellcome.platform.stacks.common.services.StacksService
-import uk.ac.wellcome.platform.stacks.common.services.config.models.StacksServiceConfig
 
 import scala.concurrent.ExecutionContext
 
-class StacksServiceBuilder()(
-  implicit as: ActorSystem,
-  ec: ExecutionContext
-) extends TypesafeBuilder[StacksService, StacksServiceConfig] {
-
-  override def buildConfig(config: Config): StacksServiceConfig =
-    StacksServiceConfig(
-      new CatalogueServiceBuilder().buildConfig(config),
-      new SierraServiceBuilder().buildConfig(config)
-    )
-
-  override def buildT(wellcomeConfig: StacksServiceConfig): StacksService = {
+object StacksServiceBuilder {
+  def build(config: Config)(
+    implicit
+    as: ActorSystem,
+    ec: ExecutionContext
+  ): StacksService =
     new StacksService(
-      new CatalogueServiceBuilder()
-        .buildT(wellcomeConfig.catalogueServiceConfig),
-      new SierraServiceBuilder()
-        .buildT(wellcomeConfig.sierraServiceConfig)
+      catalogueService = CatalogueServiceBuilder.build(config),
+      sierraService = SierraServiceBuilder.build(config)
     )
-  }
 }

@@ -1,7 +1,6 @@
 package uk.ac.wellcome.platform.stacks.items.api
 
 import java.net.URL
-
 import akka.actor.ActorSystem
 import com.typesafe.config.Config
 import uk.ac.wellcome.monitoring.typesafe.CloudWatchBuilder
@@ -22,8 +21,7 @@ object Main extends WellcomeTypesafeApp {
     implicit val ecMain: ExecutionContext =
       AkkaBuilder.buildExecutionContext()
 
-    val workService: StacksService =
-      new StacksServiceBuilder().build(config)
+    val workService: StacksService = StacksServiceBuilder.build(config)
 
     val router: ItemsApi = new ItemsApi {
       override implicit val ec: ExecutionContext = ecMain
