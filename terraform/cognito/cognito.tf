@@ -40,11 +40,9 @@ resource "aws_cognito_resource_server" "stacks_api" {
   identifier = "https://api.wellcomecollection.org/stacks/v1"
   name       = "Stacks API V1"
 
-  scope {
-    scope_name        = "requests_readwrite"
-    scope_description = "Read and write requests"
-  }
-
+  # Note: although the items data is "public", we put it behind Cognito
+  # auth because it makes requests to Sierra, and we want to be able to
+  # disable a client without turning off the entire service.
   scope {
     scope_name        = "items_readonly"
     scope_description = "Read the status of items"
