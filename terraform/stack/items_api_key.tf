@@ -1,6 +1,6 @@
 resource "aws_api_gateway_usage_plan" "dotorg" {
-  name         = "wellcomecollection.org/works-${var.namespace}"
-  description  = "Usage plan for the Wellcome Collection website"
+  name        = "wellcomecollection.org/works-${var.namespace}"
+  description = "Usage plan for the Wellcome Collection website"
 
   api_stages {
     api_id = aws_api_gateway_rest_api.api.id
