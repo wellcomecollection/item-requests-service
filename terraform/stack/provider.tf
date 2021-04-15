@@ -1,5 +1,5 @@
 provider "aws" {
-  alias = "platform"
+  alias = "experience"
 }
 
 provider "aws" {
