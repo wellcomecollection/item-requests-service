@@ -9,7 +9,7 @@ resource "aws_api_gateway_method" "no_auth" {
   resource_id      = aws_api_gateway_resource.resource.id
   http_method      = var.http_method
   authorization    = "NONE"
-  api_key_required = true
+  api_key_required = var.api_key_required
 
   request_parameters = var.request_parameters
 }
