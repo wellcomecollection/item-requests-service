@@ -10,6 +10,11 @@ provider "aws" {
   }
 
   region = var.aws_region
+
+  # Ignore deployment tags on services
+  ignore_tags {
+    keys = ["deployment:label"]
+  }
 }
 
 provider "aws" {
