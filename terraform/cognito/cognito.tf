@@ -1,59 +1,3 @@
-# Route 53
-
-resource "aws_acm_certificate" "id" {
-  provider = aws.us_east_1
-
-  domain_name       = "id.wellcomecollection.org"
-  validation_method = "DNS"
-}
-
-data "aws_route53_zone" "weco_zone" {
-  provider = aws.dns
-
-  name         = "wellcomecollection.org."
-  private_zone = false
-}
-
-/*resource "aws_route53_record" "cert_validation" {
-  provider = aws.dns
-
-  name    = aws_acm_certificate.id.domain_validation_options[0].resource_record_name
-  type    = aws_acm_certificate.id.domain_validation_options[0].resource_record_type
-  zone_id = data.aws_route53_zone.weco_zone.id
-  records = [
-    aws_acm_certificate.id.domain_validation_options[0].resource_record_value
-  ]
-  ttl     = 60
-}*/
-
-resource "aws_acm_certificate_validation" "id_cert" {
-  provider = aws.us_east_1
-
-  certificate_arn = aws_acm_certificate.id.arn
-  validation_record_fqdns = [
-    # This is temporarily hard-coded to match what's currently deployed,
-    # but if we decide to keep this we should come back and deploy
-    # it properly.
-    "_4471fcd7032a27a3594fb572e9c5bcff.id.wellcomecollection.org",
-    #aws_route53_record.cert_validation.fqdn,
-  ]
-}
-
-/*resource "aws_route53_record" "cognito_cloudfront_distribution" {
-  provider = aws.dns
-
-  name    = "id.wellcomecollection.org"
-  type    = "A"
-  zone_id = data.aws_route53_zone.weco_zone.id
-
-  alias {
-    name                   = aws_cognito_user_pool_domain.id.cloudfront_distribution_arn
-    zone_id                = "Z2FDTNDATAQYW2"
-    evaluate_target_health = true
-  }
-}*/
-
-# Cognito
 resource "aws_cognito_user_pool" "pool" {
   name                     = "Wellcome Collection Identity"
   auto_verified_attributes = ["email"]
@@ -90,12 +34,6 @@ resource "aws_cognito_user_pool" "pool" {
       min_length = "1"
     }
   }
-}
-
-resource "aws_cognito_user_pool_domain" "id" {
-  domain          = "id.wellcomecollection.org"
-  certificate_arn = aws_acm_certificate.id.arn
-  user_pool_id    = aws_cognito_user_pool.pool.id
 }
 
 resource "aws_cognito_resource_server" "stacks_api" {
