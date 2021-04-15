@@ -18,16 +18,6 @@ provider "aws" {
 }
 
 provider "aws" {
-  alias = "platform"
-
-  region = var.aws_region
-
-  assume_role {
-    role_arn = "arn:aws:iam::760097843905:role/platform-developer"
-  }
-}
-
-provider "aws" {
   alias = "dns"
 
   region = "eu-west-1"
