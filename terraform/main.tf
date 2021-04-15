@@ -28,6 +28,7 @@ module "prod_stack" {
   static_content_bucket_name = module.infra.static_content_bucket_name
 
   providers = {
-    aws.dns = aws.dns
+    aws.dns        = aws.dns
+    aws.experience = aws.experience
   }
 }
