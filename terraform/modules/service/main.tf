@@ -50,6 +50,12 @@ module "log_router_container" {
   use_privatelink_endpoint = true
 }
 
+module "log_router_container_secrets_permissions" {
+  source    = "git::github.com/wellcomecollection/terraform-aws-ecs-service.git//modules/secrets?ref=v3.4.0"
+  secrets   = module.log_router_container.shared_secrets_logging
+  role_name = module.task_definition.task_execution_role_name
+}
+
 module "app_container" {
   source = "github.com/wellcomecollection/terraform-aws-ecs-service.git//modules/container_definition?ref=v3.4.0"
   name   = "app"
