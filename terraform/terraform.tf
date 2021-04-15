@@ -12,3 +12,19 @@ terraform {
     region         = "eu-west-1"
   }
 }
+
+data "terraform_remote_state" "infra_critical" {
+  backend = "s3"
+
+  config = {
+    role_arn = "arn:aws:iam::760097843905:role/platform-read_only"
+
+    bucket = "wellcomecollection-platform-infra"
+    key    = "terraform/platform-infrastructure/shared.tfstate"
+    region = "eu-west-1"
+  }
+}
+
+locals {
+  elastic_cloud_vpce_sg_id = data.terraform_remote_state.infra_critical.outputs["ec_catalogue_privatelink_sg_id"]
+}

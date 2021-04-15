@@ -41,6 +41,9 @@ module "service" {
   target_group_arn = aws_lb_target_group.tcp.arn
   container_name   = "nginx"
   container_port   = var.nginx_container_port
+
+  deployment_service = var.deployment_service_name
+  deployment_env     = var.deployment_service_env
 }
 
 module "log_router_container" {
@@ -48,6 +51,12 @@ module "log_router_container" {
   namespace = var.namespace
 
   use_privatelink_endpoint = true
+}
+
+module "log_router_container_secrets_permissions" {
+  source    = "git::github.com/wellcomecollection/terraform-aws-ecs-service.git//modules/secrets?ref=v3.4.0"
+  secrets   = module.log_router_container.shared_secrets_logging
+  role_name = module.task_definition.task_execution_role_name
 }
 
 module "app_container" {

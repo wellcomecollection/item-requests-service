@@ -10,15 +10,10 @@ provider "aws" {
   }
 
   region = var.aws_region
-}
 
-provider "aws" {
-  alias = "platform"
-
-  region = var.aws_region
-
-  assume_role {
-    role_arn = "arn:aws:iam::760097843905:role/platform-developer"
+  # Ignore deployment tags on services
+  ignore_tags {
+    keys = ["deployment:label"]
   }
 }
 

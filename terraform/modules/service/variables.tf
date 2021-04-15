@@ -47,3 +47,11 @@ variable "memory" {
 variable "desired_task_count" {
   default = 3
 }
+
+variable "deployment_service_name" {
+  type = string
+}
+
+variable "deployment_service_env" {
+  type = string
+}

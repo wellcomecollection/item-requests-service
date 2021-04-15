@@ -4,7 +4,7 @@ module "items_api" {
 
   cluster_arn = aws_ecs_cluster.cluster.arn
 
-  container_image = local.items_api_image
+  container_image = local.image_ids["items_api"]
 
   env_vars = {
     app_base_url       = "https://api.wellcomecollection.org/stacks/v1/items"
@@ -29,6 +29,9 @@ module "items_api" {
 
   subnets = var.private_subnets
   vpc_id  = var.vpc_id
+
+  deployment_service_name = "items_api"
+  deployment_service_env  = var.release_label
 }
 
 module "requests_api" {
@@ -37,7 +40,7 @@ module "requests_api" {
 
   cluster_arn = aws_ecs_cluster.cluster.arn
 
-  container_image = local.requests_api_image
+  container_image = local.image_ids["requests_api"]
 
   env_vars = {
     app_base_url       = "https://api.wellcomecollection.org/stacks/v1/requests"
@@ -62,4 +65,7 @@ module "requests_api" {
 
   subnets = var.private_subnets
   vpc_id  = var.vpc_id
+
+  deployment_service_name = "requests_api"
+  deployment_service_env  = var.release_label
 }

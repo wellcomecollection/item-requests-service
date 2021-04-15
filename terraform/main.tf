@@ -21,12 +21,13 @@ module "prod_stack" {
   # but we can remove it when we delete all the Cognito infra.
   cognito_user_pool_arn = "arn:aws:cognito-idp:eu-west-1:760097843905:userpool/eu-west-1_oToO0mWFj"
 
+  elastic_cloud_vpce_sg_id = local.elastic_cloud_vpce_sg_id
+
   auth_scopes = []
 
   static_content_bucket_name = module.infra.static_content_bucket_name
 
   providers = {
-    aws.platform = aws.platform
-    aws.dns      = aws.dns
+    aws.dns = aws.dns
   }
 }

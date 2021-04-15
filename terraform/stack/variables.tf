@@ -18,6 +18,12 @@ variable "private_subnets" {
   type = list(string)
 }
 
+variable "elastic_cloud_vpce_sg_id" {
+  type = string
+}
+
 variable "static_content_bucket_name" {}
 
-variable "release_label" {}
+variable "release_label" {
+  type = string
+}
