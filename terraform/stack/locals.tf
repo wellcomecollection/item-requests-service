@@ -5,6 +5,7 @@ locals {
   api_security_groups = [
     aws_security_group.service_egress_security_group.id,
     aws_security_group.service_lb_ingress_security_group.id,
+    var.elastic_cloud_vpce_sg_id,
   ]
 
   context_url = "https://api.wellcomecollection.org/stacks/v1/context.json"
