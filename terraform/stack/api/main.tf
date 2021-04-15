@@ -26,4 +26,7 @@ module "api" {
   memory = 2048
 
   desired_task_count = 3
+
+  deployment_service_name = var.deployment_service_name
+  deployment_service_env  = var.deployment_service_env
 }

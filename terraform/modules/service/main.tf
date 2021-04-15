@@ -41,6 +41,9 @@ module "service" {
   target_group_arn = aws_lb_target_group.tcp.arn
   container_name   = "nginx"
   container_port   = var.nginx_container_port
+
+  deployment_service = var.deployment_service_name
+  deployment_env     = var.deployment_service_env
 }
 
 module "log_router_container" {

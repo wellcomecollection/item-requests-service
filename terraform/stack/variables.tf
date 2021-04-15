@@ -24,4 +24,6 @@ variable "elastic_cloud_vpce_sg_id" {
 
 variable "static_content_bucket_name" {}
 
-variable "release_label" {}
+variable "release_label" {
+  type = string
+}

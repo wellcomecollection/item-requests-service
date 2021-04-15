@@ -22,3 +22,11 @@ variable "secret_env_vars" {
 
 variable "nlb_arn" {}
 variable "nlb_port" {}
+
+variable "deployment_service_name" {
+  type = string
+}
+
+variable "deployment_service_env" {
+  type = string
+}
