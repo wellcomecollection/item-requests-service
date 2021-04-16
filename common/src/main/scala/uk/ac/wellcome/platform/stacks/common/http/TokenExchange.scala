@@ -16,13 +16,17 @@ trait TokenExchange[C, T] {
 
   def getToken(credentials: C): Future[T] =
     cachedToken match {
-      case Some((token, expiryTime)) if expiryTime.minusSeconds(expiryGracePeriod).isAfter(Instant.now()) =>
+      case Some((token, expiryTime))
+          if expiryTime
+            .minusSeconds(expiryGracePeriod)
+            .isAfter(Instant.now()) =>
         Future.successful(token)
 
       case _ =>
-        getNewToken(credentials).map { case (token, expiryTime) =>
-          cachedToken = Some((token, expiryTime))
-          token
+        getNewToken(credentials).map {
+          case (token, expiryTime) =>
+            cachedToken = Some((token, expiryTime))
+            token
         }
     }
 }

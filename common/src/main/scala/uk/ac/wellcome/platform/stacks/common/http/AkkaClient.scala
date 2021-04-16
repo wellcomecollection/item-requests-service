@@ -5,7 +5,11 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshalling.{Marshal, Marshaller}
 import akka.http.scaladsl.model.Uri.{Path, Query}
 import akka.http.scaladsl.model._
-import akka.http.scaladsl.model.headers.{Authorization, BasicHttpCredentials, OAuth2BearerToken}
+import akka.http.scaladsl.model.headers.{
+  Authorization,
+  BasicHttpCredentials,
+  OAuth2BearerToken
+}
 import akka.http.scaladsl.unmarshalling.{Unmarshal, Unmarshaller}
 
 import java.time.Instant
@@ -103,7 +107,7 @@ trait AkkaClientPost extends AkkaClient {
 }
 
 trait AkkaClientTokenExchange
-  extends AkkaClientPost
+    extends AkkaClientPost
     with TokenExchange[BasicHttpCredentials, OAuth2BearerToken] {
 
   import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
@@ -129,7 +133,9 @@ trait AkkaClientTokenExchange
       result <- response match {
         case SuccessResponse(Some(AccessToken(access_token, expires_in))) =>
           Future.successful(
-            (OAuth2BearerToken(access_token), Instant.now().plusSeconds(expires_in))
+            (
+              OAuth2BearerToken(access_token),
+              Instant.now().plusSeconds(expires_in))
           )
         case _ =>
           Future.failed(
