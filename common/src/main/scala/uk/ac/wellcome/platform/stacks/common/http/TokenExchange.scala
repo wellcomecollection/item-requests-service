@@ -1,21 +1,28 @@
 package uk.ac.wellcome.platform.stacks.common.http
 
-import akka.http.scaladsl.model.headers.{BasicHttpCredentials, OAuth2BearerToken}
-
 import java.time.Instant
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-trait TokenExchange {
-  private val cachedToken: Option[OAuth2BearerToken] = None
-  private val cachedTokenExpiryTime: Option[Instant] = None
+trait TokenExchange[C, T] {
+  private var cachedToken: Option[(T, Instant)] = None
 
-  println(cachedToken)
-  println(cachedTokenExpiryTime)
+  // How many seconds before the token expires should we go back and
+  // fetch a new token?
+  protected val expiryGracePeriod: Int = 60
 
-  protected def getNewToken(credentials: BasicHttpCredentials): Future[OAuth2BearerToken]
+  implicit val ec: ExecutionContext
 
-  protected def getToken(
-    credentials: BasicHttpCredentials
-  ): Future[OAuth2BearerToken] =
-    getNewToken(credentials)
+  protected def getNewToken(credentials: C): Future[(T, Instant)]
+
+  def getToken(credentials: C): Future[T] =
+    cachedToken match {
+      case Some((token, expiryTime)) if expiryTime.minusSeconds(expiryGracePeriod).isAfter(Instant.now()) =>
+        Future.successful(token)
+
+      case _ =>
+        getNewToken(credentials).map { case (token, expiryTime) =>
+          cachedToken = Some((token, expiryTime))
+          token
+        }
+    }
 }

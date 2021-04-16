@@ -5,13 +5,10 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshalling.{Marshal, Marshaller}
 import akka.http.scaladsl.model.Uri.{Path, Query}
 import akka.http.scaladsl.model._
-import akka.http.scaladsl.model.headers.{
-  Authorization,
-  BasicHttpCredentials,
-  OAuth2BearerToken
-}
+import akka.http.scaladsl.model.headers.{Authorization, BasicHttpCredentials, OAuth2BearerToken}
 import akka.http.scaladsl.unmarshalling.{Unmarshal, Unmarshaller}
 
+import java.time.Instant
 import scala.concurrent.{ExecutionContextExecutor, Future}
 
 trait AkkaClient {
@@ -105,18 +102,20 @@ trait AkkaClientPost extends AkkaClient {
       }
 }
 
-trait AkkaClientTokenExchange extends AkkaClientPost with TokenExchange {
+trait AkkaClientTokenExchange
+  extends AkkaClientPost
+    with TokenExchange[BasicHttpCredentials, OAuth2BearerToken] {
 
   import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
   import io.circe.generic.auto._
 
-  case class AccessToken(access_token: String)
+  case class AccessToken(access_token: String, expires_in: Int)
 
   val tokenPath: Path
 
   protected def getNewToken(
     credentials: BasicHttpCredentials
-  ): Future[OAuth2BearerToken] = {
+  ): Future[(OAuth2BearerToken, Instant)] =
     for {
       response <- post[String, AccessToken](
         path = tokenPath,
@@ -128,16 +127,14 @@ trait AkkaClientTokenExchange extends AkkaClientPost with TokenExchange {
       )
 
       result <- response match {
-        case SuccessResponse(Some(token)) =>
+        case SuccessResponse(Some(AccessToken(access_token, expires_in))) =>
           Future.successful(
-            OAuth2BearerToken(token.access_token)
+            (OAuth2BearerToken(access_token), Instant.now().plusSeconds(expires_in))
           )
         case _ =>
           Future.failed(
             new Exception(s"Failed to get access token.")
           )
       }
-
     } yield result
-  }
 }
