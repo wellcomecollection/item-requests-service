@@ -105,7 +105,7 @@ trait AkkaClientPost extends AkkaClient {
       }
 }
 
-trait AkkaClientTokenExchange extends AkkaClientPost {
+trait AkkaClientTokenExchange extends AkkaClientPost with TokenExchange {
 
   import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
   import io.circe.generic.auto._
@@ -114,7 +114,7 @@ trait AkkaClientTokenExchange extends AkkaClientPost {
 
   val tokenPath: Path
 
-  protected def getToken(
+  protected def getNewToken(
     credentials: BasicHttpCredentials
   ): Future[OAuth2BearerToken] = {
     for {
