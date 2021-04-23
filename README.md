@@ -1,5 +1,9 @@
 # Stacks
 
+**DEPRECATED**
+
+The stacks endpoints will be distributed between the catalogue & identity APIs.
+
 APIs for interacting  with the physical library.
 
 [![Build status](https://badge.buildkite.com/7329aeccaa2db0f05a79c5126ec15fd56efdd619c43b71c8e7.svg?branch=main)](https://buildkite.com/wellcomecollection/stacks-service)
